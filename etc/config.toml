@@ -1,0 +1,60 @@
+
+[general]
+build-list="etc/build.toml"
+project-dir="/home/andreas/projekte/opensource/ibm-i-build"
+source-dir="src"
+
+supported-object-types=['pgm', 'file', 'srvpgm']
+
+[global]
+
+[global.settings]
+
+TGTRLS="*CURRENT"
+DBGVIEW="*SOURCE"
+ACTGRP="PROUZAGRP"
+
+[global.settings.sqlrpgle]
+RPGPPOPT="*LVL2"
+INC_DIR="src/prouzalib src/prouzalib2"
+
+
+
+[global.steps]
+
+sqlrpgle.srvpgm=[
+  "global.compile-cmds.sqlrpgle.srvpgm", 
+  "global.compile-cmds.bnddir.rmv", 
+  "global.compile-cmds.srvpgm-crt", 
+  "global.compile-cmds.bnddir.add",
+  "check-error"]
+
+
+
+[global.cmds]
+
+chg-src-ccsid="CHGATR OBJ('$(SRC_DIR_REMOTE)/$(SOURCE_NAME_OTHERS)') ATR(*CCSID) VALUE(1208)"
+
+replace-special-chars-in-file-name="mv $(subst $$,'$$',$(subst #,#,$?)) $$(echo $(subst $$,'$$',$(subst #,\\#,$?)) | sed -e 's/'$$'\\302''//g'),"
+
+ccsid-conf="| iconv -f IBM-1252 -t utf-8"
+
+pre-compile=""
+post-compile=""
+finaly=""
+
+check-error=""
+
+
+[global.compile-cmds]
+
+bnddir.rmv=""
+bnddir.add=""
+srvpgm-crt=""
+
+
+sqlrpgle.srvpgm=""" \
+                CRTSQLRPGI OBJ($(LIBOBJ_NEW)) SRCSTMF('$(SOURCE_NAME_NEW)') \
+                OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS($(TGTRLS)) DBGVIEW($(DBGVIEW)) REPLACE(*YES) \
+                COMPILEOPT('TGTCCSID($(TGTCCSID)) INCDIR($(subst ','',$(INC_DIR)))')) \
+                """
