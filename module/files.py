@@ -32,4 +32,4 @@ def get_changed_sources(source_dir, build_toml, object_types):
     if chgange_time > build_list[src]:
       changed_src.append(src)
 
-  return {"missing-objects": missing_obj, "changed-sources": changed_src}
+  return {"new-objects": missing_obj, "changed-sources": changed_src}

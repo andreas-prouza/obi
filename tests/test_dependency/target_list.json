@@ -1,0 +1,13 @@
+{
+  "1": [
+    "pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm"
+  ],
+  "2": [
+    "pl/qrpglesrc/date.sqlrpgle.srvpgm",
+    "pl/qrpglesrc/testlog2.sqlrpgle.pgm"
+  ],
+  "3": [
+    "pl/qrpglesrc/cpysrc2ifs.sqlrpgle.pgm",
+    "pl/qrpglesrc/testsqlerr.sqlrpgle.pgm"
+  ]
+}

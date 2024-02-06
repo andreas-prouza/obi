@@ -2,8 +2,9 @@ import toml
 import os, datetime
 from module import properties
 from module import files
+from module import constants
 
-config = properties.get_config('etc/config.toml')
+config = properties.get_config(constants.CONFIG_TOML)
 source_dir=f"{config['general']['project-dir']}/{config['general']['source-dir']}"
 build_list=config['general']['build-list']
 object_types=config['general']['supported-object-types']
