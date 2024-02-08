@@ -1,0 +1,384 @@
+{
+  "1": [
+    {
+      "prouzalib/qrpglesrc/testsqlerr.sqlrpgle.pgm": []
+    },
+    {
+      "prouzalib/qrpglesrc/test.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "success",
+          "exit-code": 0,
+          "stdout": "Works as designed\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "failed",
+          "exit-code": 127,
+          "stdout": "",
+          "stderr": "/bin/bash: line 1: cmd_does_not_exist: command not found\n"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/test) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm') DBGVIEW(*ALL) REPLACE(*YES) TGTCCSID(*JOB) INCDIR($(INCDIR)))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/test) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/errhdlsqlp.sqlrpgle.pgm": []
+    },
+    {
+      "prouzalib/qrpglesrc/\u00a7test1.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/\u00a7test1.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/\u00a7test1) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/\u00a7test1.rpgle.pgm') DBGVIEW(*ALL) REPLACE(*YES) TGTCCSID(*JOB) INCDIR($(INCDIR)))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/\u00a7test1) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/$t\u00a7\u00a7x#y.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/$t\u00a7\u00a7x#y.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/$t\u00a7\u00a7x#y) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/$t\u00a7\u00a7x#y.rpgle.pgm') DBGVIEW(*ALL) REPLACE(*YES) TGTCCSID(*JOB) INCDIR($(INCDIR)))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/$t\u00a7\u00a7x#y) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/testlog2.sqlrpgle.pgm": []
+    },
+    {
+      "prouzalib/qrpglesrc/$test11.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/$test11.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/$test11) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/$test11.rpgle.pgm') DBGVIEW(*ALL) REPLACE(*YES) TGTCCSID(*JOB) INCDIR($(INCDIR)))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/$test11) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/errhdlsql.sqlrpgle.srvpgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/errhdlsql.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTSQLRPGI OBJ(prouzalib/errhdlsql) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/errhdlsql.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/testlog.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/testlog.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/testlog) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/testlog.rpgle.pgm') DBGVIEW(*SOURCE) REPLACE(*YES) TGTCCSID(*JOB) INCDIR('src/prouzalib' 'src/prouzalib2'))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/testlog) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/#test2.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/#test2.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/#test2) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/#test2.rpgle.pgm') DBGVIEW(*SOURCE) REPLACE(*YES) TGTCCSID(*JOB) INCDIR('src/prouzalib' 'src/prouzalib2'))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/#test2) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/#test3.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/#test3.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/#test3) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/#test3.rpgle.pgm') DBGVIEW(*SOURCE) REPLACE(*YES) TGTCCSID(*JOB) INCDIR('src/prouzalib' 'src/prouzalib2'))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/#test3) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/logger.sqlrpgle.srvpgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/logger.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTSQLRPGI OBJ(prouzalib/logger) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/logger.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qrpglesrc/testmod.rpgle.srvpgm": []
+    },
+    {
+      "prouzalib/qrpglesrc/errhdlrpg.rpgle.srvpgm": []
+    },
+    {
+      "prouzalib/qrpglesrc/cpysrc2ifs.sqlrpgle.pgm": []
+    },
+    {
+      "prouzalib/qrpglesrc/date.sqlrpgle.srvpgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/date.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTSQLRPGI OBJ(prouzalib/date) SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qrpglesrc/date.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qsqlsrc/lager_hist.sqltable.file": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qsqlsrc/lager_hist.sqltable.file') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"RUNSQLSTM SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qsqlsrc/lager_hist.sqltable.file') DFTRDBCOL(prouzalib) COMMIT(*NONE) ERRLVL(21))\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qsqlsrc/lager.sqltable.file": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qsqlsrc/lager.sqltable.file') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"RUNSQLSTM SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qsqlsrc/lager.sqltable.file') DFTRDBCOL(prouzalib) COMMIT(*NONE) ERRLVL(21))\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qsqlsrc/logger.sqltable.file": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qsqlsrc/logger.sqltable.file') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"RUNSQLSTM SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qsqlsrc/logger.sqltable.file') DFTRDBCOL(prouzalib) COMMIT(*NONE) ERRLVL(21))\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qcllesrc/testcl.clle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib/qcllesrc/testcl.clle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTBNDCL PGM(prouzalib/testcl)  SRCSTMF('$HOME/ibm-i-build/src/prouzalib/qcllesrc/testcl.clle.pgm') ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DFTACTGRP(*NO))\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib/qddssrc/file1.pf.file": []
+    },
+    {
+      "prouzalib2/qrpglesrc/test.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib2/qrpglesrc/test.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/test) SRCSTMF('$HOME/ibm-i-build/src/prouzalib2/qrpglesrc/test.rpgle.pgm') DBGVIEW(*SOURCE) REPLACE(*YES) TGTCCSID(*JOB) INCDIR('src/prouzalib' 'src/prouzalib2'))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/test) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib2/qrpglesrc/test1.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cmd_does_not_exist",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib2/qrpglesrc/test1.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzalib/test1) SRCSTMF('$HOME/ibm-i-build/src/prouzalib2/qrpglesrc/test1.rpgle.pgm') DBGVIEW(*SOURCE) REPLACE(*YES) TGTCCSID(*JOB) INCDIR('src/prouzalib' 'src/prouzalib2'))\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzalib/test1) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib2/qrpglesrc/sqlsrv1.sqlrpgle.srvpgm": [
+        {
+          "cmd": "echo 'Works as designed'",
+          "status": "new"
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/prouzalib2/qrpglesrc/sqlsrv1.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "new"
+        },
+        {
+          "cmd": "liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTSQLRPGI OBJ(prouzalib/sqlsrv1) SRCSTMF('$HOME/ibm-i-build/src/prouzalib2/qrpglesrc/sqlsrv1.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\"",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "prouzalib2/qrpglesrc/sqltest2.sqlrpgle.pgm": []
+    },
+    {
+      "prouzalib2/qrpglesrc/sqltest3.rpgle.srvpgm": []
+    },
+    {
+      "prouzalib2/qrpglesrc/sqltest1.sqlrpgle.pgm": []
+    }
+  ]
+}

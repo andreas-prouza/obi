@@ -1,0 +1,29 @@
+2024-02-07 18:51:38,682 DEBUG: Create build list
+2024-02-07 18:51:38,684 DEBUG: Search for changed sources in '~/projekte/opensource/ibm-i-build/src'
+2024-02-07 18:51:38,684 INFO: Found 0 sources
+2024-02-07 18:52:51,758 DEBUG: Create build list
+2024-02-07 18:52:51,760 DEBUG: Search for changed sources in '~/projekte/opensource/ibm-i-build/src'
+2024-02-07 18:52:51,760 DEBUG: object_types=['pgm', 'file', 'srvpgm']
+2024-02-07 18:52:51,760 INFO: Found 0 sources
+2024-02-07 18:59:31,097 DEBUG: Create build list
+2024-02-07 18:59:31,099 DEBUG: Search for changed sources in '~/projekte/opensource/ibm-i-build/src'
+2024-02-07 18:59:31,099 DEBUG: object_types=['pgm', 'file', 'srvpgm']
+2024-02-07 18:59:31,099 INFO: Found 27 sources
+2024-02-07 19:00:08,415 DEBUG: Create build list
+2024-02-07 19:00:08,420 DEBUG: Search for changed sources in '~/projekte/opensource/ibm-i-build/src'
+2024-02-07 19:00:08,420 DEBUG: object_types=['pgm', 'file', 'srvpgm']
+2024-02-07 19:00:08,420 INFO: Found 27 sources
+2024-02-07 19:05:03,196 DEBUG: Run build list
+2024-02-07 19:05:14,823 DEBUG: Run build list
+2024-02-07 19:05:24,051 DEBUG: Run build list
+2024-02-07 19:05:24,052 INFO: Run level='1': 27 entries
+2024-02-07 19:05:24,052 INFO: prouzalib/qrpglesrc/testsqlerr.sqlrpgle.pgm
+2024-02-07 19:05:24,052 INFO: []
+2024-02-07 19:05:24,052 INFO: prouzalib/qrpglesrc/test.rpgle.pgm
+2024-02-07 19:05:24,052 INFO: [{'cmd': "echo 'Works as designed'", 'status': 'new'}, {'cmd': 'cmd_does_not_exist', 'status': 'new'}, {'cmd': 'cl -v "CHGATR OBJ(\'$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm\') ATR(*CCSID) VALUE(1208)"', 'status': 'new'}, {'cmd': 'liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v "CRTRPGMOD MODULE(prouzalib/test) SRCSTMF(\'$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm\') DBGVIEW(*ALL) REPLACE(*YES) TGTCCSID(*JOB) INCDIR($(INCDIR)))"', 'status': 'new'}, {'cmd': 'liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v "CRTPGM PGM(prouzalib/test) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())"', 'status': 'new'}]
+2024-02-07 19:05:24,052 INFO: [{'cmd': "echo 'Works as designed'", 'status': 'new'}, {'cmd': 'cmd_does_not_exist', 'status': 'new'}, {'cmd': 'cl -v "CHGATR OBJ(\'$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm\') ATR(*CCSID) VALUE(1208)"', 'status': 'new'}, {'cmd': 'liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v "CRTRPGMOD MODULE(prouzalib/test) SRCSTMF(\'$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm\') DBGVIEW(*ALL) REPLACE(*YES) TGTCCSID(*JOB) INCDIR($(INCDIR)))"', 'status': 'new'}, {'cmd': 'liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v "CRTPGM PGM(prouzalib/test) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())"', 'status': 'new'}]
+2024-02-07 19:05:24,052 DEBUG: Execute (new) echo 'Works as designed'
+2024-02-07 19:05:24,061 INFO: [{'cmd': "echo 'Works as designed'", 'status': 'success', 'exit-code': 0, 'stdout': 'Works as designed\n', 'stderr': ''}, {'cmd': 'cmd_does_not_exist', 'status': 'new'}, {'cmd': 'cl -v "CHGATR OBJ(\'$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm\') ATR(*CCSID) VALUE(1208)"', 'status': 'new'}, {'cmd': 'liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v "CRTRPGMOD MODULE(prouzalib/test) SRCSTMF(\'$HOME/ibm-i-build/src/prouzalib/qrpglesrc/test.rpgle.pgm\') DBGVIEW(*ALL) REPLACE(*YES) TGTCCSID(*JOB) INCDIR($(INCDIR)))"', 'status': 'new'}, {'cmd': 'liblist -a prouzalib 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v "CRTPGM PGM(prouzalib/test) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())"', 'status': 'new'}]
+2024-02-07 19:05:24,061 DEBUG: Execute (new) cmd_does_not_exist
+2024-02-07 19:05:24,065 ERROR: Error for 'prouzalib/qrpglesrc/test.rpgle.pgm': {'cmd': 'cmd_does_not_exist', 'status': 'failed', 'exit-code': 127, 'stdout': '', 'stderr': '/bin/bash: line 1: cmd_does_not_exist: command not found\n'}
+NoneType: None

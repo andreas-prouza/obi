@@ -1,22 +1,31 @@
 import pathlib
 import csv
 
+
 from module import properties
-from module import constants
+from etc import constants
 from module import toml_tools
 
 
-app_config = properties.get_config(constants.CONFIG_TOML)
+default_app_config = properties.get_config(constants.CONFIG_TOML)
 
 
-def get_source_build_cmds(source):
+def add_build_cmds(target_tree, app_config=default_app_config):
+
+  for level, target_list in target_tree.items():
+    for i in range(len(target_list)):
+      target_list[i] = {target_list[i]: get_source_build_cmds(target_list[i], app_config)}
+
+
+
+def get_source_build_cmds(source, app_config=default_app_config):
 
   cmds = []
 
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes).removeprefix('.')
 
-  steps = app_config['global']['steps'][file_extensions]
+  steps = app_config['global']['steps'].get(file_extensions, [])
 
   variable_dict = properties.get_source_properties(app_config, source)
 
@@ -34,6 +43,6 @@ def get_source_build_cmds(source):
         continue
       cmd = cmd.replace(f"$({k})", str(v))
 
-    cmds.append(cmd)
+    cmds.append({"cmd": cmd, "status": "new"})
 
   return cmds

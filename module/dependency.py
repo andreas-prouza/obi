@@ -1,5 +1,7 @@
+from etc import constants
 from . import properties
 from . import dict_tools
+from . import build_cmds
 
 
 def parse_dependency_file(file_path):
@@ -8,11 +10,13 @@ def parse_dependency_file(file_path):
 
 
 
-def get_build_order(dependency_dict, target_list=[]):
+def get_build_order(dependency_dict, target_list=[], app_config=properties.get_config(constants.CONFIG_TOML)):
 
   objects_tree = get_targets_depended_objects(dependency_dict, target_list)
   ordered_target_tree = get_targets_by_level(objects_tree)
   new_target_tree = remove_duplicities(ordered_target_tree)
+
+  build_cmds.add_build_cmds(new_target_tree, app_config)
 
   return new_target_tree
 

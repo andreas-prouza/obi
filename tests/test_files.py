@@ -2,6 +2,8 @@ import unittest
 import json
 import os
 
+from etc import logger_config
+
 from module import dependency
 from module import properties
 from module import files

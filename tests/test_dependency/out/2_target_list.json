@@ -1,19 +1,52 @@
 {
   "1": [
-    "pl/qrpglesrc/logger.sqlrpgle.srvpgm"
+    {
+      "pl/qrpglesrc/logger.sqlrpgle.srvpgm": [
+        {
+          "cmd": "CRTSQLRPGI OBJ(prouzat1) SRCSTMF('$HOME/ibm-i-build/src/pl/qrpglesrc/logger.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')",
+          "status": "new"
+        }
+      ]
+    }
   ],
   "2": [
-    "pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm",
-    "pl/qrpglesrc/errhdlsqlp.sqlrpgle.pgm",
-    "pl/qrpglesrc/testlog.rpgle.pgm",
-    "pl/qrpglesrc/testmod.rpgle.srvpgm"
+    {
+      "pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm": [
+        {
+          "cmd": "CRTSQLRPGI OBJ(prouzat1) SRCSTMF('$HOME/ibm-i-build/src/pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "pl/qrpglesrc/errhdlsqlp.sqlrpgle.pgm": []
+    },
+    {
+      "pl/qrpglesrc/testlog.rpgle.pgm": []
+    },
+    {
+      "pl/qrpglesrc/testmod.rpgle.srvpgm": []
+    }
   ],
   "3": [
-    "pl/qrpglesrc/date.sqlrpgle.srvpgm",
-    "pl/qrpglesrc/testlog2.sqlrpgle.pgm"
+    {
+      "pl/qrpglesrc/date.sqlrpgle.srvpgm": [
+        {
+          "cmd": "CRTSQLRPGI OBJ(prouzat1) SRCSTMF('$HOME/ibm-i-build/src/pl/qrpglesrc/date.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')",
+          "status": "new"
+        }
+      ]
+    },
+    {
+      "pl/qrpglesrc/testlog2.sqlrpgle.pgm": []
+    }
   ],
   "4": [
-    "pl/qrpglesrc/cpysrc2ifs.sqlrpgle.pgm",
-    "pl/qrpglesrc/testsqlerr.sqlrpgle.pgm"
+    {
+      "pl/qrpglesrc/cpysrc2ifs.sqlrpgle.pgm": []
+    },
+    {
+      "pl/qrpglesrc/testsqlerr.sqlrpgle.pgm": []
+    }
   ]
 }

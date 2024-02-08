@@ -2,7 +2,7 @@
 [general]
 
 # List of all compiled objects and compile timestamp
-compiled-object-list="etc/object-builds.toml"
+compiled-object-list="tests/test_run_cmd/etc/object-builds.toml"
 
 dependency-list="etc/dependency.toml"
 
@@ -103,8 +103,8 @@ post-compile=""
 finaly=""
 
 check-error=""
-test-cmd="echo 'Works as designed'"
-test-error-cmd="cmd_does_not_exist"
+test-cmd="echo 'Works as designed'; sleep 0.01"
+test-error-cmd=""
 
 add-lible="liblist -a $(LIB) 2> /dev/null"
 

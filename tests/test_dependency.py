@@ -1,9 +1,12 @@
 import unittest
 import json
 
+from etc import logger_config
+
 from module import dependency
 from module import properties
 from module import dict_tools
+from module import files
 
 class TestDependency(unittest.TestCase):
 
@@ -46,20 +49,20 @@ class TestDependency(unittest.TestCase):
           "pl/qrpglesrc/date.sqlrpgle.srvpgm"
           ]
         )
-      TestDependency.writeJson(targets, 'tests/test_dependency/out/2_target_list.json')
+      files.writeJson(targets, 'tests/test_dependency/out/2_target_list.json')
       
       #objects_tree = dependency.get_targets_depended_objects(all_dependencies, [
       #    "pl/qrpglesrc/logger.sqlrpgle.srvpgm",
       #    "pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm", 
       #    "pl/qrpglesrc/date.sqlrpgle.srvpgm"
       #    ])
-      #TestDependency.writeJson(objects_tree, 'tests/out/objects_tree.json')
+      #files.writeJson(objects_tree, 'tests/out/objects_tree.json')
       #
       #ordered_target_tree = dependency.get_targets_by_level(objects_tree)
-      #TestDependency.writeJson(ordered_target_tree, 'tests/out/ordered_target_tree.json')
+      #files.writeJson(ordered_target_tree, 'tests/out/ordered_target_tree.json')
 
       #new_target_tree = dependency.remove_duplicities(ordered_target_tree)
-      #TestDependency.writeJson(new_target_tree, 'tests/out/new_target_tree.json')
+      #files.writeJson(new_target_tree, 'tests/out/new_target_tree.json')
 
       # Necessary to convert, because of styling & co
       targets_json = json.dumps(targets)
@@ -85,7 +88,7 @@ class TestDependency(unittest.TestCase):
           "pl/qrpglesrc/date.sqlrpgle.srvpgm"
           ]
         )
-      TestDependency.writeJson(targets, 'tests/test_dependency/out/3_target_list.json')
+      files.writeJson(targets, 'tests/test_dependency/out/3_target_list.json')
       
       # Necessary to convert, because of styling & co
       targets_json = json.dumps(targets)
@@ -94,11 +97,6 @@ class TestDependency(unittest.TestCase):
       self.assertEqual(targets_converted, expected_targets)
 
 
-
-
-    def writeJson(content, file):
-      with open(file, 'w') as json_file:
-          json.dump(content, json_file, indent=2)
 
 
     

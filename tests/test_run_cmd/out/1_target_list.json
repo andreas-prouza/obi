@@ -1,0 +1,175 @@
+{
+  "1": [
+    {
+      "pl/qsqlsrc/logger.sqltable.file": [
+        {
+          "cmd": "echo 'Works as designed'; sleep 0.01",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.560021",
+          "exit-code": 0,
+          "stdout": "Works as designed\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/pl/qsqlsrc/logger.sqltable.file') ATR(*CCSID) VALUE(1208)\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.563550",
+          "exit-code": 0,
+          "stdout": "-v CHGATR OBJ('/home/andreas/ibm-i-build/src/pl/qsqlsrc/logger.sqltable.file') ATR(*CCSID) VALUE(1208)\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "cl -v \"RUNSQLSTM SRCSTMF('$HOME/ibm-i-build/src/pl/qsqlsrc/logger.sqltable.file') DFTRDBCOL(prouzat1) COMMIT(*NONE) ERRLVL(21))\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.567060",
+          "exit-code": 0,
+          "stdout": "-v RUNSQLSTM SRCSTMF('/home/andreas/ibm-i-build/src/pl/qsqlsrc/logger.sqltable.file') DFTRDBCOL(prouzat1) COMMIT(*NONE) ERRLVL(21))\n",
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "2": [
+    {
+      "pl/qrpglesrc/logger.sqlrpgle.srvpgm": [
+        {
+          "cmd": "echo 'Works as designed'; sleep 0.01",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.581317",
+          "exit-code": 0,
+          "stdout": "Works as designed\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/pl/qrpglesrc/logger.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.587817",
+          "exit-code": 0,
+          "stdout": "-v CHGATR OBJ('/home/andreas/ibm-i-build/src/pl/qrpglesrc/logger.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "liblist -a prouzat1 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTSQLRPGI OBJ(prouzat1/logger) SRCSTMF('$HOME/ibm-i-build/src/pl/qrpglesrc/logger.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.596361",
+          "exit-code": 0,
+          "stdout": "-v CRTSQLRPGI OBJ(prouzat1/logger) SRCSTMF('/home/andreas/ibm-i-build/src/pl/qrpglesrc/logger.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\n",
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "3": [
+    {
+      "pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm": [
+        {
+          "cmd": "echo 'Works as designed'; sleep 0.01",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.612998",
+          "exit-code": 0,
+          "stdout": "Works as designed\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.620913",
+          "exit-code": 0,
+          "stdout": "-v CHGATR OBJ('/home/andreas/ibm-i-build/src/pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "liblist -a prouzat1 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTSQLRPGI OBJ(prouzat1/errhdlsql) SRCSTMF('$HOME/ibm-i-build/src/pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.626968",
+          "exit-code": 0,
+          "stdout": "-v CRTSQLRPGI OBJ(prouzat1/errhdlsql) SRCSTMF('/home/andreas/ibm-i-build/src/pl/qrpglesrc/errhdlsql.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "pl/qrpglesrc/errhdlsqlp.sqlrpgle.pgm": []
+    },
+    {
+      "pl/qrpglesrc/testlog.rpgle.pgm": [
+        {
+          "cmd": "echo 'Works as designed'; sleep 0.01",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.640554",
+          "exit-code": 0,
+          "stdout": "Works as designed\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/pl/qrpglesrc/testlog.rpgle.pgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.645352",
+          "exit-code": 0,
+          "stdout": "-v CHGATR OBJ('/home/andreas/ibm-i-build/src/pl/qrpglesrc/testlog.rpgle.pgm') ATR(*CCSID) VALUE(1208)\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "liblist -a prouzat1 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTRPGMOD MODULE(prouzat1/testlog) SRCSTMF('$HOME/ibm-i-build/src/pl/qrpglesrc/testlog.rpgle.pgm') DBGVIEW(*SOURCE) REPLACE(*YES) TGTCCSID(*JOB) INCDIR('src/prouzalib' 'src/prouzalib2'))\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.652272",
+          "exit-code": 0,
+          "stdout": "-v CRTRPGMOD MODULE(prouzat1/testlog) SRCSTMF('/home/andreas/ibm-i-build/src/pl/qrpglesrc/testlog.rpgle.pgm') DBGVIEW(*SOURCE) REPLACE(*YES) TGTCCSID(*JOB) INCDIR('src/prouzalib' 'src/prouzalib2'))\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "liblist -a prouzat1 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTPGM PGM(prouzat1/testlog) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.658470",
+          "exit-code": 0,
+          "stdout": "-v CRTPGM PGM(prouzat1/testlog) ACTGRP(PROUZAGRP) REPLACE(*YES) TGTRLS(*CURRENT) STGMDL(*SNGLVL) DETAIL(*BASIC) BNDDIR())\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "pl/qrpglesrc/testmod.rpgle.srvpgm": []
+    }
+  ],
+  "4": [
+    {
+      "pl/qrpglesrc/date.sqlrpgle.srvpgm": [
+        {
+          "cmd": "echo 'Works as designed'; sleep 0.01",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.672987",
+          "exit-code": 0,
+          "stdout": "Works as designed\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "cl -v \"CHGATR OBJ('$HOME/ibm-i-build/src/pl/qrpglesrc/date.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.677162",
+          "exit-code": 0,
+          "stdout": "-v CHGATR OBJ('/home/andreas/ibm-i-build/src/pl/qrpglesrc/date.sqlrpgle.srvpgm') ATR(*CCSID) VALUE(1208)\n",
+          "stderr": ""
+        },
+        {
+          "cmd": "liblist -a prouzat1 2> /dev/null; liblist -a QPGL 2> /dev/null; cl -v \"CRTSQLRPGI OBJ(prouzat1/date) SRCSTMF('$HOME/ibm-i-build/src/pl/qrpglesrc/date.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\"",
+          "status": "success",
+          "updated": "2024-02-08T07:32:43.682012",
+          "exit-code": 0,
+          "stdout": "-v CRTSQLRPGI OBJ(prouzat1/date) SRCSTMF('/home/andreas/ibm-i-build/src/pl/qrpglesrc/date.sqlrpgle.srvpgm') OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS(*CURRENT) DBGVIEW(*SOURCE) REPLACE(*YES) COMPILEOPT('TGTCCSID(*JOB) INCDIR(''src/prouzalib'' ''src/prouzalib2'')')\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "pl/qrpglesrc/testlog2.sqlrpgle.pgm": []
+    }
+  ],
+  "5": [
+    {
+      "pl/qrpglesrc/cpysrc2ifs.sqlrpgle.pgm": []
+    },
+    {
+      "pl/qrpglesrc/testsqlerr.sqlrpgle.pgm": []
+    }
+  ]
+}
