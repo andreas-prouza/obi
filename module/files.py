@@ -42,6 +42,23 @@ def get_changed_sources(source_dir, build_toml, object_types):
 
 
 
+def writeText(content, file, write_empty_file=False):
+  
+  
+  if file is None or len(content) == 0 and not write_empty_file:
+    return
+
+  logging.debug(f"Write Textfile: {os.path.abspath(file)=}; {len(content)} Bytes")
+
+  # Create dir if not exist
+  pathlib.Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
+
+  with open(file, 'w') as text_file:
+      text_file.write(content)
+
+
+
+
 def writeJson(content, file):
   
   if file is None:

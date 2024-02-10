@@ -6,29 +6,37 @@ compiled-object-list="etc/object-builds.toml"
 
 dependency-list="etc/dependency.toml"
 
-project-dir="~/projekte/opensource/ibm-i-build"
-remote-dir="$HOME/ibm-i-build"
+local-base-dir="~/projekte/opensource/ibm-i-build"
+remote-base-dir="'\"$HOME\"'/ibm-i-build"
 
 # Source directory is alswas based on 
-#    * project-dir ... for local sources
-#    * remote-dir ... for remote sources
+#    * local-base-dir ... for local sources
+#    * remote-base-dir ... for remote sources
 source-dir="src"
+
+# Build output directory
+#    Stores compile output information for each source like: joblog, spooled file
+build-output-dir="build-output"
 
 # What types of files should OBI search for?
 supported-object-types=['pgm', 'file', 'srvpgm']
 
+# List of sources to get compiled
 compile-list="tmp/compile-list.json"
 
-# iconv will be used for convertion
-convert-output = true
+# Encoding of console output (STDOUT & STDERR)
 # https://docs.python.org/3/library/codecs.html#standard-encodings
-convert-from = 'cp1252'
-convert-to = 'utf-8'
+console-output-encoding = 'utf-8'
 
 
+compiled-object-list-md = "build-output/compiled-object-list.md"
 
+
+# Here comes globas settings
+# Later you can override them for specific sources
 [global]
 
+# Global compile settings for all sources
 [global.settings.general]
 
 TGTRLS="*CURRENT"
@@ -37,6 +45,8 @@ ACTGRP="PROUZAGRP"
 TGTCCSID="*JOB"
 STGMDL="*SNGLVL"
 INCLUDE_BNDDIR=""
+INCDIR="'\"$HOME\"/ibm-i-build/src/prouzalib' '\"$HOME\"/ibm-i-buildsrc/prouzalib2'"
+INCDIR_DOUBLE_QUOTED="''\"$HOME\"/ibm-i-build/src/prouzalib'' ''\"$HOME\"/ibm-i-build/src/prouzalib2''"
 
 # $(TARGET_LIB) or LIBNAME]
 LIBL=["$(TARGET_LIB)", "QPGL"]
@@ -47,20 +57,24 @@ LIBL=["$(TARGET_LIB)", "QPGL"]
 #     All objects will be compiled to that lib
 #TARGET_LIB=*SOURCE
 
-# Lib will be replaced by
-TARGET_LIB_MAPPING={ "pl"= "prouzat1", "prouzalib2"= "prouzat2" }
 
+# Target lib will be replaced by a mapping list (dictionary)
+TARGET_LIB_MAPPING={ "prouzalib"= "prouzat1", "prouzalib2"= "prouzat2" }
+
+
+# Global settings for specific source type
 [global.settings."sqlrpgle.srvpgm"]
+
 RPGPPOPT="*LVL2"
-INCDIR="'src/prouzalib' 'src/prouzalib2'"
-INCDIR_DOUBLE_QUOTED="''src/prouzalib'' ''src/prouzalib2''"
 DBGVIEW="*SOURCE"
 
 
+# Steps to get done for each source type
+#   Each step is a property in this config file
+#   So you can define your own steps by adding new properties
 [global.steps]
 
 "sqlrpgle.srvpgm"=[
-  "global.cmds.test-cmd",
   "global.cmds.chg-src-ccsid",
   "global.compile-cmds.\"sqlrpgle.srvpgm\"", 
   "global.compile-cmds.bnddir-rmv", 
@@ -69,34 +83,36 @@ DBGVIEW="*SOURCE"
   "global.cmds.check-error"]
 
 "clle.pgm"=[
-  "global.cmds.test-cmd",
   "global.cmds.chg-src-ccsid",
   "global.compile-cmds.\"clle.pgm\"",
   "global.cmds.check-error"]
 
 "rpgle.pgm"=[
-  "global.cmds.test-cmd",
-  "global.cmds.test-error-cmd",
   "global.cmds.chg-src-ccsid",
   "global.compile-cmds.\"rpgle.mod\"",
   "global.compile-cmds.\"pgm\"",
   "global.cmds.check-error"]
 
+"rpgle.srvpgm"=[
+  "global.cmds.chg-src-ccsid",
+  "global.compile-cmds.\"rpgle.mod\"",
+  "global.compile-cmds.bnddir-rmv", 
+  "global.compile-cmds.srvpgm-crt", 
+  "global.compile-cmds.bnddir-add",
+  "global.cmds.check-error"]
+
 "sqltable.file"=[
-  "global.cmds.test-cmd",
   "global.cmds.chg-src-ccsid",
   "global.compile-cmds.\"sqltable.file\"",
   "global.cmds.check-error"]
 
 
-
+# Commands used by steps
 [global.cmds]
 
-chg-src-ccsid="cl -v \"CHGATR OBJ('$(SOURCE_FILE_NAME)') ATR(*CCSID) VALUE(1208)\""
+chg-src-ccsid="cl -v \"CHGATR OBJ('\"'$(SOURCE_FILE_NAME)'\"') ATR(*CCSID) VALUE(1208)\""
 
 replace-special-chars-in-file-name="mv $(subst $$,'$$',$(subst #,#,$?)) $$(echo $(subst $$,'$$',$(subst #,\\#,$?)) | sed -e 's/'$$'\\302''//g'),"
-
-ccsid-conf="| iconv -f IBM-1252 -t utf-8"
 
 pre-compile=""
 post-compile=""
@@ -104,11 +120,15 @@ finaly=""
 
 check-error=""
 test-cmd="echo 'Works as designed'"
-test-error-cmd="cmd_does_not_exist"
+test-error-cmd=""
 
 add-lible="liblist -a $(LIB) 2> /dev/null"
 
+joblog-separator="=============§§JOBLOG§§===================="
+dspjoblog="; echo '$(joblog-separator)'; cl -v \"DSPJOBLOG\""
 
+
+# Compile commands for each source type
 [global.compile-cmds]
 
 bnddir-rmv=""
@@ -117,28 +137,31 @@ srvpgm-crt=""
 
 
 "sqlrpgle.srvpgm"="""$(SET_LIBL); cl -v "\
-                CRTSQLRPGI OBJ($(TARGET_LIB)/$(OBJ_NAME)) SRCSTMF('$(SOURCE_FILE_NAME)') \
+                CRTSQLRPGI OBJ(\"'$(TARGET_LIB)/$(OBJ_NAME)'\") SRCSTMF('\"'$(SOURCE_FILE_NAME)'\"') \
                 OBJTYPE(*MODULE) RPGPPOPT(*LVL2) TGTRLS($(TGTRLS)) DBGVIEW($(DBGVIEW)) REPLACE(*YES) \
                 COMPILEOPT('TGTCCSID($(TGTCCSID)) INCDIR($(INCDIR_DOUBLE_QUOTED))')\
                 "\
                 """
 
+
 "clle.pgm"="""$(SET_LIBL); cl -v "\
-          CRTBNDCL PGM($(TARGET_LIB)/$(OBJ_NAME))  SRCSTMF('$(SOURCE_FILE_NAME)') \
-          ACTGRP($(ACTGRP)) REPLACE(*YES) TGTRLS($(TGTRLS)) STGMDL($(STGMDL)) DFTACTGRP(*NO))\
+          CRTBNDCL PGM(\"'$(TARGET_LIB)/$(OBJ_NAME)'\")  SRCSTMF('\"'$(SOURCE_FILE_NAME)'\"') \
+          ACTGRP($(ACTGRP)) REPLACE(*YES) TGTRLS($(TGTRLS)) STGMDL($(STGMDL)) DFTACTGRP(*NO)\
           "\
           """
 
 "rpgle.mod"="""$(SET_LIBL); cl -v "\
-          CRTRPGMOD MODULE($(TARGET_LIB)/$(OBJ_NAME)) SRCSTMF('$(SOURCE_FILE_NAME)') \
-          DBGVIEW($(DBGVIEW)) REPLACE(*YES) TGTCCSID($(TGTCCSID)) INCDIR($(INCDIR)))\
+          CRTRPGMOD MODULE(\"'$(TARGET_LIB)/$(OBJ_NAME)'\") SRCSTMF('\"'$(SOURCE_FILE_NAME)'\"') \
+          DBGVIEW($(DBGVIEW)) REPLACE(*YES) TGTCCSID($(TGTCCSID)) INCDIR($(INCDIR))\
           "\
           """
 
 "pgm"="""$(SET_LIBL); cl -v "\
-      CRTPGM PGM($(TARGET_LIB)/$(OBJ_NAME)) ACTGRP($(ACTGRP)) REPLACE(*YES) TGTRLS($(TGTRLS)) \
-      STGMDL($(STGMDL)) DETAIL(*BASIC) BNDDIR($(INCLUDE_BNDDIR)))\
+      CRTPGM PGM(\"'$(TARGET_LIB)/$(OBJ_NAME)'\") ACTGRP($(ACTGRP)) REPLACE(*YES) TGTRLS($(TGTRLS)) \
+      STGMDL($(STGMDL)) DETAIL(*BASIC) BNDDIR($(INCLUDE_BNDDIR))\
       "\
       """
 
-"sqltable.file"="cl -v \"RUNSQLSTM SRCSTMF('$(SOURCE_FILE_NAME)') DFTRDBCOL($(TARGET_LIB)) COMMIT(*NONE) ERRLVL(21))\""
+"sqltable.file"="cl -v \"RUNSQLSTM SRCSTMF('\"'$(SOURCE_FILE_NAME)'\"') DFTRDBCOL($(TARGET_LIB)) COMMIT(*NONE) ERRLVL(21)\""
+
+"sqlproc.obj"="cl -v \"RUNSQLSTM SRCSTMF('\"'$(SOURCE_FILE_NAME)'\"') DFTRDBCOL($(TARGET_LIB)) COMMIT(*NONE) ERRLVL(21)\""

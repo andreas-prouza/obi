@@ -6,12 +6,12 @@ compiled-object-list="tests/test_run_cmd/etc/object-builds.toml"
 
 dependency-list="etc/dependency.toml"
 
-project-dir="~/projekte/opensource/ibm-i-build"
-remote-dir="$HOME/ibm-i-build"
+local-base-dir="~/projekte/opensource/ibm-i-build"
+remote-base-dir="$HOME/ibm-i-build"
 
 # Source directory is alswas based on 
-#    * project-dir ... for local sources
-#    * remote-dir ... for remote sources
+#    * local-base-dir ... for local sources
+#    * remote-base-dir ... for remote sources
 source-dir="src"
 
 # What types of files should OBI search for?

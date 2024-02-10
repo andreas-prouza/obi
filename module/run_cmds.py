@@ -18,6 +18,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
   Args:
       target_tree (dict): List of all sources and the related commands
       save_update_2_json_file (str, optional): If given, every change will update the json file. Defaults to None.
+      app_config (properties, optional): Application config file
 
   Raises:
       Exception: If a command fails an exception will be thrown
@@ -40,7 +41,6 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
         # each source can have multiple commands
         for cmd_item in cmds:
           
-          logging.info(cmds)
           logging.debug(f"Execute ({cmd_item['status']}) {cmd_item['cmd']}")
           
           cmd_item['updated'] = datetime.now().isoformat()
@@ -49,9 +49,14 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 
           result = run_pase_cmd(cmd_item['cmd'])
 
+          joblog_sep = app_config['global']['cmds'].get('joblog-separator', None)
+          if joblog_sep is not None:
+            result['joblog'] = result['stdout'].split(joblog_sep)[1]
+            result['stdout'] = result['stdout'].split(joblog_sep)[0]
+
           cmd_item['updated'] = datetime.now().isoformat()
           cmd_item['status'] = 'failed'
-          if result['exit-code'] == 0:
+          if result['exit-code'] == 0 and result['stderr'] == '':
             cmd_item['status'] = 'success'
             update_compiles_object_list(src_name, app_config)
           
@@ -59,8 +64,8 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 
           files.writeJson(target_tree, save_update_2_json_file)
 
-          if result['exit-code'] != 0:
-            e = Exception(f"Error for '{src_name}': {cmd_item}")
+          if result['exit-code'] != 0 or result['stderr'] != '':
+            e = Exception(f"Error for '{src_name}': {result['stderr']}")
             logging.exception(e)
             raise e
 
@@ -70,12 +75,10 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 def run_pase_cmd(cmd, app_config=default_app_config):
 
   s=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False, executable='/bin/bash')
-  stdout = s.stdout
-  stderr = s.stderr
 
-  if app_config['general'].get('convert-output', False):
-    stdout = stdout.decode(app_config['general'].get('convert-from', 'cp1252'))
-    stderr = stderr.decode(app_config['general'].get('convert-to', 'utf-8'))
+  encoding = app_config['general'].get('console-output-encoding', 'utf-8')
+  stdout = str(s.stdout, encoding)
+  stderr = str(s.stderr, encoding)
 
   # exit-code: 0 = OK
   return {"exit-code": s.returncode, "stdout": stdout, "stderr": stderr}

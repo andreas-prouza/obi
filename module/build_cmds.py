@@ -43,6 +43,11 @@ def get_source_build_cmds(source, app_config=default_app_config):
         continue
       cmd = cmd.replace(f"$({k})", str(v))
 
+    dspjoblog_cmd = app_config['global']['cmds'].get('dspjoblog', None)
+    if dspjoblog_cmd is not None:
+      joblog_sep = app_config['global']['cmds'].get('joblog-separator', "")
+      cmd += dspjoblog_cmd.replace("$(joblog-separator)", joblog_sep)
+
     cmds.append({"cmd": cmd, "status": "new"})
 
   return cmds
