@@ -3,6 +3,7 @@ import json
 import logging
 import argparse
 import sys, os, pathlib
+import subprocess
 
 
 #################################################################
@@ -15,12 +16,11 @@ parser = argparse.ArgumentParser(
   epilog='Example: ...'
 )
 
-parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results', choices=['create', 'run', 'results'], required=True)
+parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results', choices=['create', 'run', 'results', 'open_result'], required=True)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
+parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
 
 args = parser.parse_args()
-
-print(vars(args))
 
 
 #################################################################
@@ -47,6 +47,7 @@ from module import dependency
 from module import run_cmds
 from module import results
 
+logging.info(f"Arguments: {vars(args)}")
 
 def run_builds(args):
 
@@ -78,7 +79,10 @@ def get_results(args):
   with open(build_list_file_name, 'r') as f:
         build_targets = json.load(f)
 
+  # Extract joblog, spooled file
   results.save_outputs_in_files(build_targets, app_config)
+
+  # Generate document
   results.create_result_doc(build_targets, app_config)
 
 
@@ -99,7 +103,6 @@ def create_build_list(args):
   # Get source list
   source_list = files.get_files(source_dir, object_types)
   changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types)
-  print(changed_sources_list)
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
 
   # Write source list to json
@@ -107,10 +110,27 @@ def create_build_list(args):
 
 
 
+
+def open_doc_in_editor(args):
+  # Properties
+  app_config = properties.get_config(constants.CONFIG_TOML)
+  # Generate document
+  get_results(args)
+
+  # Open document in editor
+  editor = 'code'
+  if args.editor is not None:
+    editor=args.editor
+  s=subprocess.run(f"{editor} {app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False, executable='/bin/bash')
+
+  
+
+
 action = {
   'create': create_build_list,
   'run': run_builds,
-  'results': get_results
+  'results': get_results,
+  'open_result': open_doc_in_editor
 }
 
 

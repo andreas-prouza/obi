@@ -72,6 +72,7 @@ def save_outputs_in_files(compile_list, app_config=default_app_config):
 def create_result_doc(compile_list, app_config=default_app_config):
 
   build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
+  src_dir = app_config['general'].get('source-dir', 'src')
 
   compiled_obj_list_md_file = app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')
   compiled_obj_list_md_content = '| level | lib | object | status| no. of commands / details |'
@@ -102,6 +103,8 @@ def create_result_doc(compile_list, app_config=default_app_config):
         obj_name = os.path.basename(src_name)
         lib_obj_name_md_encoded = lib_obj_name.replace('$', '\$').replace('#', '%23')
 
+        logging.debug(f"{build_output_dir=}, {sub_folder=}, {lib_obj_name=}, {lib_obj_name_md_encoded=}, {obj_name=}, {obj_lib=}")
+
         last_status = 'new'
         last_timestamp = None
 
@@ -118,14 +121,14 @@ def create_result_doc(compile_list, app_config=default_app_config):
 
           cmd = cmd_results['cmd'].replace('"', '\\"').replace('$', '\$').replace('#', '%23')
           cmd = cmd_results['cmd'].replace('"', '\\"').replace('$', '\$')
-          details += f"<tr><td>{cmd_results.get('updated')}</td><td>{status_color[cmd_results['status']].replace('$(status)', cmd_results['status'])}</td><td>[{cmd[:30]}...](## \"{cmd}\") </td>"
+          details += f"<tr><td>{cmd_results.get('updated')}</td><td>{status_color[cmd_results['status']].replace('$(status)', cmd_results['status'])}</td><td><details><summary>{cmd[:30]}...</summary><code>{cmd}</code></details> </td>"
 
           if 'joblog' in cmd_results.keys():
-            details += f"<td> [Joblog]({build_output_dir}/{lib_obj_name_md_encoded}/command-{i}.joblog)</td>"
+            details += f"<td> [Joblog](/{build_output_dir}/{lib_obj_name_md_encoded}/command-{i}.joblog)</td>"
           if 'stdout' in cmd_results.keys():
-            details += f"<td> [Spool file]({build_output_dir}/{lib_obj_name_md_encoded}/command-{i}.splf)</td>"
+            details += f"<td> [Spool file](/{build_output_dir}/{lib_obj_name_md_encoded}/command-{i}.splf)</td>"
           if 'stderr' in cmd_results.keys() and len(cmd_results['stderr']) > 0:
-            details += f"<td> [Error]({build_output_dir}/{lib_obj_name_md_encoded}/command-{i}.error)</td>"
+            details += f"<td> [Error](/{build_output_dir}/{lib_obj_name_md_encoded}/command-{i}.error)</td>"
             
           details += "</tr>"
 
@@ -133,6 +136,9 @@ def create_result_doc(compile_list, app_config=default_app_config):
 
 
 
-        compiled_obj_list_md_content += f"{os.linesep}| | {obj_lib} | {obj_name} | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
+        src_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\$').replace('#', '%23')
+        obj_lib_md_encoded = src_name.replace('"', '\\"').replace('$', '\$').replace('#', '%23')
+        obj_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\$')
+        compiled_obj_list_md_content += f"{os.linesep}| | {obj_lib_md_encoded} | [{obj_name_md_encoded}](/{src_dir}/{src_name_md_encoded}) | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
   
   files.writeText(compiled_obj_list_md_content, compiled_obj_list_md_file)
