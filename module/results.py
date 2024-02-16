@@ -119,7 +119,6 @@ def create_result_doc(compile_list, app_config=default_app_config):
             last_status = cmd_results.get('status')
             last_timestamp = cmd_results.get('updated')
 
-          cmd_md = cmd_results['cmd'].replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$').replace('#', '\%23')
           cmd = cmd_results['cmd'].replace('\\', '\\\\').replace('$', '\\$').replace('#', '\\#')
           cmd_md = cmd.replace('"', '\\"')#.replace('$', '\%24')
           details += f"<tr><td>{cmd_results.get('updated')}</td><td>{status_color[cmd_results['status']].replace('$(status)', cmd_results['status'])}</td><td><details><summary>{cmd_md[:30]}...</summary><code>{cmd}</code></details> </td>"
@@ -138,7 +137,7 @@ def create_result_doc(compile_list, app_config=default_app_config):
 
 
         src_name = src_name.replace('\\', '\\\\')
-        src_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\%24').replace('#', '\%23')
+        src_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\\%24').replace('#', '\\%23')
         #obj_lib_md_encoded = src_name.replace('"', '\\"').replace('$', '\%24').replace('#', '\\#')
         #obj_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\%24').replace('#', '\\#')
         compiled_obj_list_md_content += f"\n| | {src_name} | [{src_name}](/{src_dir}/{src_name_md_encoded}) | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
