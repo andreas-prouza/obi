@@ -53,7 +53,7 @@ def writeText(content, file, write_empty_file=False):
   # Create dir if not exist
   pathlib.Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
 
-  with open(file, 'w') as text_file:
+  with open(file, 'w', encoding='utf-8') as text_file:
       text_file.write(content)
 
 

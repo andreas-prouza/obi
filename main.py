@@ -121,7 +121,7 @@ def open_doc_in_editor(args):
   editor = 'code'
   if args.editor is not None:
     editor=args.editor
-  s=subprocess.run(f"{editor} {app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False, executable='/bin/bash')
+  s=subprocess.run(f"{editor} {app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False)
 
   
 

@@ -9,7 +9,11 @@ else
 fi
 
 echo "Activate virtual environment"
-source venv/bin/activate
+if [ $OSTYPE == 'cygwin' ]; then
+  source venv/Scripts/activate
+else
+  source venv/bin/activate
+fi
 
 echo "Update pip"
 pip install --upgrade pip
