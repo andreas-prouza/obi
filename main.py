@@ -49,6 +49,8 @@ from module import results
 
 logging.info(f"Arguments: {vars(args)}")
 
+
+
 def run_builds(args):
 
   logging.debug(f"Run build list")
@@ -63,6 +65,8 @@ def run_builds(args):
         build_targets = json.load(f)
 
   run_cmds.run_build_object_list(build_targets, build_list_file_name)
+
+  get_results(args)
 
 
 
