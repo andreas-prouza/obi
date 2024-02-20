@@ -42,6 +42,11 @@ def get_changed_sources(source_dir, build_toml, object_types):
 
 
 
+def readText(file):
+  with open(file, 'r') as text_file:
+    return str(text_file.readall())
+
+
 def writeText(content, file, write_empty_file=False):
   
   
