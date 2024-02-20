@@ -58,7 +58,6 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
           cmd_item['status'] = 'failed'
           if result['exit-code'] == 0 and result['stderr'] == '':
             cmd_item['status'] = 'success'
-            update_compiles_object_list(src_name, app_config)
           
           cmd_item.update(result)
 
@@ -68,6 +67,8 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
             e = Exception(f"Error for '{src_name}': {result['stderr']}")
             logging.exception(e)
             raise e
+            
+        update_compiles_object_list(src_name, app_config)
 
 
 
