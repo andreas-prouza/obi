@@ -9,7 +9,7 @@ else
 fi
 
 echo "Activate virtual environment"
-if [ $OSTYPE == 'cygwin' || $OSTYPE == 'msys' || $OSTYPE == 'win32' || $OSTYPE == 'mingw'  || $OSTYPE == 'mingw32' ]; then
+if [ $OSTYPE == 'cygwin' ] || [ $OSTYPE == 'msys' ] || [ $OSTYPE == 'win32' ] || [ $OSTYPE == 'mingw' ] || [ $OSTYPE == 'mingw32' ]; then
   source venv/Scripts/activate
 else
   source venv/bin/activate
