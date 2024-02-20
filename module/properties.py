@@ -48,7 +48,7 @@ def get_source_properties(config, source):
 
 def get_target_lib(source, target_lib=None, lib_mapping=None):
 
-  source_lib = source.split(os.sep)[0].lower()
+  source_lib = source.split('/')[0].lower()
 
   if target_lib is not None and target_lib.lower() == '*source':
     return source_lib
