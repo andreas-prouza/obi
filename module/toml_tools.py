@@ -28,7 +28,6 @@ def remove_compiled_objects(compile_list, app_config=None):
     # Level 1-n
     for level, level_list in compile_list.items():
         
-        logging.info(f"Run {level=}: {len(level_list)} entries")
 
         # Each entry in a level list
         for level_list_entry in level_list:
@@ -36,6 +35,7 @@ def remove_compiled_objects(compile_list, app_config=None):
             # Level list entry is a dict
             for src_name, cmds in level_list_entry.items():
                 if src_name in compiled_object_list.keys():
+                    logging.info(f"Remove {level=}: {src_name}")
                     del compiled_object_list[src_name]
 
     properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
