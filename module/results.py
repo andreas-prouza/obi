@@ -3,6 +3,7 @@ import pathlib
 import logging
 import subprocess
 from datetime import datetime
+from pathlib import PureWindowsPath
 
 from module import properties
 from etc import constants
@@ -131,6 +132,9 @@ def create_result_doc(compile_list, app_config=default_app_config):
 
 
         src_name_without_lib = str(pathlib.Path(*pathlib.Path(src_name).parts[1:]))
+        if os.path.sep == '\\': # Needed because of Windows file format
+          path_file = PureWindowsPath(src_name_without_lib).as_posix()
+
         src_name_without_lib = src_name_without_lib.replace('\\', '\\\\')
         src_name = src_name.replace('\\', '\\\\')
         obj_lib = obj_lib.replace('\\', '\\\\')
