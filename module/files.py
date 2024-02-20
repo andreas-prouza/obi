@@ -1,5 +1,6 @@
 import os, pathlib, datetime, json, logging, toml
 from . import properties
+from pathlib import PureWindowsPath
 
 
 def get_files(path, file_extensions=[]):
@@ -9,11 +10,17 @@ def get_files(path, file_extensions=[]):
   path = os.path.expanduser(path)
 
   for root, dirs, files in os.walk(path):
+
     for file in files:
+
       if file.endswith(tuple(file_extensions)):
+
         path_file=f"{os.path.join(root, file).removeprefix(path).removeprefix(os.sep)}"
+        if os.path.sep == '\\': # Needed because of Windows file format
+          path_file = PureWindowsPath(path_file).as_posix()
+
         changed_time=datetime.datetime.fromtimestamp(pathlib.Path(os.path.join(root, file)).stat().st_mtime)
-        src.update({path_file: changed_time})
+        src.update({path_file.replace("\\", '/'): changed_time})
 
   return src
 
