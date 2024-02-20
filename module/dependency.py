@@ -82,7 +82,6 @@ def remove_duplicities(target_tree={}):
       for rev_level in reversed(sorted(list(target_tree.keys()))):
 
         if level < rev_level and obj in target_tree[rev_level] and obj in target_tree[level]:
-          logging.debug(f"Remove {level} {obj}")
           target_tree[level].remove(obj)
 
   return target_tree

@@ -108,6 +108,7 @@ def create_build_list(args):
   object_types = general_config['supported-object-types']
   dependency_list = properties.get_config(general_config['dependency-list'])
   build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
+  fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
 
   # Removes old files and dirs
   if len(build_output_dir.strip()) < 3 or build_output_dir.strip() == '/':
@@ -115,7 +116,7 @@ def create_build_list(args):
   shutil.rmtree(build_output_dir, ignore_errors=True)
 
   # Get source list
-  source_list = files.get_files(source_dir, object_types)
+  source_list = files.get_files(source_dir, object_types, fs_encoding)
   changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, source_list)
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
 

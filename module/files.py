@@ -3,18 +3,19 @@ from . import properties
 from pathlib import PureWindowsPath
 
 
-def get_files(path, file_extensions=[]):
+def get_files(path, file_extensions=[], fs_encoding='utf-8'):
 
   src={}
 
   path = os.path.expanduser(path)
 
-  for root, dirs, files in os.walk(path):
+  for root, dirs, files in os.walk(bytes(path, 'utf-8')):
 
     for file in files:
 
       if file.endswith(tuple(file_extensions)):
 
+        file = file.decode(fs_encoding)
         path_file=f"{os.path.join(root, file).removeprefix(path).removeprefix(os.sep)}"
         if os.path.sep == '\\': # Needed because of Windows file format
           path_file = PureWindowsPath(path_file).as_posix()
@@ -30,7 +31,7 @@ def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
 
   if src_list is None:
     src_list=get_files(source_dir, object_types)
-    
+
   build_list=properties.get_config(build_toml)
 
   logging.debug(f"Search for changed sources in '{source_dir}'")
