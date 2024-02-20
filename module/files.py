@@ -7,21 +7,23 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8'):
 
   src={}
 
-  path = os.path.expanduser(path)
+  path = bytes(os.path.expanduser(path), 'utf-8')
 
-  for root, dirs, files in os.walk(bytes(path, 'utf-8')):
+  for root, dirs, files in os.walk(path):
 
+    root_decoded = root.decode(fs_encoding)
+    root_utf8 = root.decode('utf-8')
     for file in files:
 
-      file = file.decode(fs_encoding)
-      
-      if file.endswith(tuple(file_extensions)):
+      file_decoded = file.decode(fs_encoding)
+      file_utf8 = file.decode('utf-8')
+      if file_decoded.endswith(tuple(file_extensions)):
 
-        path_file=f"{os.path.join(root, file).removeprefix(path).removeprefix(os.sep)}"
+        path_file=f"{os.path.join(root, file).removeprefix(path).removeprefix(bytes(os.sep, 'utf-8')).decode(fs_encoding)}"
         if os.path.sep == '\\': # Needed because of Windows file format
           path_file = PureWindowsPath(path_file).as_posix()
 
-        changed_time=datetime.datetime.fromtimestamp(pathlib.Path(os.path.join(root, file)).stat().st_mtime)
+        changed_time=datetime.datetime.fromtimestamp(pathlib.Path(os.path.join(root_utf8, file_utf8)).stat().st_mtime)
         src.update({path_file.replace("\\", '/'): changed_time})
 
   return src
