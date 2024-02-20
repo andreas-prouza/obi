@@ -47,6 +47,7 @@ def readText(file):
     return str(text_file.readall())
 
 
+
 def writeText(content, file, write_empty_file=False):
   
   
