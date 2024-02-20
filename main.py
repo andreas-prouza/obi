@@ -4,6 +4,7 @@ import logging
 import argparse
 import sys, os, pathlib
 import subprocess
+from contextlib import suppress
 
 
 #################################################################
@@ -64,7 +65,8 @@ def run_builds(args):
   with open(build_list_file_name, 'r') as f:
         build_targets = json.load(f)
 
-  run_cmds.run_build_object_list(build_targets, build_list_file_name)
+  with suppress(Exception):
+    run_cmds.run_build_object_list(build_targets, build_list_file_name)
 
   get_results(args)
 
@@ -112,6 +114,8 @@ def create_build_list(args):
   # Write source list to json
   files.writeJson(build_targets, general_config.get('compile-list', 'tmp/compile-list.json'))
 
+  # Generate document
+  results.create_result_doc(build_targets, app_config)
 
 
 
