@@ -30,10 +30,6 @@ def save_outputs_in_files(compile_list, app_config=default_app_config):
   """
 
   build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
-
-  if len(build_output_dir.strip()) < 3 or build_output_dir.strip() == '/':
-    raise Exception(f'Wrong build output dir: {build_output_dir}')
-  shutil.rmtree(build_output_dir, ignore_errors=True)
   
   # Level 1-n
   for level, level_list in compile_list.items():

@@ -106,6 +106,12 @@ def create_build_list(args):
   build_list = general_config['compiled-object-list']
   object_types = general_config['supported-object-types']
   dependency_list = properties.get_config(general_config['dependency-list'])
+  build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
+
+  # Removes old files and dirs
+  if len(build_output_dir.strip()) < 3 or build_output_dir.strip() == '/':
+    raise Exception(f'Wrong build output dir: {build_output_dir}')
+  shutil.rmtree(build_output_dir, ignore_errors=True)
 
   # Get source list
   source_list = files.get_files(source_dir, object_types)
