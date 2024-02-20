@@ -13,9 +13,10 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8'):
 
     for file in files:
 
+      file = file.decode(fs_encoding)
+      
       if file.endswith(tuple(file_extensions)):
 
-        file = file.decode(fs_encoding)
         path_file=f"{os.path.join(root, file).removeprefix(path).removeprefix(os.sep)}"
         if os.path.sep == '\\': # Needed because of Windows file format
           path_file = PureWindowsPath(path_file).as_posix()
