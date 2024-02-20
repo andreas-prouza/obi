@@ -1,3 +1,5 @@
+from module import properties
+
 
 def get_table_element(toml, tree_list):
     
