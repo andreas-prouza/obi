@@ -47,6 +47,7 @@ from module import files
 from module import dependency
 from module import run_cmds
 from module import results
+from module import toml_tools
 
 logging.info(f"Arguments: {vars(args)}")
 
@@ -113,6 +114,9 @@ def create_build_list(args):
 
   # Write source list to json
   files.writeJson(build_targets, general_config.get('compile-list', 'tmp/compile-list.json'))
+
+  # Remove compiled objects from object-list (they need to get compiled)
+  toml_tools.remove_compiled_objects(build_targets)
 
   # Generate document
   results.create_result_doc(build_targets, app_config)
