@@ -116,7 +116,7 @@ def create_build_list(args):
 
   # Get source list
   source_list = files.get_files(source_dir, object_types)
-  changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types)
+  changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, source_list)
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
 
   # Write source list to json

@@ -26,9 +26,11 @@ def get_files(path, file_extensions=[]):
 
 
 
-def get_changed_sources(source_dir, build_toml, object_types):
+def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
 
-  src_list=get_files(source_dir, object_types)
+  if src_list is None:
+    src_list=get_files(source_dir, object_types)
+    
   build_list=properties.get_config(build_toml)
 
   logging.debug(f"Search for changed sources in '{source_dir}'")
