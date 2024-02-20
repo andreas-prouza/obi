@@ -116,7 +116,7 @@ def create_build_list(args):
   files.writeJson(build_targets, general_config.get('compile-list', 'tmp/compile-list.json'))
 
   # Remove compiled objects from object-list (they need to get compiled)
-  toml_tools.remove_compiled_objects(build_targets)
+  toml_tools.remove_compiled_objects(build_targets, app_config)
 
   # Generate document
   results.create_result_doc(build_targets, app_config)
