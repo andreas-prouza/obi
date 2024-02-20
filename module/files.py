@@ -7,9 +7,9 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8'):
 
   src={}
 
-  path = bytes(os.path.expanduser(path), 'utf-8')
+  path_bytes = bytes(os.path.expanduser(path), 'utf-8')
 
-  for root, dirs, files in os.walk(path):
+  for root, dirs, files in os.walk(path_bytes):
 
     root_decoded = root.decode(fs_encoding)
     root_utf8 = root.decode('utf-8')
@@ -17,9 +17,10 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8'):
 
       file_decoded = file.decode(fs_encoding)
       file_utf8 = file.decode('utf-8')
+      
       if file_decoded.endswith(tuple(file_extensions)):
 
-        path_file=f"{os.path.join(root, file).removeprefix(path).removeprefix(bytes(os.sep, 'utf-8')).decode(fs_encoding)}"
+        path_file=f"{os.path.join(root_utf8, file_utf8).removeprefix(path).removeprefix(os.sep)}"
         if os.path.sep == '\\': # Needed because of Windows file format
           path_file = PureWindowsPath(path_file).as_posix()
 
