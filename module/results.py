@@ -1,5 +1,4 @@
 import os
-import shutil
 import pathlib
 import logging
 import subprocess
