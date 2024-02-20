@@ -138,5 +138,6 @@ def create_result_doc(compile_list, app_config=default_app_config):
         #obj_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\%24').replace('#', '\\#')
         compiled_obj_list_md_content += f"\n| | {obj_lib} | [{src_name_without_lib}](/{src_dir}/{src_name_md_encoded}) | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
   
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', str(datetime.now()))
   compiled_obj_list_md_content = compiled_obj_list_md_template.replace('{%content%}', compiled_obj_list_md_content)
   files.writeText(compiled_obj_list_md_content, compiled_obj_list_md_file)

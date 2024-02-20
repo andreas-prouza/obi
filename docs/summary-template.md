@@ -5,8 +5,7 @@
 
 # Object Build for i 
 
-
-## Summary
+## Summary {%date%}
 
 | level | lib | object | status| no. of commands / details |
 | :--- | :---- | :----- | :----- | :---- |{%content%}
