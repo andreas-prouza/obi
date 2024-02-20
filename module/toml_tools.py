@@ -1,3 +1,4 @@
+import logging
 from module import properties
 from etc import constants
 
