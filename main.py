@@ -32,7 +32,6 @@ sys.path.insert(0, args.set_path)
 original_dir=os.getcwd()
 #os.chdir(os.path.realpath(os.path.dirname(__file__)))
 os.chdir(os.path.realpath(args.set_path))
-sys.path.insert(1, original_dir)
 
 
 #################################################################

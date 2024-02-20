@@ -43,8 +43,8 @@ def get_changed_sources(source_dir, build_toml, object_types):
 
 
 def readText(file):
-  with open(file, 'r') as text_file:
-    return str(text_file.readall())
+  with open(f"{os.path.dirname(__file__)}/../{file}", 'r') as text_file:
+    return str(text_file.read())
 
 
 
