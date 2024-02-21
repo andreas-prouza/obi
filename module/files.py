@@ -91,6 +91,7 @@ def writeJson(content, file):
   if file is None:
     return
 
+  logging.debug(content)
   # Create dir if not exist
   pathlib.Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
 

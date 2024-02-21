@@ -146,8 +146,10 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
         #obj_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\%24').replace('#', '\\#')
         compiled_obj_list_md_content += f"\n| | {obj_lib} | [{src_name_without_lib}](/{src_dir}/{src_name_md_encoded}) | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
   
+  logging.debug("xxx")
+  logging.debug(dependend_objects_list)
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', str(datetime.now()))
-  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%changed_objects%}', changed_sources_list)
-  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%dependend_objects%}', dependend_objects_list)
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%changed_objects%}', str(changed_sources_list))
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%dependend_objects%}', str(dependend_objects_list))
   compiled_obj_list_md_content = compiled_obj_list_md_template.replace('{%content%}', compiled_obj_list_md_content)
   files.writeText(compiled_obj_list_md_content, compiled_obj_list_md_file, encoding=encoding)

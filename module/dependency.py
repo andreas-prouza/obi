@@ -16,8 +16,9 @@ def parse_dependency_file(file_path):
 def get_build_order(dependency_dict, target_list=[], app_config=properties.get_config(constants.CONFIG_TOML)):
 
   objects_tree = get_targets_depended_objects(dependency_dict, target_list)
+  dependend_objects = get_targets_only_depended_objects(dependency_dict, target_list)
   logging.debug(f"{objects_tree=}")
-  files.writeJson(get_targets_depended_objects, constants.DEPENDEND_OBJECT_LIST)
+  files.writeJson(dependend_objects, constants.DEPENDEND_OBJECT_LIST)
 
   ordered_target_tree = get_targets_by_level(objects_tree)
   logging.debug(f"{ordered_target_tree=}")
@@ -66,6 +67,31 @@ def get_target_depended_objects(dependency_dict, target, result={}):
     if target in obj_dependencies:
       #tree.append(obj) #build_dependency_tree(dependency_dict, dep))
       dependend_objects[obj]=get_target_depended_objects(dependency_dict, obj, result)
+  
+  return dependend_objects
+
+
+def get_targets_only_depended_objects(dependency_dict, targets=[], result={}):
+
+  targets_objects = []
+
+  for target in targets:
+    logging.debug(f"Dependend 1 {target}")
+    targets_objects = targets_objects + get_target_only_depended_objects(dependency_dict, target)
+
+  return list(set(targets_objects))
+
+
+
+def get_target_only_depended_objects(dependency_dict, target, result={}):
+
+  dependend_objects = [target]
+
+  for obj, obj_dependencies in dependency_dict.items():
+    if target in obj_dependencies:
+      logging.debug(f"Dependend 2 {obj}, {obj_dependencies}")
+      #tree.append(obj) #build_dependency_tree(dependency_dict, dep))
+      dependend_objects = dependend_objects + get_target_only_depended_objects(dependency_dict, obj, result)
   
   return dependend_objects
 
