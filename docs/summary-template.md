@@ -6,7 +6,15 @@
 # Object Build for i 
 
 ## Summary
+
 Created at {%date%}
+
+| Changed objects | Dependend objects |
+| :---            | :---              |
+| {%changed_objects%} | {%dependend_objects%} |
+
+
+## Details
 
 | level | lib | object | status| no. of commands / details |
 | :--- | :---- | :----- | :----- | :---- |{%content%}

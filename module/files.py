@@ -78,6 +78,13 @@ def writeText(content, file, write_empty_file=False, encoding='utf-8'):
 
 
 
+def getJson(file):
+
+  with open(file, 'r') as f:
+    return json.load(f)
+  
+  return None
+
 
 def writeJson(content, file):
   

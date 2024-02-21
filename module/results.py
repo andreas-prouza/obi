@@ -9,6 +9,7 @@ from module import properties
 from etc import constants
 from module import toml_tools
 from module import files
+from module import dependency
 
 
 default_app_config = properties.get_config(constants.CONFIG_TOML)
@@ -69,6 +70,9 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
 
   build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
   src_dir = app_config['general'].get('source-dir', 'src')
+  dependend_objects_list = files.getJson(constants.DEPENDEND_OBJECT_LIST)
+  changed_sources_list = files.getJson(constants.CHANGED_OBJECT_LIST)
+
 
   compiled_obj_list_md_file = app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')
   compiled_obj_list_md_template = files.readText('docs/summary-template.md')
@@ -143,5 +147,7 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
         compiled_obj_list_md_content += f"\n| | {obj_lib} | [{src_name_without_lib}](/{src_dir}/{src_name_md_encoded}) | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
   
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', str(datetime.now()))
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%changed_objects%}', changed_sources_list)
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%dependend_objects%}', dependend_objects_list)
   compiled_obj_list_md_content = compiled_obj_list_md_template.replace('{%content%}', compiled_obj_list_md_content)
   files.writeText(compiled_obj_list_md_content, compiled_obj_list_md_file, encoding=encoding)

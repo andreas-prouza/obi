@@ -17,6 +17,7 @@ def get_build_order(dependency_dict, target_list=[], app_config=properties.get_c
 
   objects_tree = get_targets_depended_objects(dependency_dict, target_list)
   logging.debug(f"{objects_tree=}")
+  files.writeJson(get_targets_depended_objects, constants.DEPENDEND_OBJECT_LIST)
 
   ordered_target_tree = get_targets_by_level(objects_tree)
   logging.debug(f"{ordered_target_tree=}")
