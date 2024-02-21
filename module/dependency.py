@@ -85,13 +85,13 @@ def get_targets_only_depended_objects(dependency_dict, targets=[], result={}):
 
 def get_target_only_depended_objects(dependency_dict, target, result={}):
 
-  dependend_objects = [target]
+  dependend_objects = []
 
   for obj, obj_dependencies in dependency_dict.items():
     if target in obj_dependencies:
       logging.debug(f"Dependend 2 {obj}, {obj_dependencies}")
       #tree.append(obj) #build_dependency_tree(dependency_dict, dep))
-      dependend_objects = dependend_objects + get_target_only_depended_objects(dependency_dict, obj, result)
+      dependend_objects = dependend_objects + [obj] + get_target_only_depended_objects(dependency_dict, obj, result)
   
   return dependend_objects
 

@@ -9,9 +9,9 @@
 
 Created at {%date%}
 
-| Changed objects | Dependend objects |
-| :---            | :---              |
-| {%changed_objects%} | {%dependend_objects%} |
+| New sources | Changed sources | Dependend objects |
+| :-   | :--------         | :-------              |
+| {%new_sources%} | {%changed_sources%} | {%dependend_objects%} |
 
 
 ## Details

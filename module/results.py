@@ -149,7 +149,16 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
   logging.debug("xxx")
   logging.debug(dependend_objects_list)
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', str(datetime.now()))
-  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%changed_objects%}', str(changed_sources_list))
-  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%dependend_objects%}', str(dependend_objects_list))
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%new_sources%}', get_html_list(changed_sources_list['new-objects']))
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%changed_sources%}', get_html_list(changed_sources_list['changed-sources']))
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%dependend_objects%}', get_html_list(dependend_objects_list))
   compiled_obj_list_md_content = compiled_obj_list_md_template.replace('{%content%}', compiled_obj_list_md_content)
   files.writeText(compiled_obj_list_md_content, compiled_obj_list_md_file, encoding=encoding)
+
+
+def get_html_list(obj_list):
+  html = '<ul>'
+  for obj in obj_list:
+    html += f"<li>{obj}</li>"
+  html += '</ul>'
+  return html
