@@ -93,7 +93,8 @@ def get_results(args):
   results.save_outputs_in_files(build_targets, app_config)
 
   # Generate document
-  results.create_result_doc(build_targets, app_config, fs_encoding)
+  # Because it's always executed on IBM i, encoding ist hardcoded UTF-8
+  results.create_result_doc(build_targets, app_config, encoding='utf-8')
 
 
 
