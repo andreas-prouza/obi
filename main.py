@@ -82,6 +82,8 @@ def get_results(args):
   app_config = properties.get_config(constants.CONFIG_TOML)
   general_config = app_config['general']
   build_list_file_name = general_config.get('compile-list', 'tmp/compile-list.json')
+  fs_encoding = general_config.get('file-system-encoding', 'utf-8')
+
 
   build_targets = {}
   with open(build_list_file_name, 'r') as f:
@@ -91,7 +93,7 @@ def get_results(args):
   results.save_outputs_in_files(build_targets, app_config)
 
   # Generate document
-  results.create_result_doc(build_targets, app_config)
+  results.create_result_doc(build_targets, app_config, fs_encoding)
 
 
 
@@ -127,7 +129,7 @@ def create_build_list(args):
   toml_tools.remove_compiled_objects(build_targets, app_config)
 
   # Generate document
-  results.create_result_doc(build_targets, app_config)
+  results.create_result_doc(build_targets, app_config, fs_encoding)
 
 
 

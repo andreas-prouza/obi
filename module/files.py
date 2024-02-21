@@ -12,19 +12,19 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8'):
   for root, dirs, files in os.walk(path_bytes):
 
     root_decoded = root.decode(fs_encoding)
-    root_utf8 = root.decode('utf-8')
+
     for file in files:
 
       file_decoded = file.decode(fs_encoding)
-      file_utf8 = file.decode('utf-8')
       
       if file_decoded.endswith(tuple(file_extensions)):
 
-        path_file=f"{os.path.join(root_utf8, file_utf8).removeprefix(path).removeprefix(os.sep)}"
+        path_file=os.path.join(root_decoded, file_decoded).removeprefix(path).removeprefix(os.sep)
         if os.path.sep == '\\': # Needed because of Windows file format
           path_file = PureWindowsPath(path_file).as_posix()
 
-        changed_time=datetime.datetime.fromtimestamp(pathlib.Path(os.path.join(root_utf8, file_utf8)).stat().st_mtime)
+        file_stat = os.path.join(root, file).decode('utf-8')
+        changed_time=datetime.datetime.fromtimestamp(pathlib.Path(file_stat).stat().st_mtime)
         src.update({path_file.replace("\\", '/'): changed_time})
 
   return src
@@ -62,7 +62,7 @@ def readText(file):
 
 
 
-def writeText(content, file, write_empty_file=False):
+def writeText(content, file, write_empty_file=False, encoding='utf-8'):
   
   
   if file is None or len(content) == 0 and not write_empty_file:
@@ -73,7 +73,7 @@ def writeText(content, file, write_empty_file=False):
   # Create dir if not exist
   pathlib.Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
 
-  with open(file, 'w', encoding='utf-8') as text_file:
+  with open(file, 'w', encoding=encoding) as text_file:
       text_file.write(content)
 
 
@@ -88,7 +88,7 @@ def writeJson(content, file):
   pathlib.Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
 
   with open(file, 'w') as json_file:
-      json.dump(content, json_file, indent=2)
+      json.dump(content, json_file, indent=2, ensure_ascii=False)
 
 
 

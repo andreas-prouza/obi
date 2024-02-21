@@ -65,7 +65,7 @@ def save_outputs_in_files(compile_list, app_config=default_app_config):
 
 
 
-def create_result_doc(compile_list, app_config=default_app_config):
+def create_result_doc(compile_list, app_config=default_app_config, encoding='utf-8'):
 
   build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
   src_dir = app_config['general'].get('source-dir', 'src')
@@ -144,4 +144,4 @@ def create_result_doc(compile_list, app_config=default_app_config):
   
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', str(datetime.now()))
   compiled_obj_list_md_content = compiled_obj_list_md_template.replace('{%content%}', compiled_obj_list_md_content)
-  files.writeText(compiled_obj_list_md_content, compiled_obj_list_md_file)
+  files.writeText(compiled_obj_list_md_content, compiled_obj_list_md_file, encoding=encoding)
