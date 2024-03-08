@@ -1,4 +1,6 @@
 import logging
+import inspect
+
 from module import properties
 from etc import constants
 
@@ -39,4 +41,5 @@ def remove_compiled_objects(compile_list, app_config=None):
                     logging.info(f"Remove {level=}: {src_name}")
                     del compiled_object_list[src_name]
 
+    logging.debug(f"Write new build list: {len(compiled_object_list)} objects; {inspect.stack()[1]}")
     properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)

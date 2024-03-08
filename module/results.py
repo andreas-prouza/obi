@@ -57,10 +57,10 @@ def save_outputs_in_files(compile_list, app_config=default_app_config):
           logging.debug(f"Details: {src_name}, {cmd_results.get('cmd')}")
           logging.debug(cmd_results.keys())
 
-          files.writeText(cmd_results.get('cmd'), os.path.join(build_output_dir, src_name, f"command-{i}.cmd"))
-          files.writeText(cmd_results.get('stdout'), os.path.join(build_output_dir, src_name, f"command-{i}.splf"))
-          files.writeText(cmd_results.get('joblog'), os.path.join(build_output_dir, src_name, f"command-{i}.joblog"))
-          files.writeText(cmd_results.get('stderr'), os.path.join(build_output_dir, src_name, f"command-{i}.error"))
+          files.writeText(cmd_results.get('cmd', ''), os.path.join(build_output_dir, src_name, f"command-{i}.cmd"))
+          files.writeText(cmd_results.get('stdout', ''), os.path.join(build_output_dir, src_name, f"command-{i}.splf"))
+          files.writeText(cmd_results.get('joblog', ''), os.path.join(build_output_dir, src_name, f"command-{i}.joblog"))
+          files.writeText(cmd_results.get('stderr', ''), os.path.join(build_output_dir, src_name, f"command-{i}.error"))
 
   
 

@@ -92,5 +92,7 @@ def update_compiles_object_list(source, app_config=default_app_config):
 
   compiled_object_list[source] = datetime.now()
   logging.debug(f"Update {source=} in {compiled_object_list[source]}")
+
+  logging.debug(f"Update build list: {len(compiled_object_list)}")
   properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
 

@@ -38,6 +38,8 @@ def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
 
   build_list=properties.get_config(build_toml)
 
+  logging.debug(f"Objects in build list: {len(build_list)}")
+
   logging.debug(f"Search for changed sources in '{source_dir}'")
   logging.debug(f"{object_types=}")
   logging.info(f"Found {len(src_list)} sources")
