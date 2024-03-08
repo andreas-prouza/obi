@@ -1,3 +1,4 @@
+import logging
 import toml
 import os
 import pathlib
@@ -25,6 +26,7 @@ def get_source_properties(config, source):
 
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes).removeprefix('.')
+  logging.debug(f"{file_extensions=}")
 
   global_settings = toml_tools.get_table_element(config, ['global', 'settings', 'general'])
   type_settings = toml_tools.get_table_element(config, ['global', 'settings']).get(file_extensions, [])

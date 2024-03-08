@@ -1,3 +1,4 @@
+import logging
 import pathlib
 import csv
 
@@ -22,13 +23,17 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   cmds = []
 
+  
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes).removeprefix('.')
 
   steps = app_config['global']['steps'].get(file_extensions, [])
 
+  # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
+  logging.debug(variable_dict)
 
+  # Loop all steps of the source extension
   for step in steps:
     
     r=csv.reader([step], quotechar='"', delimiter='.')
@@ -49,5 +54,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
       cmd += dspjoblog_cmd.replace("$(joblog-separator)", joblog_sep)
 
     cmds.append({"cmd": cmd, "status": "new"})
+
+  logging.debug(f"Added {len(cmds)} cmds for {source}")
 
   return cmds
