@@ -82,7 +82,8 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
     'new': '<span style="background-color:#adcbe3;color:black">$(status)</span>',
     'error': '<span style="background-color:#f96161;color:black">$(status)</span>',
     'failed': '<span style="background-color:#f96161;color:black">$(status)</span>',
-    'success': '<span style="background-color:#76FF03;color:black">$(status)</span>'
+    'success': '<span style="background-color:#76FF03;color:black">$(status)</span>',
+    'in process': '<span style="background-color:#0099ff;color:black">$(status)</span>'
   }
 
   # Level 1-n
@@ -121,6 +122,7 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
 
           cmd = cmd_results['cmd'].replace('\\', '\\\\').replace('$', '\\$').replace('#', '\\#')
           cmd_md = cmd.replace('"', '\\"')#.replace('$', '\%24')
+
           details += f"<tr><td>{cmd_results.get('updated')}</td><td>{status_color[cmd_results['status']].replace('$(status)', cmd_results['status'])}</td><td><details><summary>{cmd_md[:30]}...</summary><code>{cmd}</code></details> </td>"
 
           if 'joblog' in cmd_results.keys():
