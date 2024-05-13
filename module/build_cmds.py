@@ -25,13 +25,15 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   
   src_suffixes = pathlib.Path(source).suffixes
-  file_extensions = "".join(src_suffixes).removeprefix('.')
+  file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
+  logging.debug(f"{file_extensions=}")
 
   steps = app_config['global']['steps'].get(file_extensions, [])
 
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
   logging.debug(variable_dict)
+
 
   # Loop all steps of the source extension
   for step in steps:

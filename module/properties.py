@@ -25,7 +25,7 @@ def write_config(config, content):
 def get_source_properties(config, source):
 
   src_suffixes = pathlib.Path(source).suffixes
-  file_extensions = "".join(src_suffixes).removeprefix('.')
+  file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
   logging.debug(f"{file_extensions=}")
 
   global_settings = toml_tools.get_table_element(config, ['global', 'settings', 'general'])
