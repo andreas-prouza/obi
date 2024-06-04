@@ -36,7 +36,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   # Add list obj objects for deployment tool
   deploy_obj_list = f"prod_obj|{source}|{variable_dict['TARGET_LIB']}/{variable_dict['OBJ_NAME']}\n"
-  files.writeText(deploy_obj_list, 'tmp/obj_list.txt', mode='a')
+  files.writeText(deploy_obj_list, app_config['general']['deployment-object-list'], mode='a')
 
   # Loop all steps of the source extension
   for step in steps:
