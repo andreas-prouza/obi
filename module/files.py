@@ -1,9 +1,10 @@
 import os, pathlib, datetime, json, logging, toml
+import hashlib, mmap
 from . import properties
 from pathlib import PureWindowsPath
 
 
-def get_files(path, file_extensions=[], fs_encoding='utf-8'):
+def get_files(path, file_extensions=[], fs_encoding='utf-8', with_time=False):
 
   src={}
 
@@ -24,8 +25,14 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8'):
           path_file = PureWindowsPath(path_file).as_posix()
 
         file_stat = os.path.join(root, file).decode('utf-8')
-        changed_time=datetime.datetime.fromtimestamp(pathlib.Path(file_stat).stat().st_mtime)
-        src.update({path_file.replace("\\", '/'): changed_time})
+        
+        changed_time = None
+        if with_time:
+          changed_time=datetime.datetime.fromtimestamp(pathlib.Path(file_stat).stat().st_mtime)
+        
+        hashed_file = get_file_hash(file_stat)
+
+        src.update({path_file.replace("\\", '/'): {"created" : changed_time, "hash": hashed_file}})
 
   return src
 
@@ -47,14 +54,23 @@ def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
   missing_obj=[]
   changed_src=[]
 
-  for src, chgange_time in src_list.items():
+  for src, attributes in src_list.items():
     if src not in build_list.keys():
       missing_obj.append(src)
       continue
-    if chgange_time > build_list[src]:
+    if attributes['hash'] != build_list[src]['hash']:
       changed_src.append(src)
 
   return {"new-objects": missing_obj, "changed-sources": changed_src}
+
+
+
+def get_file_hash(filename):
+    h  = hashlib.sha256()
+    with open(filename, "rb") as f:
+        with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
+            h.update(mm)
+    return h.hexdigest()
 
 
 

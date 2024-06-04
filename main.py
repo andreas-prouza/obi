@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(
   epilog='Example: ...'
 )
 
-parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results', choices=['create', 'run', 'results', 'open_result'], required=True)
+parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list', choices=['create', 'run', 'results', 'open_result', 'gen_obj_list'], required=True)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
 parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
 
@@ -148,14 +148,33 @@ def open_doc_in_editor(args):
     editor=args.editor
   s=subprocess.run(f"{editor} {app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False)
 
+
+
+
+def generate_object_list(args):
+
+  logging.debug(f"Generate object list")
+
+  # Properties
+  app_config = properties.get_config(constants.CONFIG_TOML)
+  general_config = app_config['general']
   
+  source_dir = os.path.join(general_config['local-base-dir'], general_config['source-dir'])
+  build_list = general_config['compiled-object-list']
+  object_types = general_config['supported-object-types']
+  fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
+
+  source_list = files.get_files(source_dir, object_types, fs_encoding, with_time=True)
+  files.writeToml(source_list, build_list)
+
 
 
 action = {
   'create': create_build_list,
   'run': run_builds,
   'results': get_results,
-  'open_result': open_doc_in_editor
+  'open_result': open_doc_in_editor,
+  'gen_obj_list': generate_object_list
 }
 
 

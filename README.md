@@ -45,3 +45,5 @@ The script will ...
 ```
 
 After install, it's ready to use.
+
+# FAQ

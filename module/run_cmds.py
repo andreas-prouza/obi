@@ -89,8 +89,10 @@ def run_pase_cmd(cmd, app_config=default_app_config):
 def update_compiles_object_list(source, app_config=default_app_config):
 
   compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
+  
+  file_hash = files.get_file_hash(source)
 
-  compiled_object_list[source] = datetime.now()
+  compiled_object_list[source] = {"created" : datetime.now(), "hash" : file_hash}
   logging.debug(f"Update {source=} in {compiled_object_list[source]}")
 
   logging.debug(f"Update build list: {len(compiled_object_list)}")
