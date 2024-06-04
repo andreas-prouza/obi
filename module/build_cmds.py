@@ -13,9 +13,28 @@ default_app_config = properties.get_config(constants.CONFIG_TOML)
 
 def add_build_cmds(target_tree, app_config=default_app_config):
 
+  object_list = []
+
   for level, target_list in target_tree.items():
     for i in range(len(target_list)):
+      object_list.append(get_object_list(target_list[i], app_config))
       target_list[i] = {target_list[i]: get_source_build_cmds(target_list[i], app_config)}
+
+  object_list = "\n".join(list(set(object_list)))
+  files.writeText(object_list, app_config['general']['deployment-object-list'])
+
+
+
+def get_object_list(source, app_config=default_app_config):
+
+  variable_dict = properties.get_source_properties(app_config, source)
+  logging.debug(variable_dict)
+
+  # Add list obj objects for deployment tool
+  deploy_obj_list = f"prod_obj|{source}|{variable_dict['TARGET_LIB']}/{variable_dict['OBJ_NAME']}"
+  
+  return deploy_obj_list
+
 
 
 
@@ -23,7 +42,6 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   cmds = []
 
-  
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
   logging.debug(f"{file_extensions=}")
@@ -33,10 +51,6 @@ def get_source_build_cmds(source, app_config=default_app_config):
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
   logging.debug(variable_dict)
-
-  # Add list obj objects for deployment tool
-  deploy_obj_list = f"prod_obj|{source}|{variable_dict['TARGET_LIB']}/{variable_dict['OBJ_NAME']}\n"
-  files.writeText(deploy_obj_list, app_config['general']['deployment-object-list'], mode='a')
 
   # Loop all steps of the source extension
   for step in steps:
