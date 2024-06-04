@@ -5,7 +5,7 @@ import csv
 
 from module import properties
 from etc import constants
-from module import toml_tools
+from module import toml_tools, files
 
 
 default_app_config = properties.get_config(constants.CONFIG_TOML)
@@ -34,6 +34,9 @@ def get_source_build_cmds(source, app_config=default_app_config):
   variable_dict = properties.get_source_properties(app_config, source)
   logging.debug(variable_dict)
 
+  # Add list obj objects for deployment tool
+  deploy_obj_list = f"prod_obj|{source}|{variable_dict['TARGET_LIB']}/{variable_dict['OBJ_NAME']}\n"
+  files.writeText(deploy_obj_list, 'tmp/obj_list.txt', mode='a')
 
   # Loop all steps of the source extension
   for step in steps:

@@ -84,7 +84,7 @@ def readText(file):
 
 
 
-def writeText(content, file, write_empty_file=False, encoding='utf-8'):
+def writeText(content, file, write_empty_file=False, encoding='utf-8', mode='w'):
   
   
   if file is None or len(content) == 0 and not write_empty_file:
@@ -95,7 +95,7 @@ def writeText(content, file, write_empty_file=False, encoding='utf-8'):
   # Create dir if not exist
   pathlib.Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
 
-  with open(file, 'w', encoding=encoding) as text_file:
+  with open(file, mode, encoding=encoding) as text_file:
       text_file.write(content)
 
 
