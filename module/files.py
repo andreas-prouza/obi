@@ -66,6 +66,10 @@ def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
 
 
 def get_file_hash(filename):
+    
+    if os.path.getsize(filename) == 0:
+      return ''
+
     h  = hashlib.sha256()
     with open(filename, "rb") as f:
         with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
