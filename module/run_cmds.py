@@ -67,7 +67,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
             e = Exception(f"Error for '{src_name}': {result['stderr']}")
             logging.exception(e)
             raise e
-            
+      
         update_compiles_object_list(src_name, app_config)
 
 
@@ -90,7 +90,7 @@ def update_compiles_object_list(source, app_config=default_app_config):
 
   compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
   
-  file_hash = files.get_file_hash(source)
+  file_hash = files.get_file_hash(f"{app_config['general']['source-dir']}/{source}")
 
   compiled_object_list[source] = {"created" : datetime.now(), "hash" : file_hash}
   logging.debug(f"Update {source=} in {compiled_object_list[source]}")
