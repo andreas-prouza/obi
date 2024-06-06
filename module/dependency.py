@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from etc import constants
 from . import properties
@@ -65,6 +66,12 @@ def get_target_depended_objects(dependency_dict, target, result={}):
 
   for obj, obj_dependencies in dependency_dict.items():
     if target in obj_dependencies:
+
+      if not Path(obj).is_file():
+        logging.debug(f"Doesn't exist: {obj=}, {Path(obj).is_file()=}")
+        continue
+    
+      logging.debug(f"Add obj {obj=}")
       #tree.append(obj) #build_dependency_tree(dependency_dict, dep))
       dependend_objects[obj]=get_target_depended_objects(dependency_dict, obj, result)
   
@@ -89,7 +96,11 @@ def get_target_only_depended_objects(dependency_dict, target, result={}):
 
   for obj, obj_dependencies in dependency_dict.items():
     if target in obj_dependencies:
-      logging.debug(f"Dependend 2 {obj}, {obj_dependencies}")
+      
+      if not Path(obj).is_file():
+        logging.warning(f"Doesn't exist: {obj=}, {Path(obj).is_file()=}")
+        continue
+      
       #tree.append(obj) #build_dependency_tree(dependency_dict, dep))
       dependend_objects = dependend_objects + [obj] + get_target_only_depended_objects(dependency_dict, obj, result)
   
