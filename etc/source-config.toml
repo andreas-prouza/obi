@@ -1,0 +1,12 @@
+# Individual settings for specific sources
+#   - steps
+#   - settings
+#
+# Example:
+#
+# ["qualified.source.name.attribute.type"]
+#
+# steps=[]
+#
+# settings= {}
+

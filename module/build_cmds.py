@@ -26,6 +26,9 @@ def add_build_cmds(target_tree, app_config=default_app_config):
 
 
 def get_object_list(source, app_config=default_app_config):
+  '''
+  This is only needed by the deployment tool
+  '''
 
   variable_dict = properties.get_source_properties(app_config, source)
   logging.debug(variable_dict)
@@ -40,13 +43,20 @@ def get_object_list(source, app_config=default_app_config):
 
 def get_source_build_cmds(source, app_config=default_app_config):
 
+  logging.debug(f"Check source cmds for {source}")
   cmds = []
+  source_config=properties.get_config(constants.SOURCE_CONFIG_TOML)
 
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
   logging.debug(f"{file_extensions=}")
 
   steps = app_config['global']['steps'].get(file_extensions, [])
+
+  # Override steps by individual source config
+  if source in source_config and 'steps' in source_config[source].keys():
+    steps = source_config[source]['steps']
+    logging.debug(f"{steps=}")
 
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)

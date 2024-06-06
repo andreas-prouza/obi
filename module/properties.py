@@ -3,6 +3,7 @@ import toml
 import os
 import pathlib
 
+from etc import constants
 from module import toml_tools
 from module import files
 
@@ -24,12 +25,17 @@ def write_config(config, content):
 
 def get_source_properties(config, source):
 
+  source_config=get_config(constants.SOURCE_CONFIG_TOML)
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
   logging.debug(f"{file_extensions=}")
 
   global_settings = toml_tools.get_table_element(config, ['global', 'settings', 'general'])
   type_settings = toml_tools.get_table_element(config, ['global', 'settings']).get(file_extensions, [])
+
+  # Override source individual settings
+  if source in source_config and 'settings' in source_config[source].keys():
+    global_settings.update(source_config[source]['settings'])
 
   global_settings.update(type_settings)
   global_settings['SOURCE_FILE_NAME'] = os.path.join(config['general']['remote-base-dir'], config['general']['source-dir'], source).replace('\\', '/')
