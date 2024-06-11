@@ -1,4 +1,4 @@
-import logging
+import logging, os
 from pathlib import Path
 
 from etc import constants
@@ -6,6 +6,9 @@ from . import properties
 from . import dict_tools
 from . import build_cmds
 from . import files
+
+
+default_app_config = properties.get_config(constants.CONFIG_TOML)
 
 
 def parse_dependency_file(file_path):
@@ -63,11 +66,12 @@ def get_targets_depended_objects(dependency_dict, targets=[], result={}):
 def get_target_depended_objects(dependency_dict, target, result={}):
 
   dependend_objects = {}
+  src_base_path = default_app_config['general'].get('source-dir', 'src')
 
   for obj, obj_dependencies in dependency_dict.items():
     if target in obj_dependencies:
 
-      if not Path(obj).is_file():
+      if not Path(os.path.join(src_base_path, obj)).is_file():
         logging.debug(f"Doesn't exist: {obj=}, {Path(obj).is_file()=}")
         continue
     
@@ -76,6 +80,7 @@ def get_target_depended_objects(dependency_dict, target, result={}):
       dependend_objects[obj]=get_target_depended_objects(dependency_dict, obj, result)
   
   return dependend_objects
+
 
 
 def get_targets_only_depended_objects(dependency_dict, targets=[], result={}):
@@ -93,11 +98,12 @@ def get_targets_only_depended_objects(dependency_dict, targets=[], result={}):
 def get_target_only_depended_objects(dependency_dict, target, result={}):
 
   dependend_objects = []
+  src_base_path = default_app_config['general'].get('source-dir', 'src')
 
   for obj, obj_dependencies in dependency_dict.items():
     if target in obj_dependencies:
       
-      if not Path(obj).is_file():
+      if not Path(os.path.join(src_base_path, obj)).is_file():
         logging.warning(f"Doesn't exist: {obj=}, {Path(obj).is_file()=}")
         continue
       
