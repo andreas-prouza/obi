@@ -151,7 +151,7 @@ def update_compiles_object_list(source, app_config=default_app_config):
 
 
 
-def source_needs_compiled(source, app_config=default_app_config):
+def source_needs_compiled(source, app_config):
 
   compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
   
