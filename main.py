@@ -67,6 +67,11 @@ def run_builds(args):
   with open(build_list_file_name, 'r') as f:
         build_targets = json.load(f)
 
+  for level, level_list in compile_list.items():       # Level-List
+    for level_list_entry in level_list:                #   |--> Source-List
+      for src_name, cmds in level_list_entry.items():  #            |---> Source
+        files.source_needs_compiled(src_name, app_config)
+
   with suppress(Exception):
     run_cmds.run_build_object_list(build_targets, build_list_file_name)
 

@@ -148,7 +148,6 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
         #obj_name_md_encoded = src_name.replace('"', '\\"').replace('$', '\%24').replace('#', '\\#')
         compiled_obj_list_md_content += f"\n| | {obj_lib} | [{src_name_without_lib}](/{src_dir}/{src_name_md_encoded}) | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
   
-  logging.debug("xxx")
   logging.debug(dependend_objects_list)
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', str(datetime.now()))
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%new_sources%}', get_html_list(changed_sources_list['new-objects']))

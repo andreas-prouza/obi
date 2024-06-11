@@ -134,3 +134,29 @@ def writeToml(content, file):
       toml.dump(content, toml_file)
 
 
+
+
+def update_compiles_object_list(source, app_config=default_app_config):
+
+  compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
+  
+  file_hash = files.get_file_hash(f"{app_config['general']['source-dir']}/{source}")
+
+  compiled_object_list[source] = {"created" : datetime.now(), "hash" : file_hash}
+  logging.debug(f"Update {source=} in {compiled_object_list[source]}")
+
+  logging.debug(f"Update build list: {len(compiled_object_list)}")
+  properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
+
+
+
+
+def source_needs_compiled(source, app_config=default_app_config):
+
+  compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
+  
+  compiled_object_list[source] = {"created" : None, "hash" : None}
+  logging.debug(f"Update {source=} in {compiled_object_list[source]}")
+
+  properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
+
