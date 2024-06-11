@@ -58,7 +58,7 @@ def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
     if src not in build_list.keys():
       missing_obj.append(src)
       continue
-    if attributes['hash'] != build_list[src]['hash']:
+    if build_list[src]['hash'] is None or attributes['hash'] != build_list[src]['hash']:
       changed_src.append(src)
 
   return {"new-objects": missing_obj, "changed-sources": changed_src}
