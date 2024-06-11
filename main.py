@@ -72,8 +72,10 @@ def run_builds(args):
       for src_name, cmds in level_list_entry.items():  #            |---> Source
         files.source_needs_compiled(src_name, app_config)
 
-  with suppress(Exception):
+  try:
     run_cmds.run_build_object_list(build_targets, build_list_file_name)
+  except Exception as e:
+    logging.exception(e)
 
   get_results(args)
 
