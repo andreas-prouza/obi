@@ -1,5 +1,7 @@
 # Object Builder for i (OBI)
 
+Check [ibm-i-build-obi](https://github.com/andreas-prouza/ibm-i-build-obi) to see, how to use it in your IDE.
+
 ## Quick Setup
 
 ```sh
