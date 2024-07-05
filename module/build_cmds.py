@@ -31,10 +31,15 @@ def get_object_list(source, app_config=default_app_config):
   '''
 
   variable_dict = properties.get_source_properties(app_config, source)
-  logging.debug(variable_dict)
+  logging.debug(f"{source=}")
+  logging.debug(f"{variable_dict=}")
 
   # Add list obj objects for deployment tool
-  deploy_obj_list = f"prod_obj|{source}|{variable_dict['TARGET_LIB']}/{variable_dict['OBJ_NAME']}"
+  prod_lib = pathlib.Path(source).parts[0]
+  #type=*pgm, attr=rpgle
+  obj_type=source.split('.')[-1]
+  obj_attr=source.split('.')[-2]
+  deploy_obj_list = f"prod_obj|{prod_lib}|{variable_dict['TARGET_LIB']}|{variable_dict['OBJ_NAME']}|{obj_type}|{obj_attr}|{source}"
   
   return deploy_obj_list
 
