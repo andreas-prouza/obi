@@ -1,4 +1,5 @@
-# Object Builder for i (OBI)
+
+# ![logo](docs/img/Open%20Source%20Logo%20smaller.png)  Object Builder for i (OBI)
 
 Check [ibm-i-build-obi](https://github.com/andreas-prouza/ibm-i-build-obi) to see, how to use it in your IDE.
 
