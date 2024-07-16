@@ -21,7 +21,8 @@ def add_build_cmds(target_tree, app_config=default_app_config):
       target_list[i] = {target_list[i]: get_source_build_cmds(target_list[i], app_config)}
 
   object_list = "\n".join(list(set(object_list)))
-  files.writeText(object_list, app_config['general']['deployment-object-list'])
+  logging.debug(f"Write object list {len(object_list)=} to {app_config['general']['deployment-object-list']}")
+  files.writeText(object_list, app_config['general']['deployment-object-list'], write_empty_file=True)
 
 
 
