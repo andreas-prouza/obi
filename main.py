@@ -69,8 +69,7 @@ def run_builds(args):
 
   for level, level_list in build_targets.items():       # Level-List
     for level_list_entry in level_list:                #   |--> Source-List
-      for src_name, cmds in level_list_entry.items():  #            |---> Source
-        files.source_needs_compiled(src_name, app_config)
+      files.source_needs_compiled(level_list_entry['source'], app_config)
 
   try:
     run_cmds.run_build_object_list(build_targets, build_list_file_name)

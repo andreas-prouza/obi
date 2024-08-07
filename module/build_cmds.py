@@ -11,18 +11,20 @@ from module import toml_tools, files
 default_app_config = properties.get_config(constants.CONFIG_TOML)
 
 
+
 def add_build_cmds(target_tree, app_config=default_app_config):
 
   object_list = []
 
-  for level, target_list in target_tree.items():
-    for i in range(len(target_list)):
-      object_list.append(get_object_list(target_list[i], app_config))
-      target_list[i] = {target_list[i]: get_source_build_cmds(target_list[i], app_config)}
+  for target_item in target_tree:
+    for source_item in target_item['sources']:
+      object_list.append(get_object_list(source_item['source'], app_config))
+      source_item['cmds'] = get_source_build_cmds(source_item['source'], app_config)
 
   object_list = "\n".join(list(set(object_list)))
   logging.debug(f"Write object list {len(object_list)=} to {app_config['general']['deployment-object-list']}")
   files.writeText(object_list, app_config['general']['deployment-object-list'], write_empty_file=True)
+
 
 
 

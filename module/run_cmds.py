@@ -32,43 +32,43 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
     # Each entry in a level list
     for level_list_entry in level_list:
 
-      # Level list entry is a dict
-      for src_name, cmds in level_list_entry.items():
-
-        logging.info(src_name)
-        logging.info(cmds)
-
-        # each source can have multiple commands
-        for cmd_item in cmds:
-          
-          logging.debug(f"Execute ({cmd_item['status']}) {cmd_item['cmd']}")
-          
-          cmd_item['updated'] = datetime.now().isoformat()
-          cmd_item['status'] = 'in process'
-          files.writeJson(target_tree, save_update_2_json_file)
-
-          result = run_pase_cmd(cmd_item['cmd'])
-
-          joblog_sep = app_config['global']['cmds'].get('joblog-separator', None)
-          if joblog_sep is not None and len(result['stdout'].split(joblog_sep)) > 0:
-            result['joblog'] = result['stdout'].split(joblog_sep)[1]
-            result['stdout'] = result['stdout'].split(joblog_sep)[0]
-
-          cmd_item['updated'] = datetime.now().isoformat()
-          cmd_item['status'] = 'failed'
-          if result['exit-code'] == 0 and result['stderr'] == '':
-            cmd_item['status'] = 'success'
-          
-          cmd_item.update(result)
-
-          files.writeJson(target_tree, save_update_2_json_file)
-
-          if result['exit-code'] != 0 or result['stderr'] != '':
-            e = Exception(f"Error for '{src_name}': {result['stderr']}")
-            logging.exception(e)
-            raise e
+      src_name = level_list_entry['source']
+      cmds = level_list_entry['cmds']
       
-        files.update_compiles_object_list(src_name, app_config)
+      logging.info(level_list_entry['source'])
+      logging.info(cmds)
+
+      # each source can have multiple commands
+      for cmd_item in cmds:
+        
+        logging.debug(f"Execute ({cmd_item['status']}) {cmd_item['cmd']}")
+        
+        cmd_item['updated'] = datetime.now().isoformat()
+        cmd_item['status'] = 'in process'
+        files.writeJson(target_tree, save_update_2_json_file)
+
+        result = run_pase_cmd(cmd_item['cmd'])
+
+        joblog_sep = app_config['global']['cmds'].get('joblog-separator', None)
+        if joblog_sep is not None and len(result['stdout'].split(joblog_sep)) > 0:
+          result['joblog'] = result['stdout'].split(joblog_sep)[1]
+          result['stdout'] = result['stdout'].split(joblog_sep)[0]
+
+        cmd_item['updated'] = datetime.now().isoformat()
+        cmd_item['status'] = 'failed'
+        if result['exit-code'] == 0 and result['stderr'] == '':
+          cmd_item['status'] = 'success'
+        
+        cmd_item.update(result)
+
+        files.writeJson(target_tree, save_update_2_json_file)
+
+        if result['exit-code'] != 0 or result['stderr'] != '':
+          e = Exception(f"Error for '{src_name}': {result['stderr']}")
+          logging.exception(e)
+          raise e
+    
+      files.update_compiles_object_list(src_name, app_config)
 
 
 

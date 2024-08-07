@@ -20,6 +20,8 @@ def parse_dependency_file(file_path):
 def get_build_order(dependency_dict, target_list=[], app_config=properties.get_config(constants.CONFIG_TOML)):
 
   objects_tree = get_targets_depended_objects(dependency_dict, target_list)
+  files.writeJson(objects_tree, 'tmp/objects_tree.json')
+
   dependend_objects = get_targets_only_depended_objects(dependency_dict, target_list)
   logging.debug(f"{objects_tree=}")
   files.writeJson(dependend_objects, constants.DEPENDEND_OBJECT_LIST)
@@ -52,9 +54,21 @@ def get_all_targets(dependency_dict, target_list=[]):
 
 
 def get_targets_depended_objects(dependency_dict, targets=[], result={}):
+  """Get sources as dict with it's dependend sources
+    {'source1': {'source3', 'source4'}, 'source2': {}}
+
+  Args:
+      dependency_dict (_type_): _description_
+      targets (list, optional): _description_. Defaults to [].
+      result (dict, optional): _description_. Defaults to {}.
+
+  Returns:
+      _type_: _description_
+  """
 
   targets_objects = {}
 
+  print(f"{targets=}")
   for target in targets:
 
     targets_objects[target] = get_target_depended_objects(dependency_dict, target)
@@ -114,19 +128,29 @@ def get_target_only_depended_objects(dependency_dict, target, result={}):
 
 
 
-def remove_duplicities(target_tree={}):
+def remove_duplicities(target_tree=[]):
+
+  print('==================================')
+  print('Remove duplicates')
+  print('==================================')
 
   # All levels
-  for level in sorted(list(target_tree.keys())):
+  for level_item in sorted(target_tree, key=lambda d: d['level']):
 
     # All objects in this level
-    for obj in list(target_tree[level]):
+    for obj in level_item['sources']:
 
+      print(f"{obj=}")
       # Scan reverse for duplicated objects
-      for rev_level in reversed(sorted(list(target_tree.keys()))):
+      for rev_level_item in reversed(sorted(target_tree, key=lambda d: d['level'])):
 
-        if level < rev_level and obj in target_tree[rev_level] and obj in target_tree[level]:
-          target_tree[level].remove(obj)
+        rev_level_sources = [item['source'] for item in rev_level_item['sources']]
+
+        for i in range(len(target_tree)):
+          sources = [item['source'] for item in target_tree[i]['sources']]
+          if target_tree[i]['level'] < rev_level_item['level'] and obj['source'] in rev_level_sources and obj['source'] in sources:
+            print(f"Remove ({target_tree[i]['level']}) - {obj}")
+            target_tree[i]['sources'].remove(obj)
 
   return target_tree
 
@@ -135,34 +159,50 @@ def remove_duplicities(target_tree={}):
 
 def get_targets_by_level(target_tree={}, level=1):
   
-  new_target_tree = {}
+  print(f"################################")
+  print(f"Function: {target_tree=}")
+  new_target_tree = []
   
   # Add object to list
   for obj, next_objs in target_tree.items():
-    
-    if level not in new_target_tree.keys():
-      new_target_tree[level] = []
+    print(f"loop {new_target_tree=}")
 
-    if obj in new_target_tree[level]:
+    loop_level_obj = {}
+    loop_level_obj = [item for item in new_target_tree if item['level'] == level]
+    if len(loop_level_obj) > 0:
+      loop_level_obj = loop_level_obj[0]
+
+    #if level not in new_target_tree.keys():
+    if not loop_level_obj:
+      loop_level_obj = {'level': level, 'sources': []}
+      new_target_tree.append(loop_level_obj)
+
+    #if obj in new_target_tree[level]:
+    if obj in [item['source'] for item in loop_level_obj['sources']]:
       continue
 
-    new_target_tree[level].append(obj)
+    loop_level_obj['sources'].append({'source': obj, 'cmds': []})
 
     # Also add dependend objects to list
     for next_obj, next_sub_objs in next_objs.items():
 
-      if level+1 not in new_target_tree.keys():
-        new_target_tree[level+1] = []
+      loop_next_level_obj = {}
+      loop_next_level_obj = [item for item in new_target_tree if item['level'] == level+1]
+      if loop_next_level_obj:
+        loop_next_level_obj = loop_next_level_obj[0]
+
+      if not loop_next_level_obj:
+        loop_next_level_obj = {'level': level+1, 'sources': []}
+        new_target_tree.append(loop_next_level_obj)
       
-      if next_obj in new_target_tree[level+1]:
+      if next_obj in [item['source'] for item in loop_next_level_obj['sources']]:
         continue
 
-      new_target_tree[level+1].append(next_obj)
+      loop_next_level_obj['sources'].append({'source': next_obj, 'cmds': []})
 
       # Recursive call to go through the tree
       extended_tree = get_targets_by_level(next_sub_objs, level+2)
-      new_target_tree = dict_tools.deep_merge(extended_tree, new_target_tree)
-      a='x'
+      new_target_tree = dict_tools.deep_list_merge(extended_tree, new_target_tree)
 
-  return dict(sorted(new_target_tree.items()))
+  return sorted(new_target_tree, key=lambda d: d['level'])
 
