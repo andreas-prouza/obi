@@ -25,12 +25,12 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
   """
 
   # Level 1-n
-  for level, level_list in target_tree.items():
+  for level_item in target_tree:
     
-    logging.info(f"Run {level=}: {len(level_list)} entries")
+    logging.info(f"Run {level_item['level']=}: {len(level_item['sources'])} entries")
 
     # Each entry in a level list
-    for level_list_entry in level_list:
+    for level_list_entry in level_item['sources']:
 
       src_name = level_list_entry['source']
       cmds = level_list_entry['cmds']

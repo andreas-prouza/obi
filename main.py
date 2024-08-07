@@ -67,8 +67,8 @@ def run_builds(args):
   with open(build_list_file_name, 'r') as f:
         build_targets = json.load(f)
 
-  for level, level_list in build_targets.items():       # Level-List
-    for level_list_entry in level_list:                #   |--> Source-List
+  for level_item in build_targets:       # Level-List
+    for level_list_entry in level_item['sources']:                #   |--> Source-List
       files.source_needs_compiled(level_list_entry['source'], app_config)
 
   try:
