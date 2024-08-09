@@ -1,5 +1,6 @@
 import logging, os
 from pathlib import Path
+from datetime import datetime
 
 from etc import constants
 from . import properties
@@ -36,6 +37,8 @@ def get_build_order(dependency_dict, target_list=[], app_config=properties.get_c
 
   build_cmds.add_build_cmds(new_target_tree, app_config)
 
+  new_target_tree = {'timestamp': str(datetime.now()), 'compiles': new_target_tree}
+
   return new_target_tree
 
 
@@ -68,7 +71,6 @@ def get_targets_depended_objects(dependency_dict, targets=[], result={}):
 
   targets_objects = {}
 
-  print(f"{targets=}")
   for target in targets:
 
     targets_objects[target] = get_target_depended_objects(dependency_dict, target)
@@ -130,17 +132,12 @@ def get_target_only_depended_objects(dependency_dict, target, result={}):
 
 def remove_duplicities(target_tree=[]):
 
-  print('==================================')
-  print('Remove duplicates')
-  print('==================================')
-
   # All levels
   for level_item in sorted(target_tree, key=lambda d: d['level']):
 
     # All objects in this level
     for obj in level_item['sources']:
 
-      print(f"{obj=}")
       # Scan reverse for duplicated objects
       for rev_level_item in reversed(sorted(target_tree, key=lambda d: d['level'])):
 
@@ -149,7 +146,6 @@ def remove_duplicities(target_tree=[]):
         for i in range(len(target_tree)):
           sources = [item['source'] for item in target_tree[i]['sources']]
           if target_tree[i]['level'] < rev_level_item['level'] and obj['source'] in rev_level_sources and obj['source'] in sources:
-            print(f"Remove ({target_tree[i]['level']}) - {obj}")
             target_tree[i]['sources'].remove(obj)
 
   return target_tree
@@ -159,13 +155,10 @@ def remove_duplicities(target_tree=[]):
 
 def get_targets_by_level(target_tree={}, level=1):
   
-  print(f"################################")
-  print(f"Function: {target_tree=}")
   new_target_tree = []
   
   # Add object to list
   for obj, next_objs in target_tree.items():
-    print(f"loop {new_target_tree=}")
 
     loop_level_obj = {}
     loop_level_obj = [item for item in new_target_tree if item['level'] == level]

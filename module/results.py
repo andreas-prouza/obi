@@ -33,34 +33,35 @@ def save_outputs_in_files(compile_list, app_config=default_app_config):
   build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
   
   # Level 1-n
-  for level, level_list in compile_list.items():
+  for level_item in compile_list['compiles']:
     
-    logging.info(f"Run {level=}: {len(level_list)} entries; {build_output_dir=}")
+    logging.info(f"Run {level_item['level']=}: {len(level_item['sources'])} entries; {build_output_dir=}")
     
     # Each entry (source) in a level list
-    for level_list_entry in level_list:
+    for level_list_entry in level_item['sources']:
 
       # Level list entry is a dict
-      for src_name, cmds in level_list_entry.items():
+      src_name = level_list_entry['source']
+      cmds = level_list_entry['cmds']
       
-        sub_folder = os.path.basename(pathlib.Path(src_name).parent)
-        src_name = src_name.replace(f"{sub_folder}/", '')
+      sub_folder = os.path.basename(pathlib.Path(src_name).parent)
+      src_name = src_name.replace(f"{sub_folder}/", '')
 
-        i=0
+      i=0
 
-        for cmd_results in cmds:
+      for cmd_results in cmds:
 
-          i += 1
-          if cmd_results['status'] == 'new':
-            continue
+        i += 1
+        if cmd_results['status'] == 'new':
+          continue
 
-          logging.debug(f"Details: {src_name}, {cmd_results.get('cmd')}")
-          logging.debug(cmd_results.keys())
+        logging.debug(f"Details: {src_name}, {cmd_results.get('cmd')}")
+        logging.debug(cmd_results.keys())
 
-          files.writeText(cmd_results.get('cmd', ''), os.path.join(build_output_dir, src_name, f"command-{i}.cmd"))
-          files.writeText(cmd_results.get('stdout', ''), os.path.join(build_output_dir, src_name, f"command-{i}.splf"))
-          files.writeText(cmd_results.get('joblog', ''), os.path.join(build_output_dir, src_name, f"command-{i}.joblog"))
-          files.writeText(cmd_results.get('stderr', ''), os.path.join(build_output_dir, src_name, f"command-{i}.error"))
+        files.writeText(cmd_results.get('cmd', ''), os.path.join(build_output_dir, src_name, f"command-{i}.cmd"))
+        files.writeText(cmd_results.get('stdout', ''), os.path.join(build_output_dir, src_name, f"command-{i}.splf"))
+        files.writeText(cmd_results.get('joblog', ''), os.path.join(build_output_dir, src_name, f"command-{i}.joblog"))
+        files.writeText(cmd_results.get('stderr', ''), os.path.join(build_output_dir, src_name, f"command-{i}.error"))
 
   
 
@@ -88,9 +89,9 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
 
   # Level 1-n
   #for level, level_list in compile_list):
-  for level_item in compile_list:
+  for level_item in compile_list['compiles']:
 
-    compiled_obj_list_md_content += f'\n| **{level_item['level']}. level** |'
+    compiled_obj_list_md_content += f'\n| **{level_item["level"]}. level** |'
     
     # Each entry (source) in a level list
     for level_list_entry in level_item['sources']:
@@ -152,7 +153,7 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
       compiled_obj_list_md_content += f"\n| | {obj_lib} | [{src_name_without_lib}](/{src_dir}/{src_name_md_encoded}) | {status_color[last_status].replace('$(status)', last_status)} | <details><summary>{len(cmds)} commands</summary> {details} </details>|"
   
   logging.debug(dependend_objects_list)
-  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', str(datetime.now()))
+  compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%date%}', compile_list['timestamp'])
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%new_sources%}', get_html_list(changed_sources_list['new-objects']))
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%changed_sources%}', get_html_list(changed_sources_list['changed-sources']))
   compiled_obj_list_md_template = compiled_obj_list_md_template.replace('{%dependend_objects%}', get_html_list(dependend_objects_list))

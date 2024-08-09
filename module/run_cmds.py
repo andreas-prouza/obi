@@ -25,7 +25,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
   """
 
   # Level 1-n
-  for level_item in target_tree:
+  for level_item in target_tree['compiles']:
     
     logging.info(f"Run {level_item['level']=}: {len(level_item['sources'])} entries")
 
@@ -45,6 +45,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
         
         cmd_item['updated'] = datetime.now().isoformat()
         cmd_item['status'] = 'in process'
+        target_tree['timestamp'] = str(datetime.now())
         files.writeJson(target_tree, save_update_2_json_file)
 
         result = run_pase_cmd(cmd_item['cmd'])
@@ -60,7 +61,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
           cmd_item['status'] = 'success'
         
         cmd_item.update(result)
-
+        target_tree['timestamp'] = str(datetime.now())
         files.writeJson(target_tree, save_update_2_json_file)
 
         if result['exit-code'] != 0 or result['stderr'] != '':

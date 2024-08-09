@@ -46,8 +46,6 @@ def deep_list_merge(a: [], b: []) -> []:
 
         if not result_level_item:
             result_level_item={'level': b_level, 'sources': []}
-        
-        print(f"{result_level_item=}")
 
         for b_source in b_sources: #b_level=b-key; b_source_list=b-value  Levels
 
