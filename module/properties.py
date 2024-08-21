@@ -31,7 +31,7 @@ def get_source_properties(config, source):
   logging.debug(f"{file_extensions=}")
 
   global_settings = toml_tools.get_table_element(config, ['global', 'settings', 'general'])
-  type_settings = toml_tools.get_table_element(config, ['global', 'settings']).get(file_extensions, [])
+  type_settings = toml_tools.get_table_element(config, ['global', 'settings', 'language']).get(file_extensions, [])
 
   # Override source individual settings
   if source in source_config and 'settings' in source_config[source].keys():

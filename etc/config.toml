@@ -63,7 +63,7 @@ TARGET_LIB_MAPPING={ "prouzalib"= "prouzat1", "prouzalib2"= "prouzat2" }
 
 
 # Global settings for specific source type
-[global.settings."sqlrpgle.srvpgm"]
+[global.settings.language."sqlrpgle.srvpgm"]
 
 RPGPPOPT="*LVL2"
 DBGVIEW="*SOURCE"
