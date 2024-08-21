@@ -99,19 +99,28 @@ def get_target_depended_objects(dependency_dict, target, result={}):
 
 
 
-def get_targets_only_depended_objects(dependency_dict, targets=[], result={}):
+def get_targets_only_depended_objects(dependency_dict, targets=[]) -> []:
+  """Get dependencies of the targets
+
+  Args:
+      dependency_dict (dict}): All dependencies of all sources
+      targets (list, optional): List of targets. Defaults to []
+
+  Returns:
+      list: Returns a list with dependencies
+  """
 
   targets_objects = []
 
   for target in targets:
     logging.debug(f"Dependend 1 {target}")
-    targets_objects = targets_objects + get_target_only_depended_objects(dependency_dict, target)
+    targets_objects = targets_objects + get_target_only_depended_objects(dependency_dict, target, targets)
 
   return list(set(targets_objects))
 
 
 
-def get_target_only_depended_objects(dependency_dict, target, result={}):
+def get_target_only_depended_objects(dependency_dict, target, orig_targets:[]):
 
   dependend_objects = []
   src_base_path = default_app_config['general'].get('source-dir', 'src')
@@ -123,8 +132,11 @@ def get_target_only_depended_objects(dependency_dict, target, result={}):
         logging.warning(f"Doesn't exist: {obj=}, {Path(obj).is_file()=}")
         continue
       
+      if (obj in orig_targets):
+        continue
+
       #tree.append(obj) #build_dependency_tree(dependency_dict, dep))
-      dependend_objects = dependend_objects + [obj] + get_target_only_depended_objects(dependency_dict, obj, result)
+      dependend_objects = dependend_objects + [obj] + get_target_only_depended_objects(dependency_dict, obj, orig_targets)
   
   return dependend_objects
 
