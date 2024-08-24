@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 def deep_merge(a: dict, b: dict) -> dict:
     
     result = deepcopy(a)
@@ -69,10 +70,18 @@ def deep_list_merge(a: [], b: []) -> []:
 
 
 
-def dict_merge(base_dct, merge_dct):
-    base_dct.update({
-        key: dict_merge(rtn_dct[key], merge_dct[key])
-        if isinstance(base_dct.get(key), dict) and isinstance(merge_dct[key], dict)
-        else merge_dct[key]
-        for key in merge_dct.keys()
-    })
+
+def dict_merge(base_dct, merge_from_dct):
+    for k in set(base_dct.keys()).union(merge_from_dct.keys()):
+        if k in base_dct and k in merge_from_dct:
+            if isinstance(base_dct[k], dict) and isinstance(merge_from_dct[k], dict):
+                yield (k, dict(dict_merge(base_dct[k], merge_from_dct[k])))
+            else:
+                if len(merge_from_dct[k]) != 0:
+                    yield (k, merge_from_dct[k])
+                else:
+                    yield (k, base_dct[k])
+        elif k in base_dct:
+            yield (k, base_dct[k])
+        else:
+            yield (k, merge_from_dct[k])

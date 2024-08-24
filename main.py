@@ -59,7 +59,7 @@ def run_builds(args):
   logging.debug(f"Run build list")
 
   # Properties
-  app_config = properties.get_config(constants.CONFIG_TOML)
+  app_config = properties.get_app_properties()
   general_config = app_config['general']
   build_list_file_name = general_config.get('compile-list', 'tmp/compile-list.json')
 
@@ -85,7 +85,7 @@ def get_results(args):
   logging.debug(f"Get results from build")
 
   # Properties
-  app_config = properties.get_config(constants.CONFIG_TOML)
+  app_config = properties.get_app_properties()
   general_config = app_config['general']
   build_list_file_name = general_config.get('compile-list', 'tmp/compile-list.json')
   fs_encoding = general_config.get('file-system-encoding', 'utf-8')
@@ -109,7 +109,7 @@ def create_build_list(args):
   logging.debug(f"Create build list")
 
   # Properties
-  app_config = properties.get_config(constants.CONFIG_TOML)
+  app_config = properties.get_app_properties()
   general_config = app_config['general']
   
   source_dir = os.path.join(general_config['local-base-dir'], general_config['source-dir'])
@@ -144,7 +144,7 @@ def create_build_list(args):
 
 def open_doc_in_editor(args):
   # Properties
-  app_config = properties.get_config(constants.CONFIG_TOML)
+  app_config = properties.get_app_properties()
   # Generate document
   get_results(args)
 
@@ -162,7 +162,7 @@ def generate_object_list(args):
   logging.debug(f"Generate object list")
 
   # Properties
-  app_config = properties.get_config(constants.CONFIG_TOML)
+  app_config = properties.get_app_properties()
   general_config = app_config['general']
   
   source_dir = os.path.join(general_config['local-base-dir'], general_config['source-dir'])

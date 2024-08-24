@@ -12,7 +12,7 @@ from module import files
 from module import dependency
 
 
-default_app_config = properties.get_config(constants.CONFIG_TOML)
+default_app_config = properties.get_app_properties()
 
 
 

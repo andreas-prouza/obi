@@ -9,7 +9,7 @@ from . import build_cmds
 from . import files
 
 
-default_app_config = properties.get_config(constants.CONFIG_TOML)
+default_app_config = properties.get_app_properties()
 
 
 def parse_dependency_file(file_path):
@@ -18,7 +18,7 @@ def parse_dependency_file(file_path):
 
 
 
-def get_build_order(dependency_dict, target_list=[], app_config=properties.get_config(constants.CONFIG_TOML)):
+def get_build_order(dependency_dict, target_list=[], app_config=properties.get_app_properties()):
 
   objects_tree = get_targets_depended_objects(dependency_dict, target_list)
   files.writeJson(objects_tree, 'tmp/objects_tree.json')

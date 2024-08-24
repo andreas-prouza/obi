@@ -8,7 +8,7 @@ from etc import constants
 from module import toml_tools, files
 
 
-default_app_config = properties.get_config(constants.CONFIG_TOML)
+default_app_config = properties.get_app_properties()
 
 
 

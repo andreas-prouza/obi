@@ -24,7 +24,7 @@ def get_table_element(toml, tree_list):
 def remove_compiled_objects(compile_list, app_config=None):
 
     if app_config is None:
-        app_config = properties.get_config(constants.CONFIG_TOML)
+        app_config = properties.get_app_properties()
 
     compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
   
