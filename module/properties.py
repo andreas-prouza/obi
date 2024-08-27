@@ -51,7 +51,7 @@ def get_source_properties(config, source):
     global_settings.update(source_config[source]['settings'])
 
   global_settings.update(type_settings)
-  global_settings['SOURCE_FILE_NAME'] = os.path.join(config['general']['remote-base-dir'], config['general']['source-dir'], source).replace('\\', '/')
+  global_settings['SOURCE_FILE_NAME'] = os.path.join(config['general']['source-dir'], source).replace('\\', '/')
   global_settings['TARGET_LIB'] = get_target_lib(source, global_settings.get('TARGET_LIB'), global_settings.get('TARGET_LIB_MAPPING'))
   global_settings['OBJ_NAME'] = pathlib.Path(pathlib.Path(source).stem).stem
 
