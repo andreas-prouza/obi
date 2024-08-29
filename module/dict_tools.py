@@ -77,7 +77,7 @@ def dict_merge(base_dct, merge_from_dct):
             if isinstance(base_dct[k], dict) and isinstance(merge_from_dct[k], dict):
                 yield (k, dict(dict_merge(base_dct[k], merge_from_dct[k])))
             else:
-                if len(merge_from_dct[k]) != 0:
+                if isinstance(merge_from_dct[k], bool) or len(merge_from_dct[k]) != 0:
                     yield (k, merge_from_dct[k])
                 else:
                     yield (k, base_dct[k])
