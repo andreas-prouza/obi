@@ -3,6 +3,7 @@
 
 # List of all compiled objects and compile timestamp
 compiled-object-list="etc/object-builds.toml"
+source-list="etc/source-list.toml"
 
 dependency-list="etc/dependency.toml"
 

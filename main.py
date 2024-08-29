@@ -18,7 +18,8 @@ parser = argparse.ArgumentParser(
   epilog='Example: ...'
 )
 
-parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list', choices=['create', 'run', 'results', 'open_result', 'gen_obj_list'], required=True)
+parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list', 
+      choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list'], required=True)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
 parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
 
@@ -175,12 +176,31 @@ def generate_object_list(args):
 
 
 
+def generate_source_list(args):
+
+  logging.debug(f"Generate source list")
+
+  # Properties
+  app_config = properties.get_app_properties()
+  general_config = app_config['general']
+  
+  source_dir = os.path.join(general_config['local-base-dir'], general_config['source-dir'])
+  build_list = general_config['source-list']
+  object_types = general_config['supported-object-types']
+  fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
+
+  source_list = files.get_files(source_dir, object_types, fs_encoding, with_time=True)
+  files.writeToml(source_list, build_list)
+
+
+
 action = {
   'create': create_build_list,
   'run': run_builds,
   'results': get_results,
   'open_result': open_doc_in_editor,
-  'gen_obj_list': generate_object_list
+  'gen_obj_list': generate_object_list,
+  'gen_src_list': generate_source_list
 }
 
 
