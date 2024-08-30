@@ -1,6 +1,6 @@
 venv
 __pycache__/
-build*
-log
-tmp
-etc/*
+.obi/build*
+.obi/log
+.obi/tmp
+.obi/etc/*

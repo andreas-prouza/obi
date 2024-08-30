@@ -62,7 +62,7 @@ def run_builds(args):
   # Properties
   app_config = properties.get_app_properties()
   general_config = app_config['general']
-  build_list_file_name = general_config.get('compile-list', 'tmp/compile-list.json')
+  build_list_file_name = general_config.get('compile-list', '.obi/tmp/compile-list.json')
 
   build_targets = {}
   with open(build_list_file_name, 'r') as f:
@@ -88,7 +88,7 @@ def get_results(args):
   # Properties
   app_config = properties.get_app_properties()
   general_config = app_config['general']
-  build_list_file_name = general_config.get('compile-list', 'tmp/compile-list.json')
+  build_list_file_name = general_config.get('compile-list', '.obi/tmp/compile-list.json')
   fs_encoding = general_config.get('file-system-encoding', 'utf-8')
 
 
@@ -117,7 +117,7 @@ def create_build_list(args):
   build_list = general_config['compiled-object-list']
   object_types = general_config['supported-object-types']
   dependency_list = properties.get_config(general_config['dependency-list'])
-  build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
+  build_output_dir = app_config['general'].get('build-output-dir', '.obi/build-output')
   fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
 
   # Removes old files and dirs
@@ -132,7 +132,7 @@ def create_build_list(args):
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
 
   # Write source list to json
-  files.writeJson(build_targets, general_config.get('compile-list', 'tmp/compile-list.json'))
+  files.writeJson(build_targets, general_config.get('compile-list', '.obi/tmp/compile-list.json'))
 
   # Remove compiled objects from object-list (they need to get compiled)
   # Why remove during build list creation?!?!?!?!
@@ -153,7 +153,7 @@ def open_doc_in_editor(args):
   editor = 'code'
   if args.editor is not None:
     editor=args.editor
-  s=subprocess.run(f"{editor} {app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False)
+  s=subprocess.run(f"{editor} {app_config['general'].get('compiled-object-list-md', '.obi/build-output/compiled-object-list.md')}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False)
 
 
 

@@ -21,7 +21,7 @@ def parse_dependency_file(file_path):
 def get_build_order(dependency_dict, target_list=[], app_config=properties.get_app_properties()):
 
   objects_tree = get_targets_depended_objects(dependency_dict, target_list)
-  files.writeJson(objects_tree, 'tmp/objects_tree.json')
+  files.writeJson(objects_tree, '.obi/tmp/objects_tree.json')
 
   dependend_objects = get_targets_only_depended_objects(dependency_dict, target_list)
   logging.debug(f"{objects_tree=}")
@@ -29,10 +29,10 @@ def get_build_order(dependency_dict, target_list=[], app_config=properties.get_a
 
   ordered_target_tree = get_targets_by_level(objects_tree)
   logging.debug(f"{ordered_target_tree=}")
-  files.writeJson(ordered_target_tree, 'tmp/ordered_target_tree.json')
+  files.writeJson(ordered_target_tree, '.obi/tmp/ordered_target_tree.json')
 
   new_target_tree = remove_duplicities(ordered_target_tree)
-  files.writeJson(new_target_tree, 'tmp/new_target_tree.json')
+  files.writeJson(new_target_tree, '.obi/tmp/new_target_tree.json')
   logging.debug(f"{new_target_tree=}")
 
   build_cmds.add_build_cmds(new_target_tree, app_config)

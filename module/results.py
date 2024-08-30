@@ -75,7 +75,7 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
   changed_sources_list = files.getJson(constants.CHANGED_OBJECT_LIST)
 
 
-  compiled_obj_list_md_file = app_config['general'].get('compiled-object-list-md', 'compiled-object-list.md')
+  compiled_obj_list_md_file = app_config['general'].get('compiled-object-list-md', '.obi/build-output/compiled-object-list.md')
   compiled_obj_list_md_template = files.readText('docs/summary-template.md')
   compiled_obj_list_md_content = ''
 
