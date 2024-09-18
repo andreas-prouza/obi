@@ -31,6 +31,7 @@ args = parser.parse_args()
 #################################################################
 
 sys.path.insert(0, args.set_path)
+sys.path.insert(0, os.path.join( args.set_path, '.obi'))
 original_dir=os.getcwd()
 #os.chdir(os.path.realpath(os.path.dirname(__file__)))
 os.chdir(os.path.realpath(args.set_path))
