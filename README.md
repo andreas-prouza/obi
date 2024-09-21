@@ -16,7 +16,14 @@ Check [ibm-i-build-obi](https://github.com/andreas-prouza/ibm-i-build-obi) to se
   Resolving deltas: 100% (147/147), done.
 ```
 
-Run the setup script ```setup.sh```
+Jump into the directory:
+```cd obi```
+
+Run the setup script 
+* Linux/Mac/IBM i:  
+  ```./setup.sh```
+* Windows:  
+  ```setup.bat```
 
 The script will ...
 
@@ -47,6 +54,8 @@ The script will ...
   Successfully installed toml-0.10.2
 ```
 
-After install, it's ready to use.
+After install, it's ready to use.  
+Nothing more needs to be done.  
+All the configuration will be used from your project folder.
 
 # FAQ
