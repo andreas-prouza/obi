@@ -49,6 +49,29 @@ def get_object_list(source, app_config=default_app_config):
 
 
 
+def remove_unresolved_cmd_parameters(cmd: str) -> str:
+
+  cmd = cmd.replace('ACTGRP($(ACTGRP))', '')
+  cmd = cmd.replace('ACTGRP()', '')
+  cmd = cmd.replace('BNDDIR($(INCLUDE_BNDDIR))', '')
+  cmd = cmd.replace('BNDDIR()', '')
+  cmd = cmd.replace('TGTRLS($(TGTRLS))', '')
+  cmd = cmd.replace('TGTRLS()', '')
+  cmd = cmd.replace('STGMDL($(STGMDL))', '')
+  cmd = cmd.replace('STGMDL()', '')
+  cmd = cmd.replace('TGTCCSID($(TGTCCSID))', '')
+  cmd = cmd.replace('TGTCCSID()', '')
+  cmd = cmd.replace('DBGVIEW($(DBGVIEW))', '')
+  cmd = cmd.replace('DBGVIEW()', '')
+  cmd = cmd.replace('INCDIR($(INCDIR_SQLRPGLE))', '')
+  cmd = cmd.replace('INCDIR()', '')
+  cmd = cmd.replace('INCDIR($(INCDIR_RPGLE))', '')
+  cmd = cmd.replace('INCDIR()', '')
+
+  return cmd
+
+
+
 def get_source_build_cmds(source, app_config=default_app_config):
 
   logging.debug(f"Check source cmds for {source}")
@@ -84,6 +107,8 @@ def get_source_build_cmds(source, app_config=default_app_config):
       if not isinstance(v, str) and not isinstance(v, int):
         continue
       cmd = cmd.replace(f"$({k})", str(v))
+
+    cmd = remove_unresolved_cmd_parameters(cmd)
 
     dspjoblog_cmd = app_config['global']['cmds'].get('dspjoblog', None)
     if dspjoblog_cmd is not None:
