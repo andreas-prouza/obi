@@ -76,7 +76,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 
 def run_pase_cmd(cmd, app_config=default_app_config):
 
-  s=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False, executable='/bin/bash')
+  s=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False, executable='/usr/bin/bash')
 
   encoding = app_config['general'].get('console-output-encoding', 'utf-8')
   stdout = str(s.stdout, encoding)
