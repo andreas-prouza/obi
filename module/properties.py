@@ -9,18 +9,26 @@ from module import files
 from module import dict_tools
 
 
+config_content = {}
+
 
 def get_config(config):
 
   if not os.path.exists(config):
     return {}
 
+  if config in config_content.keys():
+    return config_content[config]
+
   with open(config, 'r') as f:
-    return toml.load(f)
+    config_content[config] = toml.load(f)
+
+    return config_content[config]
 
 
 
 def write_config(config, content):
+  config_content[config] = content
   files.writeToml(content, config)
 
 
