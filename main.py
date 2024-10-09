@@ -20,6 +20,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list', 
       choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list'], required=True)
+parser.add_argument('-s', '--source', help='Consider single source', required=False)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
 parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
 
@@ -127,8 +128,14 @@ def create_build_list(args):
   shutil.rmtree(build_output_dir, ignore_errors=True)
 
   # Get source list
-  source_list = files.get_files(source_dir, object_types, fs_encoding)
-  changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, source_list)
+  if args.source is None:
+    source_list = files.get_files(source_dir, object_types, fs_encoding)
+    changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, source_list)
+
+  # Source provided by parameter
+  if args.source is not None:
+    changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, {args.source: {"hash": ''}})
+
   files.writeJson(changed_sources_list, constants.CHANGED_OBJECT_LIST)
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
 

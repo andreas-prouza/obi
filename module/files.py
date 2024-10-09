@@ -56,6 +56,7 @@ def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
 
   for src, attributes in src_list.items():
     if src not in build_list.keys():
+      logging.debug(f"{src} not in build list")
       missing_obj.append(src)
       continue
     if 'hash' not in build_list[src].keys() or build_list[src]['hash'] is None or attributes['hash'] != build_list[src]['hash']:
