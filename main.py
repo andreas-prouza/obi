@@ -62,18 +62,24 @@ def run_builds(args):
   logging.debug(f"Run build list")
 
   # Properties
+  logging.debug("Load configs")
   app_config = properties.get_app_properties()
   general_config = app_config['general']
   build_list_file_name = general_config.get('compile-list', '.obi/tmp/compile-list.json')
 
+  logging.debug("Load compile list")
   build_targets = {}
   with open(build_list_file_name, 'r') as f:
         build_targets = json.load(f)
 
+  logging.debug("Remember sources needed to compile")
+  sources = []
   for level_item in build_targets['compiles']:       # Level-List
     for level_list_entry in level_item['sources']:                #   |--> Source-List
-      files.source_needs_compiled(level_list_entry['source'], app_config)
+      sources.append(level_list_entry['source'])
+  files.sources_needs_compiled(sources, app_config)
 
+  logging.debug("Run object builds")
   try:
     run_cmds.run_build_object_list(build_targets, build_list_file_name)
   except Exception as e:

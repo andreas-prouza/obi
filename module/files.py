@@ -123,7 +123,7 @@ def writeJson(content, file):
 
 
 
-def writeToml(content, file):
+async def writeToml(content, file):
   
   if file is None:
     return
@@ -152,12 +152,13 @@ def update_compiles_object_list(source, app_config):
 
 
 
-def source_needs_compiled(source, app_config):
+def sources_needs_compiled(sources, app_config):
 
   compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
   
-  compiled_object_list[source] = {"created" : None, "hash" : None}
-  logging.debug(f"Update {source=} in {compiled_object_list[source]}")
+  for source in sources:
+    compiled_object_list[source] = {"created" : None, "hash" : None}
+    logging.debug(f"Update {source=} in {compiled_object_list[source]}")
 
   properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
 
