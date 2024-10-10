@@ -25,14 +25,9 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8', with_time=False):
           path_file = PureWindowsPath(path_file).as_posix()
 
         file_stat = os.path.join(root, file).decode('utf-8')
-        
-        changed_time = None
-        if with_time:
-          changed_time=datetime.datetime.fromtimestamp(pathlib.Path(file_stat).stat().st_mtime)
-        
         hashed_file = get_file_hash(file_stat)
 
-        src.update({path_file.replace("\\", '/'): {"created" : changed_time, "hash": hashed_file}})
+        src.update({path_file.replace("\\", '/'): hashed_file})
 
   return src
 
@@ -54,12 +49,12 @@ def get_changed_sources(source_dir, build_json, object_types, src_list=None):
   missing_obj=[]
   changed_src=[]
 
-  for src, attributes in src_list.items():
+  for src, hash_value in src_list.items():
     if src not in build_list.keys():
       logging.debug(f"{src} not in build list")
       missing_obj.append(src)
       continue
-    if 'hash' not in build_list[src].keys() or build_list[src]['hash'] is None or attributes['hash'] != build_list[src]['hash']:
+    if build_list[src] is None or hash_value != build_list[src]:
       changed_src.append(src)
 
   return {"new-objects": missing_obj, "changed-sources": changed_src}
@@ -71,7 +66,7 @@ def get_file_hash(filename):
     if os.path.getsize(filename) == 0:
       return ''
 
-    h  = hashlib.sha256()
+    h  = hashlib.md5()
     with open(filename, "rb") as f:
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
             h.update(mm)
@@ -143,7 +138,7 @@ def update_compiles_object_list(source, app_config):
   
   file_hash = get_file_hash(f"{app_config['general']['source-dir']}/{source}")
 
-  compiled_object_list[source] = {"created" : datetime.datetime.now(), "hash" : file_hash}
+  compiled_object_list[source] = file_hash
   logging.debug(f"Update {source=} in {compiled_object_list[source]}")
 
   logging.debug(f"Update build list: {len(compiled_object_list)}")
@@ -157,7 +152,7 @@ def sources_needs_compiled(sources, app_config):
   compiled_object_list = properties.get_json(app_config['general']['compiled-object-list'])
   
   for source in sources:
-    compiled_object_list[source] = {"created" : None, "hash" : None}
+    compiled_object_list[source] = None
     logging.debug(f"Update {source=} in {compiled_object_list[source]}")
 
   properties.write_json(app_config['general']['compiled-object-list'], compiled_object_list)

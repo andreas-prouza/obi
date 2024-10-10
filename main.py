@@ -140,7 +140,7 @@ def create_build_list(args):
 
   # Source provided by parameter
   if args.source is not None:
-    changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, {args.source: {"hash": ''}})
+    changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, {args.source: ''})
 
   files.writeJson(changed_sources_list, constants.CHANGED_OBJECT_LIST)
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
