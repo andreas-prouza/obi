@@ -26,7 +26,7 @@ def remove_compiled_objects(compile_list, app_config=None):
     if app_config is None:
         app_config = properties.get_app_properties()
 
-    compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
+    compiled_object_list = properties.get_json(app_config['general']['compiled-object-list'])
   
     # Level 1-n
     for level, level_list in compile_list.items():
@@ -42,4 +42,4 @@ def remove_compiled_objects(compile_list, app_config=None):
                     del compiled_object_list[src_name]
 
     logging.debug(f"Write new build list: {len(compiled_object_list)} objects; {inspect.stack()[1]}")
-    properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
+    properties.write_json(app_config['general']['compiled-object-list'], compiled_object_list)

@@ -38,12 +38,12 @@ def get_files(path, file_extensions=[], fs_encoding='utf-8', with_time=False):
 
 
 
-def get_changed_sources(source_dir, build_toml, object_types, src_list=None):
+def get_changed_sources(source_dir, build_json, object_types, src_list=None):
 
   if src_list is None:
     src_list=get_files(source_dir, object_types)
 
-  build_list=properties.get_config(build_toml)
+  build_list=properties.get_json(build_json)
 
   logging.debug(f"Objects in build list: {len(build_list)}")
 
@@ -139,7 +139,7 @@ async def writeToml(content, file):
 
 def update_compiles_object_list(source, app_config):
 
-  compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
+  compiled_object_list = properties.get_json(app_config['general']['compiled-object-list'])
   
   file_hash = get_file_hash(f"{app_config['general']['source-dir']}/{source}")
 
@@ -147,18 +147,18 @@ def update_compiles_object_list(source, app_config):
   logging.debug(f"Update {source=} in {compiled_object_list[source]}")
 
   logging.debug(f"Update build list: {len(compiled_object_list)}")
-  properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
+  properties.write_json(app_config['general']['compiled-object-list'], compiled_object_list)
 
 
 
 
 def sources_needs_compiled(sources, app_config):
 
-  compiled_object_list = properties.get_config(app_config['general']['compiled-object-list'])
+  compiled_object_list = properties.get_json(app_config['general']['compiled-object-list'])
   
   for source in sources:
     compiled_object_list[source] = {"created" : None, "hash" : None}
     logging.debug(f"Update {source=} in {compiled_object_list[source]}")
 
-  properties.write_config(app_config['general']['compiled-object-list'], compiled_object_list)
+  properties.write_json(app_config['general']['compiled-object-list'], compiled_object_list)
 

@@ -14,7 +14,7 @@ default_app_config = properties.get_app_properties()
 
 def parse_dependency_file(file_path):
 
-  return properties.get_config(file_path)
+  return properties.get_json(file_path)
 
 
 

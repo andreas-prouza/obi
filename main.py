@@ -105,7 +105,7 @@ def get_results(args):
         build_targets = json.load(f)
 
   # Extract joblog, spooled file
-  results.save_outputs_in_files(build_targets, app_config)
+  #results.save_outputs_in_files(build_targets, app_config)
 
   # Generate document
   # Because it's always executed on IBM i, encoding ist hardcoded UTF-8
@@ -124,7 +124,7 @@ def create_build_list(args):
   source_dir = os.path.join(general_config['local-base-dir'], general_config['source-dir'])
   build_list = general_config['compiled-object-list']
   object_types = general_config['supported-object-types']
-  dependency_list = properties.get_config(general_config['dependency-list'])
+  dependency_list = properties.get_json(general_config['dependency-list'])
   build_output_dir = app_config['general'].get('build-output-dir', '.obi/build-output')
   fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
 

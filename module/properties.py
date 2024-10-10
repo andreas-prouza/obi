@@ -1,5 +1,6 @@
 import logging
 import toml
+import json
 import os
 import pathlib
 
@@ -10,6 +11,31 @@ from module import dict_tools
 
 
 config_content = {}
+
+
+
+
+def get_json(config):
+
+  if not os.path.exists(config):
+    return {}
+
+  if config in config_content.keys():
+    return config_content[config]
+
+  with open(config, 'r') as f:
+    config_content[config] = json.load(f)
+
+    return config_content[config]
+
+
+
+def write_json(config, content):
+  config_content[config] = content
+  files.writeJson(content, config)
+
+
+
 
 
 def get_config(config):
