@@ -186,7 +186,7 @@ def generate_object_list(args):
   fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
 
   source_list = files.get_files(source_dir, object_types, fs_encoding, with_time=True)
-  files.writeToml(source_list, build_list)
+  files.writeJson(source_list, build_list)
 
 
 
@@ -204,7 +204,7 @@ def generate_source_list(args):
   fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
 
   source_list = files.get_files(source_dir, object_types, fs_encoding, with_time=True)
-  files.writeToml(source_list, build_list)
+  files.writeJson(source_list, build_list)
 
 
 

@@ -118,7 +118,7 @@ def writeJson(content, file):
 
 
 
-async def writeToml(content, file):
+def writeToml(content, file):
   
   if file is None:
     return
