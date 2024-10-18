@@ -11,6 +11,13 @@ from module import files
 default_app_config = properties.get_app_properties()
 
 
+def all_cmds_succeeded(cmds:[]) -> bool:
+  for cmd_item in cmds:
+    if 'status' not in cmd_item or cmd_item['status'] != 'success':
+      return False
+  return True
+
+
 
 def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=default_app_config):
   """Run commands for all source entries
@@ -37,6 +44,10 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
       
       logging.info(level_list_entry['source'])
       logging.info(cmds)
+
+      # Skip this if object was successfully build
+      if all_cmds_succeeded(level_list_entry['cmds']):
+        continue
 
       # each source can have multiple commands
       for cmd_item in cmds:
