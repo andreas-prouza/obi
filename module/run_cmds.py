@@ -49,6 +49,8 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
       if all_cmds_succeeded(level_list_entry['cmds']):
         continue
 
+      level_list_entry['status'] = 'in process'
+
       # each source can have multiple commands
       for cmd_item in cmds:
         
@@ -76,10 +78,14 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
         files.writeJson(target_tree, save_update_2_json_file)
 
         if result['exit-code'] != 0 or result['stderr'] != '':
+          level_list_entry['status'] = 'failed'
           e = Exception(f"Error for '{src_name}': {result['stderr']}")
           logging.exception(e)
           raise e
     
+      level_list_entry['status'] = 'success'
+      level_list_entry['hash'] = files.get_file_hash(f"{app_config['general']['source-dir']}/{src_name}")
+      files.writeJson(target_tree, save_update_2_json_file)
       files.update_compiles_object_list(src_name, app_config)
 
 
