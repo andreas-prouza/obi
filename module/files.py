@@ -157,7 +157,7 @@ def sources_needs_compiled(sources, app_config):
   
   for source in sources:
     compiled_object_list[source] = None
-    logging.debug(f"Update {source=} in {compiled_object_list[source]}")
+    logging.debug(f"Source {source=} gets removed from object-build-list because it needs to get compiled")
 
   properties.write_json(app_config['general']['compiled-object-list'], compiled_object_list)
 

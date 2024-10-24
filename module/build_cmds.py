@@ -76,17 +76,22 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   logging.debug(f"Check source cmds for {source}")
   cmds = []
-  source_config=properties.get_config(constants.SOURCE_CONFIG_TOML)
+  sources_config=properties.get_config(constants.SOURCE_CONFIG_TOML)
+  source_config={}
+  if source in sources_config:
+    source_config = sources_config[source]
+
 
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
   logging.debug(f"{file_extensions=}")
+  logging.debug(f"{source_config=}")
 
   steps = app_config['global']['steps'].get(file_extensions, [])
 
   # Override steps by individual source config
-  if source in source_config and 'steps' in source_config[source].keys():
-    steps = source_config[source]['steps']
+  if 'steps' in source_config.keys() and len(source_config['steps']) > 0:
+    steps = source_config['steps']
     logging.debug(f"{steps=}")
 
   # All properties for this source
@@ -96,10 +101,16 @@ def get_source_build_cmds(source, app_config=default_app_config):
   # Loop all steps of the source extension
   for step in steps:
     
-    r=csv.reader([step], quotechar='"', delimiter='.')
-    step_list = next(r)
+    logging.debug(f"{step=}")
+    r=csv.reader([step], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
+    step_list = next(r)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
+    logging.debug(f"{step_list=}")
+
     cmd = toml_tools.get_table_element(app_config, step_list)
-    
+    logging.debug(f"1: {cmd=}")
+    cmd = toml_tools.get_table_element({**app_config, **source_config}, step_list)
+    logging.debug(f"2: {cmd=}")
+
     if cmd is None or cmd == '':
       continue
 

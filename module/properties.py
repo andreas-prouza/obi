@@ -83,6 +83,7 @@ def get_source_properties(config, source):
   # Override source individual settings
   if source in source_config and 'settings' in source_config[source].keys():
     global_settings.update(source_config[source]['settings'])
+    logging.debug(f"{source_config[source]['settings']=}")
 
   global_settings.update(type_settings)
   global_settings['SOURCE_FILE_NAME'] = os.path.join(config['general']['source-dir'], source).replace('\\', '/')
