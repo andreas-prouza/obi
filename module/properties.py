@@ -112,10 +112,11 @@ def get_target_lib(source, target_lib=None, lib_mapping=None):
   if target_lib is not None:
     return target_lib.lower()
 
-  for k, v in lib_mapping.items():
-    k = k.lower()
-    if k == source_lib:
-      return v.lower()
+  if lib_mapping is not None:
+    for k, v in lib_mapping.items():
+      k = k.lower()
+      if k == source_lib:
+        return v.lower()
 
   return source_lib
 
