@@ -24,7 +24,11 @@ def get_json(config):
     return config_content[config]
 
   with open(config, 'r') as f:
-    config_content[config] = json.load(f)
+    try:
+      config_content[config] = json.load(f)
+    except Exception as e:
+      config_content[config] = {}
+      logging.exception(e)
 
     return config_content[config]
 
@@ -47,7 +51,11 @@ def get_config(config):
     return config_content[config]
 
   with open(config, 'r') as f:
-    config_content[config] = toml.load(f)
+    try:
+      config_content[config] = toml.load(f)
+    except Exception as e:
+      config_content[config] = {}
+      logging.exception(e)
 
     return config_content[config]
 
