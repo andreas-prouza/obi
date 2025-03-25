@@ -5,7 +5,7 @@ import csv
 
 from module import properties
 from etc import constants
-from module import toml_tools, files
+from module import toml_tools, files, app_config_tools
 
 
 default_app_config = properties.get_app_properties()
@@ -87,7 +87,8 @@ def get_source_build_cmds(source, app_config=default_app_config):
   logging.debug(f"{file_extensions=}")
   logging.debug(f"{source_config=}")
 
-  steps = app_config['global']['steps'].get(file_extensions, [])
+  steps = app_config_tools.get_steps(app_config, source)
+  #steps = app_config['global']['steps'].get(file_extensions, [])
 
   # Override steps by individual source config
   if 'steps' in source_config.keys() and len(source_config['steps']) > 0:
