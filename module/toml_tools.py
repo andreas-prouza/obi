@@ -1,5 +1,6 @@
 import logging
 import inspect
+import copy
 
 from module import properties
 from etc import constants
@@ -8,7 +9,7 @@ from etc import constants
 
 def get_table_element(toml, tree_list):
     
-    toml_copy = toml.copy()
+    toml_copy = copy.deepcopy(toml)
 
     for entry in tree_list:
         

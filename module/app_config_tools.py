@@ -5,10 +5,39 @@ import re
 
 from etc import constants
 from module import toml_tools, files, properties
+from typing import TypedDict, List, Union
 
 
-def get_steps(app_config: dict, source: str) -> list:
+class FilterDict(TypedDict):
+    SOURCE_FILE_NAME: Union[str, None]
+    SOURCE_FILE_NAME2: Union[str, None]
 
+class ExtendedSourceConfig(TypedDict):
+    steps: List[str]
+    use_regex: bool
+    filter: FilterDict
+
+class ExtendedSourceConfigFile(TypedDict):
+    extended_source_processing: List[ExtendedSourceConfig]
+
+
+
+def get_steps(source: str, app_config: dict) -> list[str]:
+
+    """Get steps for a source file
+    Args:
+        app_config (properties): Application config file
+        source (str): source file name
+    Returns:
+        list[str]: List of steps
+    """
+
+    steps: list[str] = get_extended_steps(source, app_config)
+    # No match found
+    if steps is not None:
+        return steps
+
+    # Check if source matches the global steps
     for extension_step in app_config['global']['steps']:
         if extension_step == source:
             return app_config['global']['steps'][extension_step]
@@ -26,46 +55,97 @@ def get_steps(app_config: dict, source: str) -> list:
 
 
 
-def get_extended_steps(app_config: dict, source: str) -> list:
+def get_extended_steps(source: str, app_config: dict) -> list|None:
     """If extended steps exist, search for a match
     Args:
         app_config (properties): Application config file
         source (str): source file name
 
     Returns:
-        list: List of steps
+        list|None: List of steps or None if no match found
+    """
+
+    # No match found
+    last_steps: list[str] = None
+    last_config_entry: ExtendedSourceConfig = None
+
+    sources_config: ExtendedSourceConfigFile = properties.get_config(constants.EXTENDED_SOURCE_PROCESS_CONFIG_TOML)
+    if len(sources_config) == 0 or 'extended_source_processing' not in sources_config:
+        return None
+    
+    source_properties: {} = properties.get_source_properties(app_config, source)
+
+    for source_config_entry in sources_config['extended_source_processing']:
+
+        # Every condition needs to match
+        if match_source_conditions(source_config_entry, source, source_properties):
+            
+            # A source should only have one match in the extended source processing
+            if last_steps is not None:
+                error = (f"Multiple extended source processing entries found for {source=}: {last_config_entry=}, {source_config_entry=}")
+                logging.error(error)
+                raise Exception(error)
+            
+            last_steps = source_config_entry['steps']
+            last_config_entry = source_config_entry
+            logging.debug(f"Extended source processing entry found for {source=}: {last_config_entry=}")
+        
+    return last_steps
+
+
+
+
+def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: str, source_properties: {}) -> bool:
+    """Process conditions for extended source commands
+    Args:
+        conditions (dict): Conditions to process
+        source (str): Source file name
+        source_properties (dict): Source properties (TGTRLS, STGMDL, TARGET_LIB, OBJ_NAME etc.)
+    Returns:
+        bool: True if conditions match
     """
 
     conditions = {
-        'SOURCE_FILE_NAME': match_condition_SOURCE_FILE_NAME
+        'SOURCE_FILE_NAME': match_condition_SOURCE_FILE_NAME,
+        'TARGET_LIB': match_condition_TARGET_LIB
     }
 
-    sources_config=properties.get_config(constants.EXTENDED_SOURCE_PROCESS_CONFIG_TOML)
-    if len(sources_config) == 0:
-        return []
+    if len(source_config_entry['conditions']) == 0:
+        return False
 
-    for proc_name, proc_dict in sources_config.items():
+    for condition_name, condition_value in source_config_entry['conditions'].items():
 
-        if 'conditions' not in proc_dict:
-            continue
+        if condition_name not in conditions:
+            logging.warning(f"Unknown extended source condition name: {condition_name}, {source=}")
+            return False
 
-        found = True
-        for cond_name, cond_dict in proc_dict.items():
-        
-            # Every condition needs to match
-            found = conditions[cond_name](source, cond_dict)
-            if not found:
-                break
+        # Every condition needs to match
+        found = conditions[condition_name](source, condition_value, source_config_entry, source_properties)
+        if not found:
+            return False
 
-        if found:
-            return step_values['steps']
+    return True
 
 
 
 
-def match_condition_SOURCE_FILE_NAME(source:str, conditions) -> bool:
+def match_condition_SOURCE_FILE_NAME(source:str, condition_value:str, source_config_entry: ExtendedSourceConfig, source_properties: {}) -> bool:
 
-    if conditions['settings']['use-regex']:
-        return re.search(conditions['filter'], source)
+    if source_config_entry['use_regex']:
+        return re.search(condition_value, source)
 
-    return fnmatch.fnmatch(source, conditions['filter'])
+    return fnmatch.fnmatch(source, condition_value)
+
+
+
+
+
+def match_condition_TARGET_LIB(source:str, condition_value:str, source_config_entry: ExtendedSourceConfig, source_properties: {}) -> bool:
+
+    if source_config_entry['use_regex']:
+        return re.search(condition_value, source_properties['TARGET_LIB'])
+
+    return fnmatch.fnmatch(source_properties['TARGET_LIB'], condition_value)
+
+
+

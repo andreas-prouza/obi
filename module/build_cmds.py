@@ -87,7 +87,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
   logging.debug(f"{file_extensions=}")
   logging.debug(f"{source_config=}")
 
-  steps = app_config_tools.get_steps(app_config, source)
+  steps = app_config_tools.get_steps(source, app_config)
   #steps = app_config['global']['steps'].get(file_extensions, [])
 
   # Override steps by individual source config
@@ -113,7 +113,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
     logging.debug(f"2: {cmd=}")
 
     if cmd is None or cmd == '':
-      continue
+      raise Exception(f"Step '{step}' not found in '{constants.CONFIG_TOML}' or '{constants.CONFIG_USER_TOML}'")
 
     for k, v in variable_dict.items():
       if not isinstance(v, str) and not isinstance(v, int):

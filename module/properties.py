@@ -83,7 +83,6 @@ def get_source_properties(config, source):
   source_config=get_config(constants.SOURCE_CONFIG_TOML)
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
-  logging.debug(f"{file_extensions=}")
 
   global_settings = toml_tools.get_table_element(config, ['global', 'settings', 'general'])
   type_settings = toml_tools.get_table_element(config, ['global', 'settings', 'language']).get(file_extensions, [])
