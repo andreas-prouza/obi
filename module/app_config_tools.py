@@ -1,7 +1,8 @@
 import logging
 import pathlib
 import fnmatch
-import re
+import re, sys
+from io import StringIO
 
 from etc import constants
 from module import toml_tools, files, properties
@@ -15,6 +16,7 @@ class FilterDict(TypedDict):
 class ExtendedSourceConfig(TypedDict):
     steps: List[str]
     use_regex: bool
+    use_script: str
     filter: FilterDict
 
 class ExtendedSourceConfigFile(TypedDict):
@@ -66,7 +68,8 @@ def get_extended_steps(source: str, app_config: dict) -> list|None:
     """
 
     # No match found
-    last_steps: list[str] = None
+    last_steps: list[str] = []
+    allow_multiple_matches: bool = True
     last_config_entry: ExtendedSourceConfig = None
 
     sources_config: ExtendedSourceConfigFile = properties.get_config(constants.EXTENDED_SOURCE_PROCESS_CONFIG_TOML)
@@ -76,29 +79,118 @@ def get_extended_steps(source: str, app_config: dict) -> list|None:
     source_properties: {} = properties.get_source_properties(app_config, source)
 
     for source_config_entry in sources_config['extended_source_processing']:
+        
+        use_script: str = source_config_entry.get('use_script', None)
 
         # Every condition needs to match
-        if match_source_conditions(source_config_entry, source, source_properties):
+        if match_source_conditions(source_config_entry, source, source_properties) and match_source_script(source_config_entry, source, source_properties):
             
             # A source should only have one match in the extended source processing
-            if last_steps is not None:
+            # New: Multiple steps are allowed
+            if not allow_multiple_matches and len(last_steps) > 0:
                 error = (f"Multiple extended source processing entries found for {source=}: {last_config_entry=}, {source_config_entry=}")
                 logging.error(error)
                 raise Exception(error)
             
-            last_steps = source_config_entry['steps']
+            allow_multiple_matches = source_config_entry.get('allow_multiple_matches', True)
+            
+            last_steps.extend(source_config_entry['steps'])
             last_config_entry = source_config_entry
             logging.debug(f"Extended source processing entry found for {source=}: {last_config_entry=}")
         
+    if len(last_steps) == 0:
+        return None
+        
     return last_steps
 
+
+
+def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, source_properties: {}) -> bool:
+    """Process script for extended source commands
+    Args:
+        source_config_entry (dict): Extended source config entry
+        source (str): Source file name
+        source_properties (dict): Source properties (TGTRLS, STGMDL, TARGET_LIB, OBJ_NAME etc.)
+    Returns:
+        bool: True if script matches
+    """
+    
+    result = False
+    
+    # No script defined
+    script = source_config_entry.get('use_script', None)
+    
+    if script is None:
+        return True
+
+    func = get_script_function(script)
+
+    stdout_orig = sys.stdout
+    stdout_new = StringIO()
+    sys.stdout = stdout_new
+    stderr_orig = sys.stderr
+    sys.stderr = stderr_new = StringIO()
+
+    hdl = logging.StreamHandler(stream=stdout_new)
+    logging.getLogger().addHandler(hdl)
+
+    try:
+        result = func(source, **source_properties)
+
+    except Exception as e:
+        print(str(e), file=sys.stderr)
+        logging.exception(e, stack_info=True)
+        raise e
+
+    stderr_text = stderr_new.getvalue()
+    if len(stderr_text) > 0:
+        logging.error(stderr_text)
+
+    sys.stdout = stdout_orig
+    sys.stderr = stderr_orig
+    logging.getLogger().removeHandler(hdl)
+
+    return result
+
+
+def get_script_function(script: str) -> callable:
+    """Get script function
+    Args:
+        script (str): Script name
+    Returns:
+        callable: Function to be called
+    Raises:
+        Exception: If script or function not found
+    """
+    
+    obj = script.split('.')
+
+    if len(obj) != 2:
+        raise Exception(f"Script '{script}' has not the correct format: 'filename.function_name' (without '.py' in filename)")
+
+    # Check if script exists
+    scripts_path = pathlib.Path(constants.ESP_SCRIPT_FOLDER)
+    script_file = scripts_path / f"{obj[0]}.py"
+    
+    if not script_file.is_file():
+        raise Exception(f"Script '{script}' not found in {scripts_path} ({script_file.absolute()})")
+    
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(script_file.stem, script_file)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if hasattr(module, obj[1]):
+        return getattr(module, obj[1])
+    
+    raise Exception(f"Function '{obj[1]}' not found in script '{script}'")
+    
 
 
 
 def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: str, source_properties: {}) -> bool:
     """Process conditions for extended source commands
     Args:
-        conditions (dict): Conditions to process
+        source_config_entry (dict): Extended source config entry
         source (str): Source file name
         source_properties (dict): Source properties (TGTRLS, STGMDL, TARGET_LIB, OBJ_NAME etc.)
     Returns:
