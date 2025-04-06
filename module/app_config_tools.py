@@ -7,6 +7,7 @@ from io import StringIO
 from etc import constants
 from module import toml_tools, files, properties
 from typing import TypedDict, List, Union
+import subprocess
 
 
 class FilterDict(TypedDict):
@@ -83,7 +84,9 @@ def get_extended_steps(source: str, app_config: dict) -> list|None:
         use_script: str = source_config_entry.get('use_script', None)
 
         # Every condition needs to match
-        if match_source_conditions(source_config_entry, source, source_properties) and match_source_script(source_config_entry, source, source_properties):
+        if match_source_conditions(source_config_entry, source, source_properties) \
+            and match_source_script(source_config_entry, source, source_properties) \
+            and match_source_shell(source_config_entry, source, source_properties):
             
             # A source should only have one match in the extended source processing
             # New: Multiple steps are allowed
@@ -102,6 +105,43 @@ def get_extended_steps(source: str, app_config: dict) -> list|None:
         return None
         
     return last_steps
+
+
+
+def match_source_shell(source_config_entry: ExtendedSourceConfig, source: str, source_properties: {}) -> bool:
+    """Process script for extended source commands
+    Args:
+        source_config_entry (dict): Extended source config entry
+        source (str): Source file name
+        source_properties (dict): Source properties (TGTRLS, STGMDL, TARGET_LIB, OBJ_NAME etc.)
+    Returns:
+        bool: True if shell matches
+    """
+    
+    result = False
+    
+    # No shell defined
+    shell = source_config_entry.get('use_shell', None)
+    
+    if shell is None:
+        return True
+    
+    for key, value in source_properties.items():
+        key = f"${{{key}}}"
+        if key in shell:
+            shell = shell.replace(key, value)
+            
+    logging.debug(f"Execute shell cmd: {shell}")
+    
+    try:
+        result = subprocess.run(shell, shell=True, check=True, text=True, capture_output=True)
+        logging.debug(f"Shell command stdout: {result.stdout}")
+        return True
+    except subprocess.CalledProcessError as e:
+        logging.debug(f"Shell command stdout: {e.stdout}")
+        logging.debug(f"Shell command stderr: {e.stderr}")
+        return False
+
 
 
 

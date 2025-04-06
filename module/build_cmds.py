@@ -105,10 +105,10 @@ def get_source_build_cmds(source, app_config=default_app_config):
     logging.debug(f"{step=}")
     r=csv.reader([step], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
     step_list = next(r)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
-    logging.debug(f"{step_list=}")
+    #logging.debug(f"{step_list=}")
 
-    cmd = toml_tools.get_table_element(app_config, step_list)
-    logging.debug(f"1: {cmd=}")
+    #cmd = toml_tools.get_table_element(app_config, step_list)
+    #logging.debug(f"1: {cmd=}")
     cmd = toml_tools.get_table_element({**app_config, **source_config}, step_list)
     logging.debug(f"2: {cmd=}")
 
