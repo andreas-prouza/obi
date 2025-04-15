@@ -6,7 +6,7 @@ import csv
 from module import properties
 from etc import constants
 from module import toml_tools, files, app_config_tools
-
+from copy import deepcopy
 
 default_app_config = properties.get_app_properties()
 
@@ -103,15 +103,37 @@ def get_source_build_cmds(source, app_config=default_app_config):
   for step in steps:
     
     logging.debug(f"{step=}")
+
+    if isinstance(step, str):
+      cmd = get_cmd_from_step(step, source, variable_dict, app_config, source_config)
+      
+    if isinstance(step, dict):
+      var_dict_tmp = deepcopy(variable_dict)
+      logging.debug(f"{var_dict_tmp=}")
+      var_dict_tmp.update(step.get('properties', {}))
+      cmd = get_cmd_from_step(step.get('step', None), source, var_dict_tmp, app_config, source_config)
+      
+    cmds.append({"cmd": cmd, "status": "new"})
+
+  logging.debug(f"Added {len(cmds)} cmds for {source}")
+
+  return cmds
+
+
+
+def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, source_config) -> str:
+  
     r=csv.reader([step], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
     step_list = next(r)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
     #logging.debug(f"{step_list=}")
 
     #cmd = toml_tools.get_table_element(app_config, step_list)
-    #logging.debug(f"1: {cmd=}")
+    #logging.debug(f"1: {step_list=}")
     cmd = toml_tools.get_table_element({**app_config, **source_config}, step_list)
     logging.debug(f"2: {cmd=}")
-
+    
+    variable_dict['SET_LIBL'] = properties.get_set_libl_cmd(app_config, variable_dict.get('LIBL', []), variable_dict['TARGET_LIB'])
+    
     if cmd is None or cmd == '':
       raise Exception(f"Step '{step}' not found in '{constants.CONFIG_TOML}' or '{constants.CONFIG_USER_TOML}'")
 
@@ -127,8 +149,6 @@ def get_source_build_cmds(source, app_config=default_app_config):
       joblog_sep = app_config['global']['cmds'].get('joblog-separator', "")
       cmd += dspjoblog_cmd.replace("$(joblog-separator)", joblog_sep)
 
-    cmds.append({"cmd": cmd, "status": "new"})
+    return cmd
 
-  logging.debug(f"Added {len(cmds)} cmds for {source}")
 
-  return cmds

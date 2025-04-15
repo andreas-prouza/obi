@@ -55,6 +55,7 @@ def get_config(config):
       config_content[config] = toml.load(f)
     except Exception as e:
       config_content[config] = {}
+      logging.error(f"Error loading config file {config}")
       logging.exception(e)
 
     return config_content[config]
@@ -98,15 +99,22 @@ def get_source_properties(config, source):
   global_settings['TARGET_LIB'] = get_target_lib(source, global_settings.get('TARGET_LIB'), global_settings.get('TARGET_LIB_MAPPING'))
   global_settings['OBJ_NAME'] = pathlib.Path(pathlib.Path(source).stem).stem
 
+  global_settings['SET_LIBL'] = get_set_libl_cmd(config, global_settings.get('LIBL', []), global_settings['TARGET_LIB'])
+
+  return global_settings
+
+
+
+
+def get_set_libl_cmd(config, libl: [str], target_lib: str) -> str:
   set_libl = ""
-  for lib in global_settings.get('LIBL', []):
-    lib = lib.replace("$(TARGET_LIB)", global_settings['TARGET_LIB'])
+  for lib in libl:
+    lib = lib.replace("$(TARGET_LIB)", target_lib)
     if len(set_libl) > 0:
       set_libl += '; '
     set_libl += config['global']['cmds']['add-lible'].replace('$(LIB)', lib)
-  global_settings['SET_LIBL'] = set_libl
+  return set_libl
 
-  return global_settings
 
 
 
