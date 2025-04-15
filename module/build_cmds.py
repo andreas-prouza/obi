@@ -97,7 +97,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
-  logging.debug(variable_dict)
+  logging.debug(f"{variable_dict=}")
 
   # Loop all steps of the source extension
   for step in steps:
