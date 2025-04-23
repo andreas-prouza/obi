@@ -215,6 +215,7 @@ def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, 
         return True
 
     func = get_script_function(script)
+    parms = get_script_parameter(script)
 
     stdout_orig = sys.stdout
     stdout_new = StringIO()
@@ -226,7 +227,7 @@ def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, 
     logging.getLogger().addHandler(hdl)
 
     try:
-        result = func(source, **source_properties)
+        result = func(source, **source_properties, **parms)
 
     except Exception as e:
         print(str(e), file=sys.stderr)
@@ -254,7 +255,9 @@ def get_script_function(script: str) -> callable:
         Exception: If script or function not found
     """
     
-    obj = script.split('.')
+    # Ignore parameter if exists
+    # Format: filename.function_name:parameter
+    obj = script.split(':', 1)[0].split('.')
 
     if len(obj) != 2:
         raise Exception(f"Script '{script}' has not the correct format: 'filename.function_name' (without '.py' in filename)")
@@ -275,6 +278,24 @@ def get_script_function(script: str) -> callable:
     
     raise Exception(f"Function '{obj[1]}' not found in script '{script}'")
     
+    
+    
+def get_script_parameter(script: str) -> {}:
+    """Get script parameter
+    Args:
+        script (str): Script name
+    Returns:
+        {}: Dictionary with parameters
+    """
+    
+    # Ignore parameter if exists
+    # Format: filename.function_name:parameter
+    obj = script.split(':', 1)
+    
+    if len(obj) == 2:
+        return toml_tools.parse_toml(obj[1])
+    
+    return {}
 
 
 
