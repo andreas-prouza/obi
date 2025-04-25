@@ -350,7 +350,7 @@ def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: s
     """
 
     conditions = {
-        'SOURCE_FILE_NAME': match_condition_SOURCE_FILE_NAME,
+        'SOURCE_FILE_NAMES': match_condition_SOURCE_FILE_NAMES,
         'TARGET_LIB': match_condition_TARGET_LIB
     }
 
@@ -377,14 +377,19 @@ def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: s
 
 
 
-def match_condition_SOURCE_FILE_NAME(source:str, condition_value:str, source_config_entry: ExtendedSourceConfig, source_properties: {}) -> bool:
+def match_condition_SOURCE_FILE_NAMES(source:str, condition_values:[str], source_config_entry: ExtendedSourceConfig, source_properties: {}) -> bool:
 
-    if source_config_entry['use_regex']:
-        return re.search(condition_value, source)
+    for condition_value in condition_values:
 
-    logging.debug(f"Match {source=}, {condition_value=}: {fnmatch.fnmatch(source, condition_value)}")
-    return fnmatch.fnmatch(source, condition_value)
+        if source_config_entry['use_regex']:
+            match = match and re.search(condition_value, source)
+            return True
 
+        logging.debug(f"Match {source=}, {condition_value=}: {fnmatch.fnmatch(source, condition_value)}")
+        if fnmatch.fnmatch(source, condition_value):
+            return True
+
+    return False
 
 
 
