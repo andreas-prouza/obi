@@ -111,7 +111,10 @@ def get_source_build_cmds(source, app_config=default_app_config):
       var_dict_tmp = deepcopy(variable_dict)
       logging.debug(f"{var_dict_tmp=}")
       var_dict_tmp.update(step.get('properties', {}))
-      cmd = get_cmd_from_step(step.get('step', None), source, var_dict_tmp, app_config, source_config)
+      
+      cmd = step.get('cmd', None)
+      if not cmd:
+        cmd = get_cmd_from_step(step.get('step', None), source, var_dict_tmp, app_config, source_config)
       
     cmds.append({"cmd": cmd, "status": "new"})
 

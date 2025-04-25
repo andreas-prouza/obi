@@ -5,9 +5,10 @@ import re, sys
 from io import StringIO
 
 from etc import constants
-from module import toml_tools, files, properties
+from module import files, properties
 from typing import TypedDict, List, Union
 import subprocess
+import json
 
 
 class FilterDict(TypedDict):
@@ -127,31 +128,46 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
 
 
 
-def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source: str, app_config, **source_properties) -> list[str]:
+def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source: str, app_config, **source_properties) -> list[str|dict]:
     steps: [str|dict] = source_config_entry.get('steps', [])
-    new_steps: [str] = []
+    new_steps: [str|dict] = []
+    
+    logging.debug("get_steps_from_current_esp")
     
     for step in steps:
         
+        logging.debug(f"Step: ({type(step)}) {step=}")
+        
         # Check if step is a dictionary
-        if isinstance(step, dict):
+        if isinstance(step, str):
+            new_steps.append(step)
+            continue
+        
+        if not isinstance(step, dict):
+            e = Exception(f"Step '{step}' ({type(step)}) is not a dictionary or a str")
+            logging.exception(e, stack_info=True)
+            raise e
+        
+        steps_2_append = [step]
+        if step.get('use_standard_step', False):            
+            global_steps = get_global_steps(source, app_config=app_config)
+            steps_2_append = [{'step': gs} for gs in global_steps]
+    
+        for step_2_append in steps_2_append:
+            exit_point_script = step.get('exit_point_script', None)
             
-            if step.get('use_standard_step', False):
-                
-                global_steps = get_global_steps(source, app_config=app_config)
-                step_properties = step.get('properties', None)
-                
-                # Inerhit properties from step
-                if step_properties:
-                    for global_step in global_steps:
-                        new_steps.append({'step': global_step, 'properties': step_properties})
-                    continue
-                
-                new_steps.extend(global_steps)
+            if not exit_point_script:
+                new_steps.append({**step_2_append, **step})
                 continue
             
-        new_steps.append(step)
-    
+            func = get_script_function(exit_point_script)
+            parms = get_script_parameter(exit_point_script)
+            step_2_append = call_script(func, source=source, **{**step, **{'step': step_2_append}}, **source_properties, **parms)
+            
+            logging.debug(f"Modified source: {source=}: {step_2_append=}")
+            new_steps.append({**step_2_append, **step})
+
+    logging.debug(f"New steps: {new_steps=}")    
     return new_steps
 
 
@@ -217,6 +233,25 @@ def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, 
     func = get_script_function(script)
     parms = get_script_parameter(script)
 
+    call_script(func, source=source, **source_properties, **parms)
+
+    return result
+
+
+
+def call_script(func: callable, **parms) -> any:
+    """Process script
+    Args:
+        func (callable): Function to be called
+        parms (dict): Parameter to be passed to the function
+    Returns:
+        any: Result of the function
+    """
+    
+    result = False
+    
+    # No script defined
+    
     stdout_orig = sys.stdout
     stdout_new = StringIO()
     sys.stdout = stdout_new
@@ -227,7 +262,7 @@ def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, 
     logging.getLogger().addHandler(hdl)
 
     try:
-        result = func(source, **source_properties, **parms)
+        result = func(**parms)
 
     except Exception as e:
         print(str(e), file=sys.stderr)
@@ -243,6 +278,7 @@ def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, 
     logging.getLogger().removeHandler(hdl)
 
     return result
+
 
 
 def get_script_function(script: str) -> callable:
@@ -293,7 +329,11 @@ def get_script_parameter(script: str) -> {}:
     obj = script.split(':', 1)
     
     if len(obj) == 2:
-        return toml_tools.parse_toml(obj[1])
+        try:
+            return json.loads(obj[1])
+        except json.JSONDecodeError as e:
+            logging.exception(e, stack_info=True)
+            raise Exception(f"Script parameter '{obj[1]}' is not a valid JSON string: {e}")
     
     return {}
 
