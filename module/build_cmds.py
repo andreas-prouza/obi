@@ -165,3 +165,27 @@ def replace_cmd_parameters(cmd: str, variable_dict: {}) -> str:
   cmd = remove_unresolved_cmd_parameters(cmd)
 
   return cmd
+
+
+
+def order_builds(target_tree):
+  '''
+  Order the build commands by the order of the source files
+  '''
+  ordered_target_tree = {'timestamp': target_tree['timestamp'], 'compiles': []}
+  
+  for compiles in target_tree['compiles']:
+    
+    level_list = {'level': compiles['level'], 'sources': []}
+    
+    for source_entry in compiles['sources']:
+      
+      if source_entry['source'].split('.')[-1] == 'file':
+        level_list['sources'].insert(0, source_entry)
+        continue
+      
+      level_list['sources'].append(source_entry)
+      
+    ordered_target_tree['compiles'].append(level_list)
+  
+  return ordered_target_tree

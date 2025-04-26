@@ -52,6 +52,7 @@ from module import dependency
 from module import run_cmds
 from module import results
 from module import toml_tools
+from module import build_cmds
 
 logging.info(f"Arguments: {vars(args)}")
 
@@ -144,6 +145,7 @@ def create_build_list(args):
 
   files.writeJson(changed_sources_list, constants.CHANGED_OBJECT_LIST)
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
+  build_targets = build_cmds.order_builds(build_targets)
 
   # Write source list to json
   files.writeJson(build_targets, general_config.get('compile-list', '.obi/tmp/compile-list.json'))
