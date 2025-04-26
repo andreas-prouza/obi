@@ -12,14 +12,14 @@ import json
 
 
 class FilterDict(TypedDict):
-    SOURCE_FILE_NAME: Union[str, None]
-    SOURCE_FILE_NAME2: Union[str, None]
+    SOURCE_FILE_NAMES: Union[List[str], None]
+    TARGET_LIB: Union[str, None]
 
 class ExtendedSourceConfig(TypedDict):
-    steps: List[str]
+    steps: List[str|dict]
     use_regex: bool
-    use_script: str
-    exit_point_steps: str
+    use_script: Union[str, None]
+    use_shell: Union[str, None]
     filter: FilterDict
 
 class ExtendedSourceConfigFile(TypedDict):
@@ -98,8 +98,7 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
     for source_config_entry in sources_config['extended_source_processing']:
         
         logging.debug(f"Extended source processing entry: {source_config_entry=}")
-        use_script: str = source_config_entry.get('use_script', None)
-
+        
         # Every condition needs to match
         if match_source_conditions(source_config_entry, source, source_properties) \
             and match_source_script(source_config_entry, source, source_properties) \
@@ -114,7 +113,7 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
             
             allow_multiple_matches = source_config_entry.get('allow_multiple_matches', True)
             
-            steps: [str] = get_steps_from_current_esp(source_config_entry, source, app_config=app_config, **source_properties)
+            steps: [str|dict] = get_steps_from_current_esp(source_config_entry, source, app_config=app_config, **source_properties)
             
             result_steps.extend(steps)
             last_config_entry = source_config_entry
@@ -190,11 +189,11 @@ def match_source_shell(source_config_entry: ExtendedSourceConfig, source: str, s
     # No shell defined
     shell = source_config_entry.get('use_shell', None)
     
-    if shell is None:
+    if shell is None or len(shell) == 0:
         return True
     
     for key, value in source_properties.items():
-        key = f"${{{key}}}"
+        key = f"$({key})"
         if key in shell:
             shell = shell.replace(key, value)
             
@@ -227,13 +226,13 @@ def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, 
     # No script defined
     script = source_config_entry.get('use_script', None)
     
-    if script is None:
+    if script is None or len(script) == 0:
         return True
 
     func = get_script_function(script)
     parms = get_script_parameter(script)
 
-    call_script(func, source=source, **source_properties, **parms)
+    result = call_script(func, source=source, **source_properties, **parms)
 
     return result
 
@@ -379,11 +378,13 @@ def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: s
 
 def match_condition_SOURCE_FILE_NAMES(source:str, condition_values:[str], source_config_entry: ExtendedSourceConfig, source_properties: {}) -> bool:
 
+    match = False
+    
     for condition_value in condition_values:
 
         if source_config_entry['use_regex']:
-            match = match and re.search(condition_value, source)
-            return True
+            if re.search(condition_value, source):
+                return True
 
         logging.debug(f"Match {source=}, {condition_value=}: {fnmatch.fnmatch(source, condition_value)}")
         if fnmatch.fnmatch(source, condition_value):

@@ -97,6 +97,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
+  var_dict_tmp = {}
   logging.debug(f"{variable_dict=}")
 
   # Loop all steps of the source extension
@@ -116,6 +117,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
       if not cmd:
         cmd = get_cmd_from_step(step.get('step', None), source, var_dict_tmp, app_config, source_config)
       
+    cmd = replace_cmd_parameters(cmd, {**variable_dict, **var_dict_tmp})
     cmds.append({"cmd": cmd, "status": "new"})
 
   logging.debug(f"Added {len(cmds)} cmds for {source}")
@@ -140,13 +142,6 @@ def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, sou
     if cmd is None or cmd == '':
       raise Exception(f"Step '{step}' not found in '{constants.CONFIG_TOML}' or '{constants.CONFIG_USER_TOML}'")
 
-    for k, v in variable_dict.items():
-      if not isinstance(v, str) and not isinstance(v, int):
-        continue
-      cmd = cmd.replace(f"$({k})", str(v))
-
-    cmd = remove_unresolved_cmd_parameters(cmd)
-
     dspjoblog_cmd = app_config['global']['cmds'].get('dspjoblog', None)
     if dspjoblog_cmd is not None:
       joblog_sep = app_config['global']['cmds'].get('joblog-separator', "")
@@ -155,3 +150,18 @@ def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, sou
     return cmd
 
 
+
+
+def replace_cmd_parameters(cmd: str, variable_dict: {}) -> str:
+  '''
+  Replace all $(...) parameters in the cmd with the values from the variable_dict
+  '''
+  
+  for k, v in variable_dict.items():
+    if not isinstance(v, str) and not isinstance(v, int):
+      continue
+    cmd = cmd.replace(f"$({k})", str(v))
+
+  cmd = remove_unresolved_cmd_parameters(cmd)
+
+  return cmd

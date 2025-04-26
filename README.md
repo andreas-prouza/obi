@@ -1,9 +1,62 @@
 
 # ![logo](docs/img/Open%20Source%20Logo%20smaller.png)  Object Builder for i (OBI)
 
+# 2 Parts
+
+## Client
+
+The client communicates with the back end to get the job done.  
+This has several advantages:  
+* You can use the backend on your local PC for better performance
+* It's independent to any IDE
+  You can use RDi or vscode or even notepad++.  
+  There is a full integration (extension) for [vscode](https://marketplace.visualstudio.com/items?itemName=andreas-prouza.obi).
+* It's easier to maintain, implement new features or customise it
+
 Check [ibm-i-build-obi](https://github.com/andreas-prouza/ibm-i-build-obi) to see, how to use it in your IDE.
 
-## Quick Setup
+
+## Backend
+
+This project is part of the backend.
+
+### Server side
+
+On you IBM i it's used to run the build.
+
+### Client side
+
+On your local PC it's used to generate the build list.  
+(List of compile commands for all necessary sources.)
+
+You can also use OBI on your IBM i to do job.  
+But this comes with some overhead (additional network traffic, IFS operations to generate the build list).  
+
+It's highly recommended to also use the OBI backend also on your local PC to get the best performance out of it.
+
+
+# Prerequisites
+
+* Python 3.9 or higher
+* git
+* On IBM i
+  * Open Source Tools (YUM)
+  * I would also recommend to do the [ssh-setup](https://github.com/andreas-prouza/ibm-i-build/blob/main/docs/pages/SSH.md) for your user profile.  
+    It's much easier for the long term do it via SSH and Bash.
+  * If you have not done the ssh-setup you need to add the open source package path to your session
+    1. Open QSH
+    2. Execute: `export PATH="/QOpenSys/pkgs/bin:$PATH"`
+
+
+# Quick Setup
+
+The setup is the same for your IBM i and your local PC.
+
+Open a console.
+* IBM i: QSH  
+  Make sure that the `PATH` env-var is set correctly: `export PATH="/QOpenSys/pkgs/bin:$PATH"`
+* Windows: cmd
+* Linux/Mac: terminal
 
 ```sh
 -bash-5.2$ git clone https://github.com/andreas-prouza/obi.git
@@ -59,3 +112,9 @@ Nothing more needs to be done.
 All the configuration will be used from your project folder.
 
 # FAQ
+
+### Python not found
+
+Possible reasons:
+* Python is not installed
+* Your Python command needs a version number (e.g. python3)
