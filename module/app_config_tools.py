@@ -156,7 +156,7 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             exit_point_script = step.get('exit_point_script', None)
             
             if not exit_point_script:
-                new_steps.append({**step_2_append, **step})
+                new_steps.append({**step, **step_2_append})
                 continue
             
             func = get_script_function(exit_point_script)
@@ -164,7 +164,7 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             step_2_append = call_script(func, source=source, **{**step, **{'step': step_2_append}}, **source_properties, **parms)
             
             logging.debug(f"Modified source: {source=}: {step_2_append=}")
-            new_steps.append({**step_2_append, **step})
+            new_steps.append({**step, **step_2_append})
 
     logging.debug(f"New steps: {new_steps=}")    
     return new_steps
