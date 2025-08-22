@@ -46,14 +46,6 @@ os.chdir(os.path.realpath(args.set_path))
 from etc import constants
 from etc import logger_config
 
-from module import properties
-from module import files
-from module import dependency
-from module import run_cmds
-from module import results
-from module import toml_tools
-from module import build_cmds
-
 logging.info(f"Arguments: {vars(args)}")
 
 
@@ -209,6 +201,25 @@ def generate_source_list(args):
   files.writeJson(source_list, build_list)
 
 
+def check_environment() -> dict:
+  # Check if the environment is set up correctly
+  if not os.path.exists('.obi'):
+    return {'status': 'error', 'message': 'Missing `.obi` directory'}
+
+  if not os.path.exists('.obi/build-output'):
+    return {'status': 'error', 'message': 'Missing `.obi/build-output` directory'}
+  
+  import platform
+  version = platform.python_version()
+  if tuple(map(int, version.split('.'))) < (3, 13, 0):
+    return {
+      'status': 'error', 
+      'message': f'Python version {version} is too old. Requires >= 3.13.0',
+      "details": f"The python version of OBIs virtual environment (venv) has version {version}, but it requires 3.13 or higher. \n\nCheck your setup in {os.path.dirname(__file__)}/venv"
+      }
+
+  return {'status': 'ok'}
+
 
 action = {
   'create': create_build_list,
@@ -220,6 +231,32 @@ action = {
 }
 
 
+def write_status_to_file(status: dict):
+  with open('.obi/build-output/status.json', 'w') as json_file:
+    json.dump(status, json_file, indent=2, ensure_ascii=False)
+
+
 if __name__ == "__main__":
-  
-  action[args.action](args)
+
+  import json
+
+  check_result = check_environment()
+  write_status_to_file(check_result)
+  if check_result['status'] != 'ok':
+    logging.error(f"Environment check result: {check_result}")
+    sys.exit(1)
+
+  from module import properties
+  from module import files
+  from module import dependency
+  from module import run_cmds
+  from module import results
+  #from module import toml_tools
+  from module import build_cmds
+
+  try:
+    action[args.action](args)
+  except Exception as e:
+    logging.error(f"Error occurred while executing action: {e}")
+    write_status_to_file({"status": "error", "message": str(e), "details": str(e)})
+    sys.exit(1)
