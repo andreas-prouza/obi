@@ -207,7 +207,7 @@ def check_environment() -> dict:
     return {'status': 'error', 'message': 'Missing `.obi` directory'}
 
   if not os.path.exists('.obi/build-output'):
-    return {'status': 'error', 'message': 'Missing `.obi/build-output` directory'}
+    os.makedirs('.obi/build-output', exist_ok=True)
   
   import platform
   version = platform.python_version()
