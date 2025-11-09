@@ -64,7 +64,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
         result = run_pase_cmd(cmd_item['cmd'])
 
         joblog_sep = app_config['global']['cmds'].get('joblog-separator', None)
-        
+
         if joblog_sep is not None and len(result['stdout'].split(joblog_sep)) > 0:
           result['stdout'] = result['stdout'].split(joblog_sep)[0]
 
@@ -83,6 +83,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
         if result['exit-code'] != 0 or result['stderr'] != '':
           level_list_entry['status'] = 'failed'
           e = Exception(f"Error for '{src_name}': {result['stderr']}")
+          logging.error(f"{result=}")
           logging.exception(e)
           raise e
     
