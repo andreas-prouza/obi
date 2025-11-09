@@ -80,6 +80,11 @@ def readText(file):
     return str(text_file.read())
 
 
+def readFile(file):
+  with open(file, 'r', encoding='utf-8') as text_file:
+    return text_file.read()
+
+
 
 def writeText(content, file, write_empty_file=False, encoding='utf-8', mode='w'):
   
