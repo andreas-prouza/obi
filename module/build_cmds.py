@@ -4,7 +4,7 @@ import csv
 
 
 from module import properties
-from etc import constants
+from module import obi_constants
 from module import toml_tools, files, app_config_tools
 from copy import deepcopy
 
@@ -76,7 +76,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   logging.debug(f"Check source cmds for {source}")
   cmds = []
-  sources_config=properties.get_config(constants.SOURCE_CONFIG_TOML)
+  sources_config=properties.get_config(obi_constants.OBIConstants.get("SOURCE_CONFIG_TOML"))
   source_config={}
   if source in sources_config:
     source_config = sources_config[source]
@@ -142,7 +142,7 @@ def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, sou
     variable_dict['SET_LIBL'] = properties.get_set_libl_cmd(app_config, variable_dict.get('LIBL', []), variable_dict['TARGET_LIB'])
     
     if cmd is None or cmd == '':
-      raise Exception(f"Step '{step}' not found in '{constants.CONFIG_TOML}' or '{constants.CONFIG_USER_TOML}'")
+      raise Exception(f"Step '{step}' not found in '{obi_constants.OBIConstants.get("CONFIG_TOML")}' or '{obi_constants.OBIConstants.get("CONFIG_USER_TOML")}'")
 
     dspjoblog_cmd = app_config['global']['cmds'].get('dspjoblog', None)
     if dspjoblog_cmd is not None:

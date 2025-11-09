@@ -3,7 +3,6 @@ import inspect
 import copy
 
 from module import properties
-from etc import constants
 
 
 

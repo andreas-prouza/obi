@@ -3,13 +3,13 @@ import subprocess
 from datetime import datetime
 
 from module import properties
-from etc import constants
+from module import obi_constants
 from module import toml_tools
 from module import files
 import os
 
 
-joblog = '.obi/log/joblog.txt'
+
 
 default_app_config = properties.get_app_properties()
 
@@ -64,7 +64,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
         result = run_pase_cmd(cmd_item['cmd'])
 
         result['stdout'] = result['stdout']
-        result['joblog'] = files.readFile(joblog)
+        result['joblog'] = files.readFile(obi_constants.OBIConstants.get("JOBLOG"))
         
         cmd_item['updated'] = datetime.now().isoformat()
         cmd_item['status'] = 'failed'
@@ -92,7 +92,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 
 def run_pase_cmd(cmd, app_config=default_app_config):
 
-  cmd += f'; cl -v "dspjoblog" > {joblog}'
+  cmd += f'; cl -v "dspjoblog" > {obi_constants.OBIConstants.get("JOBLOG")}'
   logging.debug(f"Run PASE cmd: {cmd}")
 
   s=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False, executable='/usr/bin/bash')

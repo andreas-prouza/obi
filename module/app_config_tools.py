@@ -4,7 +4,7 @@ import fnmatch
 import re, sys
 from io import StringIO
 
-from etc import constants
+from module import obi_constants
 from module import files, properties
 from typing import TypedDict, List, Union
 import subprocess
@@ -88,7 +88,7 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
     allow_multiple_matches: bool = True
     last_config_entry: ExtendedSourceConfig = None
 
-    sources_config: ExtendedSourceConfigFile = properties.get_config(constants.EXTENDED_SOURCE_PROCESS_CONFIG_TOML)
+    sources_config: ExtendedSourceConfigFile = properties.get_config(obi_constants.OBIConstants.get("EXTENDED_SOURCE_PROCESS_CONFIG_TOML"))
     logging.debug(f"{sources_config=}")
     if len(sources_config) == 0 or 'extended_source_processing' not in sources_config:
         return None
@@ -298,7 +298,7 @@ def get_script_function(script: str) -> callable:
         raise Exception(f"Script '{script}' has not the correct format: 'filename.function_name' (without '.py' in filename)")
 
     # Check if script exists
-    scripts_path = pathlib.Path(constants.ESP_SCRIPT_FOLDER)
+    scripts_path = pathlib.Path(obi_constants.OBIConstants.get("ESP_SCRIPT_FOLDER"))
     script_file = scripts_path / f"{obj[0]}.py"
     
     if not script_file.is_file():

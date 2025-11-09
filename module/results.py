@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import PureWindowsPath
 
 from module import properties
-from etc import constants
+from module import obi_constants
 from module import toml_tools
 from module import files
 from module import dependency
@@ -71,8 +71,8 @@ def create_result_doc(compile_list, app_config=default_app_config, encoding='utf
 
   build_output_dir = app_config['general'].get('build-output-dir', 'build-output')
   src_dir = app_config['general'].get('source-dir', 'src')
-  dependend_objects_list = files.getJson(constants.DEPENDEND_OBJECT_LIST)
-  changed_sources_list = files.getJson(constants.CHANGED_OBJECT_LIST)
+  dependend_objects_list = files.getJson(obi_constants.OBIConstants.get("DEPENDEND_OBJECT_LIST"))
+  changed_sources_list = files.getJson(obi_constants.OBIConstants.get("CHANGED_OBJECT_LIST"))
 
 
   compiled_obj_list_md_file = app_config['general'].get('compiled-object-list-md', '.obi/build-output/compiled-object-list.md')

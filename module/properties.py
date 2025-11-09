@@ -4,7 +4,7 @@ import json
 import os
 import pathlib
 
-from etc import constants
+from module import obi_constants
 from module import toml_tools
 from module import files
 from module import dict_tools
@@ -70,8 +70,8 @@ def write_config(config, content):
 
 
 def get_app_properties():
-  app_project_config = get_config(constants.CONFIG_TOML)
-  app_user_config = get_config(constants.CONFIG_USER_TOML)
+  app_project_config = get_config(obi_constants.OBIConstants.get("CONFIG_TOML"))
+  app_user_config = get_config(obi_constants.OBIConstants.get("CONFIG_USER_TOML"))
 
   app_config = dict(dict_tools.dict_merge(app_project_config, app_user_config))
 
@@ -81,7 +81,7 @@ def get_app_properties():
 
 def get_source_properties(config, source):
 
-  source_config=get_config(constants.SOURCE_CONFIG_TOML)
+  source_config=get_config(obi_constants.OBIConstants.get("SOURCE_CONFIG_TOML"))
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
 

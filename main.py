@@ -43,7 +43,7 @@ os.chdir(os.path.realpath(args.set_path))
 #################################################################
 
 
-from etc import constants
+from module import obi_constants
 from etc import logger_config
 
 logging.info(f"Arguments: {vars(args)}")
@@ -135,7 +135,7 @@ def create_build_list(args):
   if args.source is not None:
     changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, {args.source: ''})
 
-  files.writeJson(changed_sources_list, constants.CHANGED_OBJECT_LIST)
+  files.writeJson(changed_sources_list, obi_constants.OBIConstants.get("CHANGED_OBJECT_LIST"))
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
   build_targets = build_cmds.order_builds(build_targets)
 

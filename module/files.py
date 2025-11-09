@@ -1,7 +1,7 @@
 import os, pathlib, datetime, json, logging, toml
 import hashlib, mmap
 from . import properties
-from etc import constants
+from module import obi_constants
 from pathlib import PureWindowsPath
 
 
@@ -140,7 +140,7 @@ def writeToml(content, file):
 
 def update_compiles_object_list(source, app_config):
 
-  if constants.UPDATE_OBJECT_LIST is False:
+  if obi_constants.OBIConstants.get("UPDATE_OBJECT_LIST") is False:
     return
 
   compiled_object_list = properties.get_json(app_config['general']['compiled-object-list'])
