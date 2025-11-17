@@ -211,10 +211,10 @@ def check_environment() -> dict:
   
   import platform
   version = platform.python_version()
-  if tuple(map(int, version.split('.'))) < (3, 13, 0):
+  if tuple(map(int, version.split('.'))) < (3, 12, 0):
     return {
       'status': 'error', 
-      'message': f'Python version {version} is too old. Requires >= 3.13.0',
+      'message': f'Python version {version} is too old. Requires >= 3.12.0',
       "details": f"The python version of OBIs virtual environment (venv) has version {version}, but it requires 3.13 or higher. \n\nCheck your setup in {os.path.dirname(__file__)}/venv"
       }
 
