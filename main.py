@@ -257,6 +257,7 @@ if __name__ == "__main__":
   try:
     action[args.action](args)
   except Exception as e:
+    logging.exception(e)
     logging.error(f"Error occurred while executing action: {e}")
     write_status_to_file({"status": "error", "message": str(e), "details": str(e)})
     sys.exit(1)

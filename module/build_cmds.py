@@ -7,6 +7,7 @@ from module import properties
 from module import obi_constants
 from module import toml_tools, files, app_config_tools
 from copy import deepcopy
+import re
 
 default_app_config = properties.get_app_properties()
 
@@ -130,15 +131,31 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
 def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, source_config) -> str:
   
+    logging.debug(f"csv.reader {step=}")
     r=csv.reader([step], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
     step_list = next(r)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
     #logging.debug(f"{step_list=}")
 
     #cmd = toml_tools.get_table_element(app_config, step_list)
-    #logging.debug(f"1: {step_list=}")
+    logging.debug(f"1: {step_list=}")
     cmd = toml_tools.get_table_element({**app_config, **source_config}, step_list)
     logging.debug(f"2: {cmd=}")
     
+    # Find all words starting and ending with %
+    percent_words = re.findall(r'%[\w\.]+%', cmd)
+    logging.debug(f"Words starting and ending with %: {percent_words}")
+    
+    for word in percent_words:
+        key = word.strip('%')
+        r2=csv.reader([key], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
+        step_list2 = next(r2)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
+        logging.debug(f"Replace word {word} with key {key}")
+        subcmd = toml_tools.get_table_element({**app_config, **source_config}, step_list2)
+    
+        if subcmd is not None:
+          cmd = cmd.replace(word, subcmd)
+          logging.debug(f"Replaced {word} with {subcmd} in cmd")
+
     variable_dict['SET_LIBL'] = properties.get_set_libl_cmd(app_config, variable_dict.get('LIBL', []), variable_dict['TARGET_LIB'])
     
     if cmd is None or cmd == '':

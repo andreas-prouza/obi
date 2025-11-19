@@ -147,10 +147,14 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             logging.exception(e, stack_info=True)
             raise e
         
-        steps_2_append = [step]
+        steps_2_append = []
+        if 'step' in step:
+            steps_2_append.append({'step': step['step']})
+            
+        logging.debug(f"{steps_2_append=}")
         if step.get('use_standard_step', False):            
             global_steps = get_global_steps(source, app_config=app_config)
-            steps_2_append = [{'step': gs} for gs in global_steps]
+            steps_2_append += [{'step': gs} for gs in global_steps]
     
         for step_2_append in steps_2_append:
             exit_point_script = step.get('exit_point_script', None)
