@@ -105,6 +105,8 @@ def get_source_build_cmds(source, app_config=default_app_config):
   for step in steps:
     
     logging.debug(f"{step=}")
+    if step.strip() == '':
+      continue
 
     if isinstance(step, str):
       cmd = get_cmd_from_step(step, source, variable_dict, app_config, source_config)
