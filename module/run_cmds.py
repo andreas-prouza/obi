@@ -44,8 +44,12 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 
       src_name = level_list_entry['source']
       cmds = level_list_entry['cmds']
-      
-      logging.info(level_list_entry['source'])
+
+      logging.info(src_name)
+
+      if 'ignore' in level_list_entry and level_list_entry['ignore']:
+        logging.info(f"Source {src_name} ignored")
+        continue
 
       # Skip this if object was successfully build
       if all_cmds_succeeded(level_list_entry['cmds']):
