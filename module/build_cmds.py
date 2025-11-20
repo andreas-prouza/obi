@@ -131,14 +131,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
 def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, source_config) -> str:
   
-    logging.debug(f"csv.reader {step=}")
-    r=csv.reader([step], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
-    step_list = next(r)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
-    #logging.debug(f"{step_list=}")
-
-    #cmd = toml_tools.get_table_element(app_config, step_list)
-    logging.debug(f"1: {step_list=}")
-    cmd = toml_tools.get_table_element({**app_config, **source_config}, step_list)
+    cmd = resolve_cmdid({**app_config, **source_config}, step)
     logging.debug(f"2: {cmd=}")
     
     # Find all words starting and ending with %
@@ -146,15 +139,10 @@ def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, sou
     logging.debug(f"Words starting and ending with %: {percent_words}")
     
     for word in percent_words:
-        key = word.strip('%')
-        r2=csv.reader([key], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
-        step_list2 = next(r2)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
-        logging.debug(f"Replace word {word} with key {key}")
-        subcmd = toml_tools.get_table_element({**app_config, **source_config}, step_list2)
-    
-        if subcmd is not None:
-          cmd = cmd.replace(word, subcmd)
-          logging.debug(f"Replaced {word} with {subcmd} in cmd")
+      key = word.strip('%')
+      subcmd = resolve_cmdid({**app_config, **source_config}, key)
+      cmd = cmd.replace(word, subcmd)
+      logging.debug(f"Replaced {word} with {subcmd} in cmd")
 
     variable_dict['SET_LIBL'] = properties.get_set_libl_cmd(app_config, variable_dict.get('LIBL', []), variable_dict['TARGET_LIB'])
     
@@ -167,6 +155,28 @@ def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, sou
       cmd += dspjoblog_cmd.replace("$(joblog-separator)", joblog_sep)
 
     return cmd
+
+
+
+def resolve_cmdid(config, cmdid: str) -> str:
+  '''
+  Resolve the cmd from the cmdid in the config
+  returns the command string
+
+  Example cmdid: global.compile-cmds.sqlrpgle.mod
+
+  Return: CRTSQLRPGI OBJ($(TARGET_LIB)/$(OBJ_NAME).mod) SRCSTMF('$(SOURCE_PATH)') COMMIT(*NONE) DBGVIEW($(DBGVIEW)) INCDIR($(INCDIR_SQLRPGLE)) TGTCCSID($(TGTCCSID)) STGMDL($(STGMDL)) TGTRLS($(TGTRLS)) ACTGRP($(ACTGRP)) BNDDIR($(INCLUDE_BNDDIR))
+  '''
+  r=csv.reader([cmdid], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
+  cmdid_list = next(r)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
+  logging.debug(f"{cmdid_list=}")
+
+  cmd = toml_tools.get_table_element(config, cmdid_list)
+  
+  if cmd is None or cmd == '':
+    raise Exception(f"CmdID '{cmdid}' not found in config")
+
+  return cmd
 
 
 

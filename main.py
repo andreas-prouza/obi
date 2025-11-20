@@ -233,7 +233,7 @@ action = {
 
 def write_status_to_file(status: dict):
   with open('.obi/build-output/status.json', 'w') as json_file:
-    json.dump(status, json_file, indent=2, ensure_ascii=False)
+    json.dump({**{"version": obi_constants.OBIConstants.OBI_BACKEND_VERSION}, **status}, json_file, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":
