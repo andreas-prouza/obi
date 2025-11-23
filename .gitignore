@@ -4,3 +4,5 @@ __pycache__/
 .obi/log
 .obi/tmp
 .obi/etc/*
+node_modules
+dist
