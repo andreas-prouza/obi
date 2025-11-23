@@ -113,6 +113,12 @@ export function writeJson(content: any, filePath: string): void {
     fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8');
 }
 
+const validEncodings: BufferEncoding[] = ['utf-8', 'utf8', 'ascii', 'latin1', 'binary', 'base64', 'base64url', 'hex', 'ucs2', 'ucs-2', 'utf16le', 'utf-16le'];
+
+function isValidEncoding(encoding: string): encoding is BufferEncoding {
+    return validEncodings.includes(encoding as BufferEncoding);
+}
+
 export function writeText(
     content: string,
     filePath: string,
@@ -131,7 +137,8 @@ export function writeText(
         fs.mkdirSync(dir, { recursive: true });
     }
 
-    fs.writeFileSync(filePath, content, encoding as BufferEncoding);
+    const validEncoding = isValidEncoding(encoding) ? encoding : 'utf-8';
+    fs.writeFileSync(filePath, content, validEncoding);
 }
 
 export function writeToml(content: any, filePath: string): void {

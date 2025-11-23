@@ -29,8 +29,24 @@ export function deepMerge(a: Record<string, SourceItem[]>, b: Record<string, Sou
     return result;
 }
 
+function deepClone<T>(obj: T): T {
+    if (obj === null || typeof obj !== 'object') {
+        return obj;
+    }
+    if (Array.isArray(obj)) {
+        return obj.map(item => deepClone(item)) as any;
+    }
+    const cloned: any = {};
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            cloned[key] = deepClone(obj[key]);
+        }
+    }
+    return cloned;
+}
+
 export function deepListMerge(a: LevelItem[], b: LevelItem[]): LevelItem[] {
-    const result = JSON.parse(JSON.stringify(a)); // Deep copy
+    const result = deepClone(a);
 
     for (const bLevelItem of b) {
         const bLevel = bLevelItem.level;
