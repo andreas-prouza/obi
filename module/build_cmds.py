@@ -105,7 +105,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
   for step in steps:
     
     logging.debug(f"{step=}")
-    if step.strip() == '':
+    if isinstance(step, str) and step.strip() == '':
       continue
 
     if isinstance(step, str):
