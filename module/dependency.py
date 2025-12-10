@@ -85,6 +85,9 @@ def get_target_depended_objects(dependency_dict, target, result={}):
   src_base_path = default_app_config['general'].get('source-dir', 'src')
 
   for obj, obj_dependencies in dependency_dict.items():
+    if obj in dependend_objects.keys():
+      continue
+
     if target in obj_dependencies:
 
       if not Path(os.path.join(src_base_path, obj)).is_file():

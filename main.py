@@ -260,4 +260,4 @@ if __name__ == "__main__":
     logging.exception(e)
     logging.error(f"Error occurred while executing action: {e}")
     write_status_to_file({"status": "error", "message": str(e), "details": str(e)})
-    sys.exit(1)
+    #sys.exit(1)
