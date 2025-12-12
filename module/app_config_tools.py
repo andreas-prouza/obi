@@ -178,7 +178,7 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
 
 
 
-def match_source_shell(source_config_entry: ExtendedSourceConfig, source: str, source_properties: {}) -> bool:
+def match_source_shell(source_config_entry: ExtendedSourceConfig, source: str, source_properties: dict) -> bool:
     """Process script for extended source commands
     Args:
         source_config_entry (dict): Extended source config entry
@@ -215,7 +215,7 @@ def match_source_shell(source_config_entry: ExtendedSourceConfig, source: str, s
 
 
 
-def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, source_properties: {}) -> bool:
+def match_source_script(source_config_entry: ExtendedSourceConfig, source: str, source_properties: dict) -> bool:
     """Process script for extended source commands
     Args:
         source_config_entry (dict): Extended source config entry
@@ -319,7 +319,7 @@ def get_script_function(script: str) -> callable:
     
     
     
-def get_script_parameter(script: str) -> {}:
+def get_script_parameter(script: str) -> dict:
     """Get script parameter
     Args:
         script (str): Script name
@@ -342,7 +342,7 @@ def get_script_parameter(script: str) -> {}:
 
 
 
-def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: str, source_properties: {}) -> bool:
+def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: str, source_properties: dict) -> bool:
     """Process conditions for extended source commands
     Args:
         source_config_entry (dict): Extended source config entry
@@ -352,11 +352,6 @@ def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: s
         bool: True if conditions match
     """
 
-    conditions = {
-        'SOURCE_FILE_NAMES': match_condition_SOURCE_FILE_NAMES,
-        'TARGET_LIB': match_condition_TARGET_LIB
-    }
-
     config_conditions = source_config_entry.get('conditions', [])
     logging.debug(f"{len(config_conditions)}")
     if len(config_conditions) == 0:
@@ -364,12 +359,16 @@ def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: s
 
     for condition_name, condition_value in config_conditions.items():
 
-        if condition_name not in conditions:
+        if condition_name not in source_properties.keys():
             logging.warning(f"Unknown extended source condition name: {condition_name}, {source=}")
             return False
+        found = False
 
         # Every condition needs to match
-        found = conditions[condition_name](source, condition_value, source_config_entry, source_properties)
+        if isinstance(condition_value, str):
+            found = match_condition_by_value(source, condition_name, condition_value, source_config_entry, source_properties)
+        if isinstance(condition_value, list):
+            found = match_condition_by_list(source, condition_name, condition_value, source_config_entry, source_properties)
         logging.debug(f"Match {condition_name=}, {condition_value=}, {found=}")
         if not found:
             return False
@@ -380,10 +379,8 @@ def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: s
 
 
 
-def match_condition_SOURCE_FILE_NAMES(source:str, condition_values:[str], source_config_entry: ExtendedSourceConfig, source_properties: {}) -> bool:
+def match_condition_by_list(source:str, condition_key: str, condition_values: list[str], source_config_entry: ExtendedSourceConfig, source_properties: dict) -> bool:
 
-    match = False
-    
     for condition_value in condition_values:
 
         if source_config_entry['use_regex']:
@@ -399,13 +396,12 @@ def match_condition_SOURCE_FILE_NAMES(source:str, condition_values:[str], source
 
 
 
-def match_condition_TARGET_LIB(source:str, condition_value:str, source_config_entry: ExtendedSourceConfig, source_properties: {}) -> bool:
+def match_condition_by_value(source:str, condition_key: str, condition_value:str, source_config_entry: ExtendedSourceConfig, source_properties: dict) -> bool:
 
-    logging.debug(f"Match regex: {source_config_entry['use_regex']}, {source=}, {condition_value=}: {source_properties['TARGET_LIB']=}")
+    logging.debug(f"Match regex: {source_config_entry['use_regex']}, {source=}, {condition_value=}: {source_properties[condition_key]=}")
     if source_config_entry['use_regex']:
-        return re.search(condition_value, source_properties['TARGET_LIB'])
+        return re.search(condition_value, source_properties[condition_key])
 
-    return fnmatch.fnmatch(source_properties['TARGET_LIB'], condition_value)
-
+    return fnmatch.fnmatch(source_properties[condition_key], condition_value)
 
 
