@@ -59,6 +59,10 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 
       # each source can have multiple commands
       for cmd_item in cmds:
+
+        if 'ignore' in cmd_item and cmd_item['ignore']:
+          logging.info(f"Source {src_name} ignored cmd {cmd_item['cmd']}")
+          continue
         
         cmd_item['updated'] = datetime.now().isoformat()
         cmd_item['status'] = 'in process'
