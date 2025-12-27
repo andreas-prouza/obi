@@ -90,6 +90,11 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
 
     sources_config: ExtendedSourceConfigFile = properties.get_config(obi_constants.OBIConstants.get("EXTENDED_SOURCE_PROCESS_CONFIG_TOML"))
     logging.debug(f"{sources_config=}")
+
+    if not app_config['global']['settings']['general'].get('USE_ESP', True):
+        logging.info("Extended source processing is disabled in app config")
+        return None
+
     if len(sources_config) == 0 or 'extended_source_processing' not in sources_config:
         return None
     
