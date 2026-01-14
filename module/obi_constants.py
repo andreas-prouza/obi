@@ -10,7 +10,7 @@ import logging
 class OBIConstants:
 
     JOBLOG = '.obi/log/joblog.txt'
-    OBI_BACKEND_VERSION = 2
+    OBI_BACKEND_VERSION = 3
 
     @staticmethod
     def get_current_user_config_file() -> str:
