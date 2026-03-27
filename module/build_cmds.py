@@ -183,7 +183,7 @@ def resolve_cmdid(config, cmdid: str) -> str:
 
 
 
-def replace_cmd_parameters(cmd: str, variable_dict: {}) -> str:
+def replace_cmd_parameters(cmd: str, variable_dict: dict) -> str:
   '''
   Replace all $(...) parameters in the cmd with the values from the variable_dict
   '''
@@ -191,7 +191,9 @@ def replace_cmd_parameters(cmd: str, variable_dict: {}) -> str:
   for k, v in variable_dict.items():
     if not isinstance(v, str) and not isinstance(v, int):
       continue
-    cmd = cmd.replace(f"$({k})", str(v))
+    cmd_new = cmd.replace(f"$({k})", str(v))
+    if (cmd_new != cmd):
+      cmd = replace_cmd_parameters(cmd_new, variable_dict)
 
   cmd = remove_unresolved_cmd_parameters(cmd)
 

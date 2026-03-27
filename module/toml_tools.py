@@ -6,7 +6,7 @@ from module import properties
 
 
 
-def get_table_element(toml, tree_list):
+def get_table_element(toml, tree_list, add_path: bool = False):
     
     toml_copy = copy.deepcopy(toml)
 
@@ -17,6 +17,13 @@ def get_table_element(toml, tree_list):
 
         toml_copy = toml_copy[entry]
     
+    if add_path and toml_copy and isinstance(toml_copy, dict):
+        new_toml = {}
+        prefix = '.'.join(tree_list)
+        for key in toml_copy:
+            new_toml[f"{prefix}.{key}"] = toml_copy[key]
+        return new_toml
+
     return toml_copy
 
 
