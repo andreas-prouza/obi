@@ -85,19 +85,20 @@ def get_source_properties(config, source):
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
 
-  global_cmds = toml_tools.get_table_element(config, ['global', 'cmds'], True)
-  global_settings = toml_tools.get_table_element(config, ['global', 'settings', 'general'])
-  general_settings = toml_tools.get_table_element(config, ['general'])
-  type_settings = toml_tools.get_table_element(config, ['global', 'settings', 'language']).get(file_extensions, [])
+  global_cmds: dict = toml_tools.get_table_element(config, ['global', 'cmds'], True) or {}
+  global_settings: dict = toml_tools.get_table_element(config, ['global', 'settings', 'general']) or {}
+  general_settings: dict = toml_tools.get_table_element(config, ['general']) or {}
+  type_settings: dict = toml_tools.get_table_element(config, ['global', 'settings', 'language']).get(file_extensions, {}) or {}
+
+  global_settings.update(general_settings)
+  global_settings.update(type_settings)
+  global_settings.update(global_cmds)
 
   # Override source individual settings
   if source in source_config and 'settings' in source_config[source].keys():
     global_settings.update(source_config[source]['settings'])
     logging.debug(f"{source_config[source]['settings']=}")
 
-  global_settings.update(general_settings)
-  global_settings.update(type_settings)
-  global_settings.update(global_cmds)
   global_settings['SOURCE'] = source
   global_settings['SOURCE_FILE_NAME'] = os.path.join(config['general']['source-dir'], source).replace('\\', '/')
   global_settings['SOURCE_BASE_FILE_NAME'] = os.path.basename(global_settings['SOURCE_FILE_NAME'])

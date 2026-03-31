@@ -99,7 +99,7 @@ def get_source_build_cmds(source, app_config=default_app_config):
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
   var_dict_tmp = {}
-  logging.debug(f"{variable_dict=}")
+  logging.debug(f"get_source_build_cmds: {variable_dict=}")
 
   # Loop all steps of the source extension
   for step in steps:
@@ -137,12 +137,13 @@ def get_cmd_from_step(step: str, source: str, variable_dict: {}, app_config, sou
     logging.debug(f"2: {cmd=}")
     
     # Find all words starting and ending with %
-    percent_words = re.findall(r'%[\w\.]+%', cmd)
+    percent_words = re.findall(r'%[^%]+%', cmd)
     logging.debug(f"Words starting and ending with %: {percent_words}")
     
     for word in percent_words:
       key = word.strip('%')
-      subcmd = resolve_cmdid({**app_config, **source_config}, key)
+      #subcmd = resolve_cmdid({**app_config, **source_config}, key)
+      subcmd = get_cmd_from_step(key, source, variable_dict, app_config, source_config)
       cmd = cmd.replace(word, subcmd)
       logging.debug(f"Replaced {word} with {subcmd} in cmd")
 
