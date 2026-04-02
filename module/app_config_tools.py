@@ -88,7 +88,12 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
     allow_multiple_matches: bool = True
     last_config_entry: ExtendedSourceConfig = None
 
-    sources_config: ExtendedSourceConfigFile = properties.get_config(obi_constants.OBIConstants.get("EXTENDED_SOURCE_PROCESS_CONFIG_TOML"))
+    logging.debug(f"Try to load user's extended source processing config file: {obi_constants.OBIConstants.get_current_user_esp_file()}")
+    sources_config: ExtendedSourceConfigFile = properties.get_config(obi_constants.OBIConstants.get_current_user_esp_file())
+    logging.debug(f"found {sources_config=}")
+    if sources_config is None or len(sources_config) == 0:
+        sources_config = properties.get_config(obi_constants.OBIConstants.get("EXTENDED_SOURCE_PROCESS_CONFIG"))
+
     logging.debug(f"{sources_config=}")
 
     if not app_config['global']['settings']['general'].get('USE_ESP', True):
@@ -157,7 +162,7 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             steps_2_append.append({'step': step['step']})
             
         logging.debug(f"{steps_2_append=}")
-        if step.get('use_standard_step', False):            
+        if step.get('add_default_steps', False):            
             global_steps = get_global_steps(source, app_config=app_config)
             steps_2_append += [{'step': gs} for gs in global_steps]
     

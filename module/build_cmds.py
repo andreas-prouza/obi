@@ -101,10 +101,12 @@ def get_source_build_cmds(source, app_config=default_app_config):
   var_dict_tmp = {}
   logging.debug(f"get_source_build_cmds: {variable_dict=}")
 
+  logging.debug(f"All steps: {steps=}")
+
   # Loop all steps of the source extension
   for step in steps:
     
-    logging.debug(f"{step=}")
+    logging.debug(f"Loop all steps of the source extension {step=}")
     if isinstance(step, str) and step.strip() == '':
       continue
 
@@ -118,7 +120,12 @@ def get_source_build_cmds(source, app_config=default_app_config):
       var_dict_tmp.update(step.get('properties', {}))
       
       cmd = step.get('cmd', None)
+
       if not cmd:
+        
+        if step.get('step', '') == '':
+          continue
+
         cmd = get_cmd_from_step(step.get('step', None), source, var_dict_tmp, app_config, source_config)
         logging.debug(f"2 {cmd=}")
       
@@ -170,9 +177,14 @@ def resolve_cmdid(config, cmdid: str) -> str:
 
   Return: CRTSQLRPGI OBJ($(TARGET_LIB)/$(OBJ_NAME).mod) SRCSTMF('$(SOURCE_PATH)') COMMIT(*NONE) DBGVIEW($(DBGVIEW)) INCDIR($(INCDIR_SQLRPGLE)) TGTCCSID($(TGTCCSID)) STGMDL($(STGMDL)) TGTRLS($(TGTRLS)) ACTGRP($(ACTGRP)) BNDDIR($(INCLUDE_BNDDIR))
   '''
+  logging.debug(f"Resolve cmdid '{cmdid}'")
+
   r=csv.reader([cmdid], quotechar='"', delimiter='.')  # step: e.g. global."compile-cmds"."sqlrpgle.srvpgm"
   cmdid_list = next(r)                                 # --> ['global', 'compile-cmds', 'sqlrpgle.mod']
   logging.debug(f"{cmdid_list=}")
+
+  if len(cmdid_list) == 0:
+    raise Exception(f"Invalid cmdid '{cmdid}'")
 
   cmd = toml_tools.get_table_element(config, cmdid_list)
   

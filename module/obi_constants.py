@@ -21,12 +21,32 @@ class OBIConstants:
                     data = json.load(f)
                 profile = data.get('current_profile')
                 if profile:
-                    return f".obi/etc/{profile}"
+                    user_config_file = OBIConstants.get_constant_value('CONFIG_USER_TOML')
+                    return user_config_file.replace('.toml', f'-{profile}.toml')
             except (json.JSONDecodeError, IOError):
                 # Fall through to default if file is invalid or unreadable
                 pass
 
         return OBIConstants.get_constant_value('CONFIG_USER_TOML')
+    
+
+
+    @staticmethod
+    def get_current_user_esp_file() -> str:
+        settings_file = OBIConstants.get_constant_value('WORKSPACE_SETTINGS_JSON')
+        if os.path.exists(settings_file):
+            try:
+                with open(settings_file, 'r') as f:
+                    data = json.load(f)
+                profile = data.get('current_profile')
+                if profile:
+                    user_esp_file = OBIConstants.get_constant_value('EXTENDED_SOURCE_PROCESS_CONFIG_USER')
+                    return user_esp_file.replace('.toml', f'-{profile}.toml')
+            except (json.JSONDecodeError, IOError):
+                # Fall through to default if file is invalid or unreadable
+                pass
+
+        return OBIConstants.get_constant_value('EXTENDED_SOURCE_PROCESS_CONFIG_USER')
 
 
 
