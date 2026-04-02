@@ -90,6 +90,7 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
 
     logging.debug(f"Try to load user's extended source processing config file: {obi_constants.OBIConstants.get_current_user_esp_file()}")
     sources_config: ExtendedSourceConfigFile = properties.get_config(obi_constants.OBIConstants.get_current_user_esp_file())
+
     logging.debug(f"found {sources_config=}")
     if sources_config is None or len(sources_config) == 0:
         sources_config = properties.get_config(obi_constants.OBIConstants.get("EXTENDED_SOURCE_PROCESS_CONFIG"))
@@ -100,7 +101,7 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
         logging.info("Extended source processing is disabled in app config")
         return None
 
-    if len(sources_config) == 0 or 'extended_source_processing' not in sources_config:
+    if len(sources_config) == 0 or 'extended_source_processing' not in sources_config or len(sources_config['extended_source_processing']) == 0:
         return None
     
     source_properties: {} = properties.get_source_properties(app_config, source)
