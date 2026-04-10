@@ -93,6 +93,7 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
 
     logging.debug(f"found {sources_config=}")
     if sources_config is None or len(sources_config) == 0:
+        # If no user config file found, load the default config file
         sources_config = properties.get_config(obi_constants.OBIConstants.get("EXTENDED_SOURCE_PROCESS_CONFIG"))
 
     logging.debug(f"{sources_config=}")
@@ -102,6 +103,7 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
         return None
 
     if len(sources_config) == 0 or 'extended_source_processing' not in sources_config or len(sources_config['extended_source_processing']) == 0:
+        logging.warning("No extended source processing entries found in config")
         return None
     
     source_properties: {} = properties.get_source_properties(app_config, source)
@@ -115,6 +117,8 @@ def get_extended_steps(source: str, app_config: dict) -> list[str|dict]|None:
             and match_source_script(source_config_entry, source, source_properties) \
             and match_source_shell(source_config_entry, source, source_properties):
             
+            logging.info(f"Extended source processing entry matched for {source=}")
+
             # A source should only have one match in the extended source processing
             # New: Multiple steps are allowed
             if not allow_multiple_matches and len(result_steps) > 0:
@@ -162,8 +166,8 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
         if 'step' in step:
             steps_2_append.append({'step': step['step']})
             
-        logging.debug(f"{steps_2_append=}")
-        if step.get('add_default_steps', False):            
+        logging.debug(f"{steps_2_append=}; Add default steps: {step.get('add_default_steps', True)}")
+        if step.get('add_default_steps', True):
             global_steps = get_global_steps(source, app_config=app_config)
             steps_2_append += [{'step': gs} for gs in global_steps]
     
