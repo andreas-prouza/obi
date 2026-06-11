@@ -163,7 +163,7 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             raise e
         
         steps_2_append = []
-        if 'step' in step:
+        if 'step' in step and len(step['step']) > 0:
             steps_2_append.append({'step': step['step']})
             
         logging.debug(f"{steps_2_append=}; Add default steps: {step.get('add_default_steps', True)}")
@@ -171,6 +171,8 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             global_steps = get_global_steps(source, app_config=app_config)
             steps_2_append += [{'step': gs} for gs in global_steps]
     
+        logging.debug(f"{steps_2_append=}")
+
         for step_2_append in steps_2_append:
             exit_point_script = step.get('exit_point_script', None)
             
@@ -180,7 +182,14 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             
             func = get_script_function(exit_point_script)
             parms = get_script_parameter(exit_point_script)
+            logging.debug(f"Call exit point script '{exit_point_script}' for step '{step_2_append}'")
             step_2_append = call_script(func, source=source, **{**step, **{'step': step_2_append}}, **source_properties, **parms)
+            
+            if step_2_append.get('add_default_steps', False):
+                global_steps = get_global_steps(step_2_append.get('properties', {}).get('SOURCE_FILE_NAME', source), app_config=app_config)
+                step_2_append['add_default_steps'] = False
+                for gs in global_steps:
+                    new_steps.append({**step, **{'step': gs}, **step_2_append})
             
             logging.debug(f"Modified source: {source=}: {step_2_append=}")
             new_steps.append({**step, **step_2_append})
