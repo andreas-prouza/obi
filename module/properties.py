@@ -127,18 +127,20 @@ def get_set_libl_cmd(config, libl: [str], target_lib: str) -> str:
 def get_target_lib(source, target_lib=None, lib_mapping=None):
 
   source_lib = source.split('/')[0].lower()
+  logging.debug(f"get_target_lib: {source=}, {target_lib=}, {lib_mapping=}, {source_lib=}")
 
-  if target_lib is not None and target_lib.lower() == '*source':
-    return source_lib
+  return_lib = source_lib
 
-  if target_lib is not None:
-    return target_lib.lower()
+  if target_lib is not None and target_lib.lower() != '*source':
+    return_lib = target_lib.lower()
 
   if lib_mapping is not None:
     for k, v in lib_mapping.items():
       k = k.lower()
-      if k == source_lib:
-        return v.lower()
+      if k == return_lib:
+        return_lib = v.lower()
+        break
 
-  return source_lib
+  logging.debug(f"get_target_lib: {return_lib=}")
+  return return_lib
 
