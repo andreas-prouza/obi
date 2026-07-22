@@ -19,7 +19,7 @@ def add_build_cmds(target_tree, app_config=default_app_config):
 
   for target_item in target_tree:
     for source_item in target_item['sources']:
-      object_list.append(get_object_list(source_item['source'], app_config))
+      object_list.append(get_object_list(target_item['level'], source_item['source'], app_config))
       source_item['cmds'] = get_source_build_cmds(source_item['source'], app_config)
 
   object_list = "\n".join(list(set(object_list)))
@@ -29,7 +29,7 @@ def add_build_cmds(target_tree, app_config=default_app_config):
 
 
 
-def get_object_list(source, app_config=default_app_config):
+def get_object_list(level, source, app_config=default_app_config):
   '''
   This is only needed by the deployment tool
   '''
@@ -43,7 +43,7 @@ def get_object_list(source, app_config=default_app_config):
   #type=*pgm, attr=rpgle
   obj_type=source.split('.')[-1]
   obj_attr=source.split('.')[-2]
-  deploy_obj_list = f"prod_obj|{prod_lib}|{variable_dict['TARGET_LIB']}|{variable_dict['OBJ_NAME']}|{obj_type}|{obj_attr}|{source}"
+  deploy_obj_list = f"{level}|{prod_lib}|{variable_dict['TARGET_LIB']}|{variable_dict['OBJ_NAME']}|{obj_type}|{obj_attr}|{source}"
   
   return deploy_obj_list
 
