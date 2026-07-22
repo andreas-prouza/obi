@@ -104,6 +104,8 @@ def get_source_properties(config, source):
   global_settings['SOURCE_BASE_FILE_NAME'] = os.path.basename(global_settings['SOURCE_FILE_NAME'])
   global_settings['TARGET_LIB'] = get_target_lib(source, global_settings.get('TARGET_LIB'), global_settings.get('TARGET_LIB_MAPPING'))
   global_settings['OBJ_NAME'] = pathlib.Path(pathlib.Path(source).stem).stem
+  global_settings['SRC_TYPE'] = global_settings['SOURCE_BASE_FILE_NAME'].split('.')[-1].lower()
+  global_settings['SRC_ATTR'] = global_settings['SOURCE_BASE_FILE_NAME'].split('.')[-2].lower()
 
   global_settings['SET_LIBL'] = get_set_libl_cmd(config, global_settings.get('LIBL', []), global_settings['TARGET_LIB'])
 
