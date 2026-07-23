@@ -111,14 +111,15 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
-  var_dict_tmp = {}
+
   logging.debug(f"get_source_build_cmds: {variable_dict=}")
 
   logging.debug(f"All steps: {steps=}")
 
   # Loop all steps of the source extension
   for step in steps:
-    
+
+    step_properties = {}
     logging.debug(f"Loop all steps of the source extension {step=}")
     if isinstance(step, str) and step.strip() == '':
       continue
@@ -128,9 +129,9 @@ def get_source_build_cmds(source, app_config=default_app_config):
       logging.debug(f"1 {cmd=}")
       
     if isinstance(step, dict):
-      var_dict_tmp = deepcopy(variable_dict)
-      logging.debug(f"{var_dict_tmp=}")
-      var_dict_tmp.update(step.get('properties', {}))
+      step_properties = deepcopy(variable_dict)
+      logging.debug(f"{step_properties=}")
+      step_properties.update(step.get('properties', {}))
       
       cmd = step.get('cmd', None)
 
@@ -139,11 +140,11 @@ def get_source_build_cmds(source, app_config=default_app_config):
         if step.get('step', '') == '':
           continue
 
-        cmd = get_cmd_from_step(step.get('step', None), source, var_dict_tmp, app_config, source_config)
+        cmd = get_cmd_from_step(step.get('step', None), source, step_properties, app_config, source_config)
         logging.debug(f"2 {cmd=}")
       
-    cmd = replace_cmd_parameters(cmd, {**variable_dict, **var_dict_tmp})
-    cmds.append({"cmd": cmd, "status": "new"})
+    cmd = replace_cmd_parameters(cmd, {**variable_dict, **step_properties})
+    cmds.append({"cmd": cmd, "status": "new", 'properties': step_properties})
 
   logging.debug(f"Added {len(cmds)} cmds for {source}")
 
