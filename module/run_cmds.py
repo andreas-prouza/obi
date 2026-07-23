@@ -34,6 +34,8 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
       Exception: If a command fails an exception will be thrown
   """
 
+
+
   # Level 1-n
   for level_item in target_tree['compiles']:
     
@@ -44,6 +46,7 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
 
       src_name = level_list_entry['source']
       cmds = level_list_entry['cmds']
+      level_list_entry['absolute_path'] = os.path.abspath(f"{app_config['general']['source-dir']}/{src_name}")
 
       logging.info(src_name)
 
