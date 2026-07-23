@@ -18,18 +18,21 @@ def add_build_cmds(target_tree, app_config=default_app_config):
   object_list = []
 
   for target_item in target_tree:
+    
     for source_item in target_item['sources']:
-      object_list.append(get_object_list(target_item['level'], source_item['source'], app_config))
+
       source_item['cmds'] = get_source_build_cmds(source_item['source'], app_config)
+      source_item['variables'] = properties.get_source_properties(app_config, source_item['source'])
+      object_list.append(get_object_list(target_item['level'], source_item['source'], app_config, source_item['cmds']))
 
-  object_list = "\n".join(list(set(object_list)))
+  #object_list = "\n".join(list(set(object_list)))
   logging.debug(f"Write object list {len(object_list)=} to {app_config['general']['deployment-object-list']}")
-  files.writeText(object_list, app_config['general']['deployment-object-list'], write_empty_file=True)
+  files.writeJson(object_list, app_config['general']['deployment-object-list'])
 
 
 
 
-def get_object_list(level, source, app_config=default_app_config):
+def get_object_list(level, source, app_config=default_app_config, cmds=[]) -> dict:
   '''
   This is only needed by the deployment tool
   '''
@@ -43,7 +46,17 @@ def get_object_list(level, source, app_config=default_app_config):
   #type=*pgm, attr=rpgle
   obj_type=source.split('.')[-1]
   obj_attr=source.split('.')[-2]
-  deploy_obj_list = f"{level}|{prod_lib}|{variable_dict['TARGET_LIB']}|{variable_dict['OBJ_NAME']}|{obj_type}|{obj_attr}|{source}"
+  deploy_obj_list = {
+    "level": level,
+    "to_prod_lib": prod_lib,
+    "from_deploy_lib": variable_dict['TARGET_LIB'],
+    "obj_name": variable_dict['OBJ_NAME'],
+    "obj_type": obj_type,
+    "obj_attr": obj_attr,
+    "source": source,
+    "data": variable_dict,
+    "cmds": [cmd['cmd'] for cmd in cmds]
+  }
   
   return deploy_obj_list
 
