@@ -89,12 +89,15 @@ def get_source_properties(config, source):
   global_settings: dict = toml_tools.get_table_element(config, ['global', 'settings', 'general']) or {}
   general_settings: dict = toml_tools.get_table_element(config, ['general']) or {}
   global_variables: dict = toml_tools.get_table_element(config, ['global', 'variables']) or {}
+  global_variables = {k: v for k, v in global_variables.items() if not k.startswith('secret')}
   type_settings: dict = toml_tools.get_table_element(config, ['global', 'settings', 'language']).get(file_extensions, {}) or {}
 
   global_settings.update(general_settings)
   global_settings.update(global_variables)
   global_settings.update(type_settings)
   global_settings.update(global_cmds)
+
+
 
   # Override source individual settings
   if source in source_config and 'settings' in source_config[source].keys():
