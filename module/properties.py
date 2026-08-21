@@ -78,6 +78,15 @@ def get_app_properties():
   return app_config
 
 
+import re
+pattern = re.compile(r'\$\((.*?)\)')
+
+def resolve_string(text, ref_dict):
+  """Helper to replace $(...) patterns in a single string."""
+  if isinstance(text, str):
+    return pattern.sub(lambda match: str(ref_dict.get(match.group(1), match.group(0))), text)
+  return text
+
 
 def get_source_properties(config, source):
 
@@ -98,7 +107,6 @@ def get_source_properties(config, source):
   global_settings.update(global_cmds)
 
 
-
   # Override source individual settings
   if source in source_config and 'settings' in source_config[source].keys():
     global_settings.update(source_config[source]['settings'])
@@ -107,12 +115,20 @@ def get_source_properties(config, source):
   global_settings['SOURCE'] = source
   global_settings['SOURCE_FILE_NAME'] = os.path.join(config['general']['source-dir'], source).replace('\\', '/')
   global_settings['SOURCE_BASE_FILE_NAME'] = os.path.basename(global_settings['SOURCE_FILE_NAME'])
+  global_settings['TARGET_LIB_ORIG'] = get_target_lib(source, global_settings.get('TARGET_LIB'))
   global_settings['TARGET_LIB'] = get_target_lib(source, global_settings.get('TARGET_LIB'), global_settings.get('TARGET_LIB_MAPPING'))
   global_settings['OBJ_NAME'] = pathlib.Path(pathlib.Path(source).stem).stem
   global_settings['SRC_TYPE'] = global_settings['SOURCE_BASE_FILE_NAME'].split('.')[-1].lower()
   global_settings['SRC_ATTR'] = global_settings['SOURCE_BASE_FILE_NAME'].split('.')[-2].lower()
 
   global_settings['SET_LIBL'] = get_set_libl_cmd(config, global_settings.get('LIBL', []), global_settings['TARGET_LIB'])
+
+  for key, value in global_settings.items():
+    if isinstance(value, str):
+      global_settings[key] = resolve_string(value, global_settings)
+    elif isinstance(value, list):
+      # Apply the helper function to every item in the list
+      global_settings[key] = [resolve_string(item, global_settings) for item in value]
 
   return global_settings
 
