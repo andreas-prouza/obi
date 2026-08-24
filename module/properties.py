@@ -123,12 +123,12 @@ def get_source_properties(config, source):
 
   global_settings['SET_LIBL'] = get_set_libl_cmd(config, global_settings.get('LIBL', []), global_settings['TARGET_LIB'])
 
-  for key, value in global_settings.items():
-    if isinstance(value, str):
-      global_settings[key] = resolve_string(value, global_settings)
-    elif isinstance(value, list):
-      # Apply the helper function to every item in the list
-      global_settings[key] = [resolve_string(item, global_settings) for item in value]
+  #for key, value in global_settings.items():
+  #  if isinstance(value, str):
+  #    global_settings[key] = resolve_string(value, global_settings)
+  #  elif isinstance(value, list):
+  #    # Apply the helper function to every item in the list
+  #    global_settings[key] = [resolve_string(item, global_settings) for item in value]
 
   return global_settings
 
@@ -138,10 +138,10 @@ def get_source_properties(config, source):
 def get_set_libl_cmd(config, libl: [str], target_lib: str) -> str:
   set_libl = ""
   for lib in libl:
-    lib = lib.replace("$(TARGET_LIB)", target_lib)
+    lib2 = lib.replace("$(TARGET_LIB)", target_lib)
     if len(set_libl) > 0:
       set_libl += '; '
-    set_libl += config['global']['cmds']['add-lible'].replace('$(LIB)', lib)
+    set_libl += config['global']['cmds']['add-lible'].replace('$(LIB)', lib2)
   return set_libl
 
 

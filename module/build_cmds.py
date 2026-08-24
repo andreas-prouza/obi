@@ -98,8 +98,6 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   src_suffixes = pathlib.Path(source).suffixes
   file_extensions = "".join(src_suffixes[-2:]).removeprefix('.')
-  logging.debug(f"{file_extensions=}")
-  logging.debug(f"{source_config=}")
 
   steps = app_config_tools.get_steps(source, app_config)
   #steps = app_config['global']['steps'].get(file_extensions, [])
@@ -111,8 +109,6 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
   # All properties for this source
   variable_dict = properties.get_source_properties(app_config, source)
-
-  logging.debug(f"get_source_build_cmds: {variable_dict=}")
 
   logging.debug(f"All steps: {steps=}")
 
@@ -214,15 +210,23 @@ def replace_cmd_parameters(cmd: str, variable_dict: dict) -> str:
   '''
   Replace all $(...) parameters in the cmd with the values from the variable_dict
   '''
-  
+
+  logging.debug(f"replace cmd parameter")
+  logging.debug(f"{cmd=}")
+  logging.debug(f"{variable_dict['global.cmds.evfevent-export']=}")
+  logging.debug(f"{variable_dict['TARGET_LIB']=}")
+
   for k, v in variable_dict.items():
     if not isinstance(v, str) and not isinstance(v, int):
       continue
     cmd_new = cmd.replace(f"$({k})", str(v))
     if (cmd_new != cmd):
+      logging.debug(f"Replaced {k=} with {v=}")
       cmd = replace_cmd_parameters(cmd_new, variable_dict)
 
   cmd = remove_unresolved_cmd_parameters(cmd)
+
+  logging.debug(f"result {cmd=}")
 
   return cmd
 
