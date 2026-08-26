@@ -134,6 +134,26 @@ def get_source_properties(config, source):
 
 
 
+def resolve_properties(variable_dict: dict) -> dict:
+
+  new_properties = {}
+
+  for key, value in variable_dict.items():
+    if isinstance(value, str):
+      new_properties[key] = resolve_string(value, variable_dict)
+      if new_properties[key] != value:
+        new_properties[key] = resolve_properties({key : new_properties[key]})[key]
+    elif isinstance(value, list):
+      # Apply the helper function to every item in the list
+      for item in value:
+        resolved_item = resolve_string(item, variable_dict)
+        if resolved_item != item:
+          resolved_item = resolve_properties({key : resolved_item})[key]
+        new_properties.setdefault(key, []).append(resolved_item)
+
+  return new_properties
+
+
 
 def get_set_libl_cmd(config, libl: [str], target_lib: str) -> str:
   set_libl = ""

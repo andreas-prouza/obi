@@ -22,7 +22,7 @@ def add_build_cmds(target_tree, app_config=default_app_config):
     for source_item in target_item['sources']:
 
       source_item['cmds'] = get_source_build_cmds(source_item['source'], app_config)
-      source_item['variables'] = properties.get_source_properties(app_config, source_item['source'])
+      source_item['variables'] = properties.resolve_properties(properties.get_source_properties(app_config, source_item['source']))
       object_list.append(get_object_list(target_item['level'], source_item['source'], app_config, source_item['cmds']))
 
   #object_list = "\n".join(list(set(object_list)))
@@ -128,7 +128,8 @@ def get_source_build_cmds(source, app_config=default_app_config):
       step_properties = deepcopy(variable_dict)
       logging.debug(f"{step_properties=}")
       step_properties.update(step.get('properties', {}))
-      
+      step_properties = properties.resolve_properties(step_properties)
+
       cmd = step.get('cmd', None)
 
       if not cmd:
@@ -138,8 +139,10 @@ def get_source_build_cmds(source, app_config=default_app_config):
 
         cmd = get_cmd_from_step(step.get('step', None), source, step_properties, app_config, source_config)
         logging.debug(f"2 {cmd=}")
-      
-    cmd = replace_cmd_parameters(cmd, {**variable_dict, **step_properties})
+    
+    new_properties = properties.resolve_properties({**variable_dict, **step_properties})
+    logging.debug(f"{new_properties=}")
+    cmd = replace_cmd_parameters(cmd, new_properties)
     cmds.append({"cmd": cmd, "status": "new", 'properties': step_properties})
 
   logging.debug(f"Added {len(cmds)} cmds for {source}")
