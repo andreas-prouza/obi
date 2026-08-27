@@ -24,10 +24,26 @@ def get_build_order(dependency_dict, target_list=[], app_config=properties.get_a
   files.writeJson(objects_tree, '.obi/tmp/objects_tree.json')
 
   dependend_objects = get_targets_only_depended_objects(dependency_dict, target_list)
-  logging.debug(f"{objects_tree=}")
   files.writeJson(dependend_objects, obi_constants.OBIConstants.get("DEPENDEND_OBJECT_LIST"))
 
   ordered_target_tree = get_targets_by_level(objects_tree)
+  logging.debug(f"{app_config['global']['settings']['general']['ALWAYS_TRANSFER_RELATED_COPYBOOKS']=}")
+  logging.debug(f"{objects_tree=}")
+  logging.debug(f"{ordered_target_tree=}")
+  logging.debug(f"{dependency_dict=}")
+  logging.debug(f"{dependend_objects=}")
+  logging.debug(f"{target_list=}")
+
+  if (app_config['global']['settings']['general']['ALWAYS_TRANSFER_RELATED_COPYBOOKS']):
+    copy_sources = get_copy_sources(dependency_dict, target_list + dependend_objects)
+    logging.info(f"Found copy sources: {copy_sources}")
+    if len(copy_sources) > 0:
+      ordered_target_tree.insert(0, {
+        'level': 0,
+        'sources': [{'source': src, 'cmds': []} for src in copy_sources]
+      })
+
+
   logging.debug(f"{ordered_target_tree=}")
   files.writeJson(ordered_target_tree, '.obi/tmp/ordered_target_tree.json')
 
@@ -214,3 +230,18 @@ def get_targets_by_level(target_tree={}, level=1):
 
   return sorted(new_target_tree, key=lambda d: d['level'])
 
+
+
+def get_copy_sources(
+  dependency_dict: dict,
+  targets: list,
+  all_dependencies: set = set()
+) -> list:
+  for target in targets:
+    direct_dependencies = dependency_dict.get(target, [])
+    for dep in direct_dependencies:
+      if dep not in all_dependencies:
+        all_dependencies.add(dep)
+        get_copy_sources(dependency_dict, [dep], all_dependencies)
+
+  return [dep for dep in all_dependencies if dep.lower().endswith('.cpy')]
