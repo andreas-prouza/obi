@@ -15,14 +15,37 @@ default_app_config = properties.get_app_properties()
 
 def add_build_cmds(target_tree, app_config=default_app_config):
 
+  for target_item in target_tree:
+
+    for source_item in target_item['sources']:
+
+      set_source_build_cmds(source_item, app_config)
+
+  write_object_list(target_tree, app_config)
+
+
+
+def set_source_build_cmds(source_item, app_config=default_app_config):
+  '''
+  Generate cmds (incl. extended source processing) and variables for a source entry
+  '''
+
+  source_item['cmds'] = get_source_build_cmds(source_item['source'], app_config)
+  source_item['variables'] = properties.resolve_properties(properties.get_source_properties(app_config, source_item['source']))
+
+
+
+def write_object_list(target_tree, app_config=default_app_config):
+  '''
+  This is only needed by the deployment tool
+  '''
+
   object_list = []
 
   for target_item in target_tree:
-    
+
     for source_item in target_item['sources']:
 
-      source_item['cmds'] = get_source_build_cmds(source_item['source'], app_config)
-      source_item['variables'] = properties.resolve_properties(properties.get_source_properties(app_config, source_item['source']))
       object_list.append(get_object_list(target_item['level'], source_item['source'], app_config, source_item['cmds']))
 
   #object_list = "\n".join(list(set(object_list)))

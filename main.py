@@ -18,10 +18,11 @@ parser = argparse.ArgumentParser(
   epilog='Example: ...'
 )
 
-parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list', 
-      choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list'], required=True)
-parser.add_argument('-s', '--source', help='Consider single source', required=False)
+parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list; Add source to existing builds (json)',
+      choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list', 'add_source'], required=True)
+parser.add_argument('-s', '--source', help='Consider single source (action create); Source to add (action add_source)', required=False)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
+parser.add_argument('-c', '--compile-list-dir', help='Directory of the compile list (file name stays as configured); relative to the source project directory', required=False)
 parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
 
 args = parser.parse_args()
@@ -50,6 +51,17 @@ logging.info(f"Arguments: {vars(args)}")
 
 
 
+def get_compile_list_file(general_config, args) -> str:
+
+  compile_list_file = general_config.get('compile-list', '.obi/tmp/compile-list.json')
+
+  if args.compile_list_dir:
+    compile_list_file = os.path.join(args.compile_list_dir, os.path.basename(compile_list_file))
+
+  return compile_list_file
+
+
+
 def run_builds(args):
 
   logging.debug(f"Run build list")
@@ -58,7 +70,7 @@ def run_builds(args):
   logging.debug("Load configs")
   app_config = properties.get_app_properties()
   general_config = app_config['general']
-  build_list_file_name = general_config.get('compile-list', '.obi/tmp/compile-list.json')
+  build_list_file_name = get_compile_list_file(general_config, args)
 
   logging.debug("Load compile list")
   build_targets = {}
@@ -89,7 +101,7 @@ def get_results(args):
   # Properties
   app_config = properties.get_app_properties()
   general_config = app_config['general']
-  build_list_file_name = general_config.get('compile-list', '.obi/tmp/compile-list.json')
+  build_list_file_name = get_compile_list_file(general_config, args)
   fs_encoding = general_config.get('file-system-encoding', 'utf-8')
 
 
@@ -140,7 +152,7 @@ def create_build_list(args):
   build_targets = build_cmds.order_builds(build_targets)
 
   # Write source list to json
-  files.writeJson(build_targets, general_config.get('compile-list', '.obi/tmp/compile-list.json'))
+  files.writeJson(build_targets, get_compile_list_file(general_config, args))
 
   # Remove compiled objects from object-list (they need to get compiled)
   # Why remove during build list creation?!?!?!?!
@@ -148,6 +160,25 @@ def create_build_list(args):
 
   # Generate document
   results.create_result_doc(build_targets, app_config, fs_encoding)
+
+
+
+def add_source(args):
+
+  logging.debug(f"Add source to build list")
+
+  # Properties
+  app_config = properties.get_app_properties()
+  general_config = app_config['general']
+  build_list_file_name = get_compile_list_file(general_config, args)
+  fs_encoding = general_config.get('file-system-encoding', 'utf-8')
+
+  result = compile_list.add_source_to_compile_list(args.source, build_list_file_name, app_config)
+
+  # Generate document
+  results.create_result_doc(result['compile_list'], app_config, fs_encoding)
+
+  write_status_to_file({"status": "ok", "added": result['added'], "reset": result['reset']})
 
 
 
@@ -227,7 +258,8 @@ action = {
   'results': get_results,
   'open_result': open_doc_in_editor,
   'gen_obj_list': generate_object_list,
-  'gen_src_list': generate_source_list
+  'gen_src_list': generate_source_list,
+  'add_source': add_source
 }
 
 
@@ -253,6 +285,7 @@ if __name__ == "__main__":
   from module import results
   #from module import toml_tools
   from module import build_cmds
+  from module import compile_list
 
   try:
     action[args.action](args)
