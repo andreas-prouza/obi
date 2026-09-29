@@ -145,11 +145,15 @@ def resolve_properties(variable_dict: dict) -> dict:
         new_properties[key] = resolve_properties({key : new_properties[key]})[key]
     elif isinstance(value, list):
       # Apply the helper function to every item in the list
+      new_properties[key] = []
       for item in value:
         resolved_item = resolve_string(item, variable_dict)
         if resolved_item != item:
           resolved_item = resolve_properties({key : resolved_item})[key]
-        new_properties.setdefault(key, []).append(resolved_item)
+        new_properties[key].append(resolved_item)
+    else:
+      # Keep other types (int, bool, dict, ...) unchanged, e.g. JOB_CCSID = 500
+      new_properties[key] = value
 
   return new_properties
 
