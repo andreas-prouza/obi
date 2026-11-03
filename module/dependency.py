@@ -27,14 +27,15 @@ def get_build_order(dependency_dict, target_list=[], app_config=properties.get_a
   files.writeJson(dependend_objects, obi_constants.OBIConstants.get("DEPENDEND_OBJECT_LIST"))
 
   ordered_target_tree = get_targets_by_level(objects_tree)
-  logging.debug(f"{app_config['global']['settings']['general']['ALWAYS_TRANSFER_RELATED_COPYBOOKS']=}")
+  always_transfer_copybooks = app_config['global']['settings']['general'].get('ALWAYS_TRANSFER_RELATED_COPYBOOKS', False)
+  logging.debug(f"{always_transfer_copybooks=}")
   logging.debug(f"{objects_tree=}")
   logging.debug(f"{ordered_target_tree=}")
   logging.debug(f"{dependency_dict=}")
   logging.debug(f"{dependend_objects=}")
   logging.debug(f"{target_list=}")
 
-  if (app_config['global']['settings']['general']['ALWAYS_TRANSFER_RELATED_COPYBOOKS']):
+  if always_transfer_copybooks:
     copy_sources = get_copy_sources(dependency_dict, target_list + dependend_objects)
     logging.info(f"Found copy sources: {copy_sources}")
     if len(copy_sources) > 0:
@@ -235,8 +236,12 @@ def get_targets_by_level(target_tree={}, level=1):
 def get_copy_sources(
   dependency_dict: dict,
   targets: list,
-  all_dependencies: set = set()
+  all_dependencies: set = None
 ) -> list:
+
+  if all_dependencies is None:
+    all_dependencies = set()
+
   for target in targets:
     direct_dependencies = dependency_dict.get(target, [])
     for dep in direct_dependencies:

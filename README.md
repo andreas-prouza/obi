@@ -1,103 +1,102 @@
+# ![logo](docs/img/Open%20Source%20Logo%20smaller.png) Object Builder for i (OBI)
 
-# ![logo](docs/img/Open%20Source%20Logo%20smaller.png)  Object Builder for i (OBI)
+OBI builds IBM i objects from sources in the IFS (or on your PC).
+It finds the sources that changed since the last build, adds every object that depends on them,
+puts everything in the right order and runs the build commands in PASE on IBM i.
 
-For detailed documentation see [OBI extension](https://github.com/andreas-prouza/obi-extension)
+* **Only what changed**: sources are compared by hash with the last successful build
+* **Dependencies**: dependent objects are rebuilt too, in the right order (levels)
+* **Configurable commands**: steps per source type, per source, or by rules ([extended source processing](docs/extended-source-processing.md))
+* **Parallel builds**: sources that don't depend on each other can be built at the same time
+* **Results**: status, spool output, joblog and errors of every command, plus a summary document
 
-# Client
+OBI is the backend. You usually use it through an IDE:
 
-## Visual Studio Code (vscode)
-
-There is a full integration (extension) for vscode.  
-See [OBI extension](https://marketplace.visualstudio.com/items?itemName=andreas-prouza.obi).
-
-In vscode the build commands will be handled by the extension.  
-Only on IBM i you need the obi package to run the build.
-
-
-## Eclipse, RDi, Notepad++, ...
-
-All other IDEs can communicate with the OBI package in background
-
-This has several advantages:  
-* You can use the backend on IBM i or direct on your local PC for better performance
-* It's independent to any IDE  
-  You can use RDi or vscode or even notepad++.  
-
-Check [ibm-i-build-obi](https://github.com/andreas-prouza/ibm-i-build-obi) to see, how to use it in your IDE.
+| Client | How |
+|---|---|
+| **VS Code** | The [OBI extension](https://marketplace.visualstudio.com/items?itemName=andreas-prouza.obi) does everything for you. Only the build itself runs this backend on IBM i. User documentation: [obi-extension](https://github.com/andreas-prouza/obi-extension) |
+| **RDi, Eclipse, Notepad++, ...** | Call OBI from scripts. See [ibm-i-build-obi](https://github.com/andreas-prouza/ibm-i-build-obi) for an example project |
+| **Command line** | See [Command line](docs/cli.md) |
 
 
-# Server side
+## Requirements
 
-On you IBM i it's used to run the build.
-
-
-# Prerequisites on IBM i
-
-* Open Source Tools (YUM)
 * Python 3.12 or higher
-* I would also recommend to do the [ssh-setup](https://github.com/andreas-prouza/obi-extension/blob/main/asserts/docs/ssh.md) for your user profile.  
-  It's much easier for the long term do it via SSH and Bash.
+* On IBM i: the open source tools (`yum`) with `bash` and Python
+* We recommend the [SSH setup](https://github.com/andreas-prouza/obi-extension/blob/main/asserts/docs/ssh.md) for your user profile
 
 
-# Quick Setup
+## Installation
 
-Open a console (QSH, SSH, ...)  
-Make sure that the `PATH` env-var is set correctly: `export PATH="/QOpenSys/pkgs/bin:$PATH"`
+### On IBM i
 
-```sh
--bash-5.2$ git clone https://github.com/andreas-prouza/obi.git
-  Cloning into 'obi'...
-  remote: Enumerating objects: 322, done.
-  remote: Counting objects: 100% (322/322), done.
-  remote: Compressing objects: 100% (228/228), done.
-  remote: Total 322 (delta 147), reused 236 (delta 69), pack-reused 0
-  Receiving objects: 100% (322/322), 515.89 KiB | 4.69 MiB/s, done.
-  Resolving deltas: 100% (147/147), done.
-```
-
-Jump into the directory:
-```cd obi```
-
-Run the setup script 
-```./setup3.13.sh```
-
-The script will ...
-
-* Create a virtual environment for Python
-* Update PIP
-* Install all necessary modules from ```requirements.txt```
+Open an SSH session (or QSH) and make sure the open source tools are in your `PATH`:
 
 ```sh
--bash-5.2$ cd obi
--bash-5.2$ ./setup.sh
-  Create virtual environment
-  Activate virtual environment
-  Update pip
-  Requirement already satisfied: pip in ./venv/lib/python3.9/site-packages (23.0.1)
-  Collecting pip
-    Downloading pip-24.0-py3-none-any.whl (2.1 MB)
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 4.7 MB/s eta 0:00:00
-  Installing collected packages: pip
-    Attempting uninstall: pip
-      Found existing installation: pip 23.0.1
-      Uninstalling pip-23.0.1:
-        Successfully uninstalled pip-23.0.1
-  Successfully installed pip-24.0
-  Install all requirements
-  Collecting toml (from -r requirements.txt (line 1))
-    Downloading toml-0.10.2-py2.py3-none-any.whl (16 kB)
-  Installing collected packages: toml
-  Successfully installed toml-0.10.2
+export PATH="/QOpenSys/pkgs/bin:$PATH"
+git clone https://github.com/andreas-prouza/obi.git
+cd obi
+./setup3.13.sh
 ```
 
-After install, it's ready to use.  
-Nothing more needs to be done.  
+Use the setup script that matches your Python version: `setup3.12.sh`, `setup3.13.sh` or `setup3.14.sh`.
+`setup.sh` uses the command `python`.
 
-# FAQ
+The script creates a virtual environment in `venv`, updates `pip` and installs the packages from `requirements.txt`.
+Nothing else is needed.
+
+### On your PC (optional)
+
+OBI can also create the build list on your PC, which is faster than on IBM i. The build itself always runs on IBM i.
+
+* Linux, macOS: same as above
+* Windows: `setup.bat`
+
+
+## Quick start
+
+Run OBI in the folder of your project. The project needs a `.obi` folder with its configuration (the VS Code extension creates it with *Initialize*).
+
+```sh
+cd /home/me/my-project
+~/obi/venv/bin/python -X utf8 ~/obi/main.py -a create -p .   # Create the build list
+~/obi/venv/bin/python -X utf8 ~/obi/main.py -a run -p .      # Build it
+```
+
+The results are in `.obi/build-output`. Open `compiled-object-list.md` for a summary.
+
+
+## Documentation
+
+| Topic | Content |
+|---|---|
+| [Command line](docs/cli.md) | Actions, arguments, status and exit codes |
+| [How a build works](docs/build-process.md) | Change detection, dependencies, levels, parallel builds, errors |
+| [Configuration](docs/configuration.md) | Files, settings, steps, variables |
+| [Extended source processing](docs/extended-source-processing.md) | Rules that select the build steps for groups of sources |
+| [Files](docs/files.md) | Format of the build list and of all other files OBI writes |
+| [Development](docs/development.md) | Code structure, tests, guidelines |
+| [Changelog](CHANGELOG.md) | Changes per version |
+
+
+## FAQ
 
 ### Python not found
 
-Possible reasons:
 * Python is not installed
-* Your Python command needs a version number (e.g. python3.13)
-* The `PATH` env-var is not set correctly: `export PATH="/QOpenSys/pkgs/bin:$PATH"`
+* Your Python command needs a version number, e.g. `python3.13`. Use the matching setup script
+* The `PATH` is not set: `export PATH="/QOpenSys/pkgs/bin:$PATH"`
+
+### The build failed, but the status is `ok`
+
+`status.json` tells whether OBI itself worked. Whether a source was built is in the build list: check its `status`. See [Status and exit codes](docs/cli.md#status-and-exit-codes).
+
+### Every source is built again
+
+OBI only knows what was built from `.obi/etc/object-builds.json`. The VS Code extension updates it after each build.
+Without the extension, see [Change detection](docs/build-process.md#1-change-detection).
+
+
+## License
+
+[GNU Affero General Public License v3.0](LICENSE)

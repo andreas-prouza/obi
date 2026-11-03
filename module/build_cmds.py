@@ -239,7 +239,6 @@ def replace_cmd_parameters(cmd: str, variable_dict: dict) -> str:
 
   logging.debug(f"replace cmd parameter")
   logging.debug(f"{cmd=}")
-  logging.debug(f"{variable_dict['global.cmds.evfevent-export']=}")
   logging.debug(f"{variable_dict['TARGET_LIB']=}")
 
   for k, v in variable_dict.items():
