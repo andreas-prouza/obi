@@ -4,3 +4,4 @@ __pycache__/
 .obi/log
 .obi/tmp
 .obi/etc/*
+docs/open-topics.md

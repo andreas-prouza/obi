@@ -162,12 +162,19 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             logging.exception(e, stack_info=True)
             raise e
         
+        # A raw cmd is run once. It replaces the default steps, unless they are requested
+        raw_cmd: str = step.get('cmd', '')
+        add_default_steps: bool = step.get('add_default_steps', len(raw_cmd) == 0)
+        step_without_cmd: dict = {key: value for key, value in step.items() if key != 'cmd'}
+        
         steps_2_append = []
-        if 'step' in step and len(step['step']) > 0:
+        if len(raw_cmd) > 0:
+            steps_2_append.append({'cmd': raw_cmd})
+        elif 'step' in step and len(step['step']) > 0:
             steps_2_append.append({'step': step['step']})
             
-        logging.debug(f"{steps_2_append=}; Add default steps: {step.get('add_default_steps', True)}")
-        if step.get('add_default_steps', True):
+        logging.debug(f"{steps_2_append=}; Add default steps: {add_default_steps}")
+        if add_default_steps:
             global_steps = get_global_steps(source, app_config=app_config)
             steps_2_append += [{'step': gs} for gs in global_steps]
     
@@ -177,7 +184,7 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
             exit_point_script = step.get('exit_point_script', None)
             
             if not exit_point_script:
-                new_steps.append({**step, **step_2_append})
+                new_steps.append({**step_without_cmd, **step_2_append})
                 continue
             
             func = get_script_function(exit_point_script)
@@ -189,10 +196,10 @@ def get_steps_from_current_esp(source_config_entry: ExtendedSourceConfig, source
                 global_steps = get_global_steps(step_2_append.get('properties', {}).get('SOURCE_FILE_NAME', source), app_config=app_config)
                 step_2_append['add_default_steps'] = False
                 for gs in global_steps:
-                    new_steps.append({**step, **{'step': gs}, **step_2_append})
+                    new_steps.append({**step_without_cmd, **{'step': gs}, **step_2_append})
             
             logging.debug(f"Modified source: {source=}: {step_2_append=}")
-            new_steps.append({**step, **step_2_append})
+            new_steps.append({**step_without_cmd, **step_2_append})
 
     logging.debug(f"New steps: {new_steps=}")    
     return new_steps
@@ -296,13 +303,14 @@ def call_script(func: callable, **parms) -> any:
         logging.exception(e, stack_info=True)
         raise e
 
-    stderr_text = stderr_new.getvalue()
-    if len(stderr_text) > 0:
-        logging.error(stderr_text)
+    finally:
+        stderr_text = stderr_new.getvalue()
+        if len(stderr_text) > 0:
+            logging.error(stderr_text)
 
-    sys.stdout = stdout_orig
-    sys.stderr = stderr_orig
-    logging.getLogger().removeHandler(hdl)
+        sys.stdout = stdout_orig
+        sys.stderr = stderr_orig
+        logging.getLogger().removeHandler(hdl)
 
     return result
 

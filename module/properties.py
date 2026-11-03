@@ -80,6 +80,7 @@ def get_app_properties():
 
 import re
 pattern = re.compile(r'\$\((.*?)\)')
+MAX_RESOLVE_DEPTH = 20
 
 def resolve_string(text, ref_dict):
   """Helper to replace $(...) patterns in a single string."""
@@ -134,23 +135,30 @@ def get_source_properties(config, source):
 
 
 
+def resolve_nested_string(text, ref_dict):
+  """Replace $(...) patterns until nothing is left to replace. Stops at circular references."""
+
+  for _ in range(MAX_RESOLVE_DEPTH):
+    resolved_text = resolve_string(text, ref_dict)
+    if resolved_text == text:
+      return text
+    text = resolved_text
+
+  logging.warning(f"Possible circular reference in property: {text}")
+  return text
+
+
+
 def resolve_properties(variable_dict: dict) -> dict:
 
   new_properties = {}
 
   for key, value in variable_dict.items():
     if isinstance(value, str):
-      new_properties[key] = resolve_string(value, variable_dict)
-      if new_properties[key] != value:
-        new_properties[key] = resolve_properties({key : new_properties[key]})[key]
+      new_properties[key] = resolve_nested_string(value, variable_dict)
     elif isinstance(value, list):
       # Apply the helper function to every item in the list
-      new_properties[key] = []
-      for item in value:
-        resolved_item = resolve_string(item, variable_dict)
-        if resolved_item != item:
-          resolved_item = resolve_properties({key : resolved_item})[key]
-        new_properties[key].append(resolved_item)
+      new_properties[key] = [resolve_nested_string(item, variable_dict) for item in value]
     else:
       # Keep other types (int, bool, dict, ...) unchanged, e.g. JOB_CCSID = 500
       new_properties[key] = value

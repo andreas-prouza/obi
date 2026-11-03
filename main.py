@@ -86,7 +86,7 @@ def run_builds(args):
 
   logging.debug("Run object builds")
   try:
-    run_cmds.run_build_object_list(build_targets, build_list_file_name)
+    run_cmds.run_build_object_list(build_targets, build_list_file_name, app_config)
   except Exception as e:
     logging.exception(e)
 
