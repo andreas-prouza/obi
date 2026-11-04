@@ -18,12 +18,16 @@ parser = argparse.ArgumentParser(
   epilog='Example: ...'
 )
 
-parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list; Add source to existing builds (json)',
-      choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list', 'add_source'], required=True)
+parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list; Add source to existing builds (json); '
+                    'Processing service: Submit builds; Watch a job; List jobs; Cancel a job',
+      choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list', 'add_source', 'submit', 'watch', 'jobs', 'cancel'], required=True)
 parser.add_argument('-s', '--source', help='Consider single source (action create); Source to add (action add_source)', required=False)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
 parser.add_argument('-c', '--compile-list-dir', help='Directory of the compile list (file name stays as configured); relative to the source project directory', required=False)
 parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
+# Also used internally: the processing service runs a job with `-a run --job <id>`
+parser.add_argument('-j', '--job', type=int, help='Job id (actions watch, cancel)', required=False)
+parser.add_argument('--since', type=int, default=0, help='Only events after this number (action watch)', required=False)
 
 args = parser.parse_args()
 
@@ -64,6 +68,23 @@ def get_compile_list_file(general_config, args) -> str:
 
 def run_builds(args):
 
+  if args.job is None:
+    build(args)
+    return
+
+  # Started by the processing service
+  from module import job_run
+
+  app_config = properties.get_app_properties()
+  build_list_file_name = get_compile_list_file(app_config['general'], args)
+
+  with job_run.JobRun(args.job, os.getcwd(), build_list_file_name) as job:
+    build(args, job)
+
+
+
+def build(args, job=None):
+
   logging.debug(f"Run build list")
 
   # Properties
@@ -84,11 +105,18 @@ def run_builds(args):
       sources.append(level_list_entry['source'])
   files.sources_needs_compiled(sources, app_config)
 
+  if job:
+    job.build_started(build_targets)
+
   logging.debug("Run object builds")
   try:
-    run_cmds.run_build_object_list(build_targets, build_list_file_name, app_config)
+    run_cmds.run_build_object_list(build_targets, build_list_file_name, app_config,
+                                   on_event=job.on_event if job else None, cancel=job.cancel if job else None)
   except Exception as e:
     logging.exception(e)
+
+  if job:
+    job.build_finished(build_targets)
 
   get_results(args)
 
@@ -232,6 +260,76 @@ def generate_source_list(args):
   files.writeJson(source_list, build_list)
 
 
+#################################################################
+# Processing service
+#################################################################
+
+
+def print_json(content: dict):
+  # ASCII: one line per object, whatever the encoding of the client
+  print(json.dumps(content), flush=True)
+
+
+
+def get_project_job(args) -> dict:
+
+  from module import jobs
+
+  if args.job is None:
+    raise Exception('Parameter --job is missing')
+
+  job = jobs.get_job(args.job)
+  if job is None or job['project'] != os.path.realpath(os.getcwd()):
+    raise Exception(f"Job {args.job} not found for this project")
+
+  return job
+
+
+
+def submit_build(args):
+
+  from module import jobs
+
+  app_config = properties.get_app_properties()
+  build_list_file_name = os.path.abspath(get_compile_list_file(app_config['general'], args))
+
+  result = {"status": "ok", **jobs.submit(os.getcwd(), build_list_file_name)}
+
+  write_status_to_file(result)
+  print_json(result)
+
+
+
+def watch_job(args):
+
+  from module import jobs
+
+  job = get_project_job(args)
+
+  for event in jobs.follow(job['id'], args.since):
+    print_json(event)
+
+
+
+def list_jobs(args):
+
+  from module import jobs
+
+  print_json({"status": "ok", "jobs": jobs.list_jobs(os.getcwd())})
+
+
+
+def cancel_job(args):
+
+  from module import jobs
+
+  result = {"status": "ok", "job": jobs.cancel(get_project_job(args)['id'])}
+
+  write_status_to_file(result)
+  print_json(result)
+
+
+
 def check_environment() -> dict:
   # Check if the environment is set up correctly
   if not os.path.exists('.obi'):
@@ -259,8 +357,15 @@ action = {
   'open_result': open_doc_in_editor,
   'gen_obj_list': generate_object_list,
   'gen_src_list': generate_source_list,
-  'add_source': add_source
+  'add_source': add_source,
+  'submit': submit_build,
+  'watch': watch_job,
+  'jobs': list_jobs,
+  'cancel': cancel_job,
 }
+
+# Their result is only on stdout. They don't write status.json, because they run while a job writes it
+STDOUT_ACTIONS = ('watch', 'jobs')
 
 
 def write_status_to_file(status: dict):
@@ -273,7 +378,11 @@ if __name__ == "__main__":
   import json
 
   check_result = check_environment()
-  write_status_to_file(check_result)
+  if args.action in STDOUT_ACTIONS:
+    if check_result['status'] != 'ok':
+      print_json(check_result)
+  else:
+    write_status_to_file(check_result)
   if check_result['status'] != 'ok':
     logging.error(f"Environment check result: {check_result}")
     sys.exit(1)
@@ -289,8 +398,18 @@ if __name__ == "__main__":
 
   try:
     action[args.action](args)
+  except BrokenPipeError:
+    # The client of `watch` has gone (e.g. the SSH connection ended). It can continue with --since.
+    logging.info(f"Output of action {args.action} closed by the client")
+    os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
   except Exception as e:
     logging.exception(e)
     logging.error(f"Error occurred while executing action: {e}")
-    write_status_to_file({"status": "error", "message": str(e), "details": str(e)})
+    error = {"status": "error", "message": str(e), "details": str(e)}
+    if args.action in STDOUT_ACTIONS:
+      print_json(error)
+      sys.exit(1)
+    write_status_to_file(error)
+    if args.action in ('submit', 'cancel'):
+      print_json(error)
     #sys.exit(1)

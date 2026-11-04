@@ -9,6 +9,7 @@
 - [Status](#status)
 - [Built sources](#built-sources)
 - [Temporary files and log](#temporary-files-and-log)
+- [Processing service](#processing-service)
 
 The locations are the defaults; most of them can be changed in the [configuration](configuration.md#general).
 
@@ -131,3 +132,12 @@ It is created from the template [`docs/summary-template.md`](summary-template.md
 | `.obi/tmp/objects_tree.json`, `ordered_target_tree.json`, `new_target_tree.json` | Intermediate results of `create`, for analysis |
 | `.obi/log/joblog.txt.<id>` | Joblog of a running command. Removed after the command |
 | Log file | As configured in `.obi/etc/logger_config.py`, usually `.obi/log/main.log` |
+
+
+## Processing service
+
+Not in the project, but in the directory of the user's [processing service](processing-service.md) (`~/.obi-service`, or `OBI_SERVICE_DIR`):
+the queue (`jobs.sqlite`), the events and console output of each job (`jobs/<id>/`), the log and the settings.
+See [Good to know](processing-service.md#good-to-know).
+
+A build of the service writes the same files in the project as `run`.

@@ -36,3 +36,4 @@ Each larger change gets a file here before it is implemented. It records what is
 |---|---|
 | [Add a source to the build list](add-source-2-build-list.md) | done |
 | [Parallel builds](parallel-build-execution.md) | in progress |
+| [Processing service](processing-service.md) | in progress |
