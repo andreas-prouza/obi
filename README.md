@@ -8,6 +8,7 @@ puts everything in the right order and runs the build commands in PASE on IBM i.
 * **Dependencies**: dependent objects are rebuilt too, in the right order (levels)
 * **Configurable commands**: steps per source type, per source, or by rules ([extended source processing](docs/extended-source-processing.md))
 * **Parallel builds**: sources that don't depend on each other can be built at the same time
+* **Processing service**: builds keep running when the connection ends, with live progress for the client ([docs](docs/processing-service.md))
 * **Results**: status, spool output, joblog and errors of every command, plus a summary document
 
 OBI is the backend. You usually use it through an IDE:
@@ -74,6 +75,7 @@ The results are in `.obi/build-output`. Open `compiled-object-list.md` for a sum
 | [How a build works](docs/build-process.md) | Change detection, dependencies, levels, parallel builds, errors |
 | [Configuration](docs/configuration.md) | Files, settings, steps, variables |
 | [Extended source processing](docs/extended-source-processing.md) | Rules that select the build steps for groups of sources |
+| [Processing service](docs/processing-service.md) | Builds that keep running without the client: queue, events, cancel |
 | [Files](docs/files.md) | Format of the build list and of all other files OBI writes |
 | [Development](docs/development.md) | Code structure, tests, guidelines |
 | [Changelog](CHANGELOG.md) | Changes per version |

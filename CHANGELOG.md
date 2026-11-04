@@ -12,6 +12,7 @@ The backend version (`OBI_BACKEND_VERSION`, in `status.json` as `version`) is in
 * `add_source`: add a source to an existing build list ([docs](docs/build-process.md#adding-a-source))
 * `-c`, `--compile-list-dir`: folder of the build list
 * `max-parallel-builds`: parallel builds within a level ([docs](docs/build-process.md#parallel-builds))
+* Processing service: `submit`, `watch`, `jobs`, `cancel` and `service.py`. Builds keep running when the connection ends, with events for every change ([docs](docs/processing-service.md)). Backend version 4
 * Backend documentation in `docs`
 
 ### Changed
