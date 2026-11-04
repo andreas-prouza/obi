@@ -19,4 +19,4 @@ Also list which criteria were not met.
 
 # Update
 
-* Maintain a `CHANGELOG.md`
+* Maintain a `CHANGELOG.md`. Put only summarized short informations in it. Don't go into much details

@@ -71,17 +71,28 @@ def deep_list_merge(a: [], b: []) -> []:
 
 
 
+def is_set(value) -> bool:
+    """True if a value of the user config overrides the project config: everything except None, empty strings and empty lists.
+    Same rule as is_set in the VS Code extension (DictTools.ts): false, 0 and {} override."""
+    if value is None:
+        return False
+    if isinstance(value, (str, list)):
+        return len(value) != 0
+    return True
+
+
+
 def dict_merge(base_dct, merge_from_dct):
     for k in set(base_dct.keys()).union(merge_from_dct.keys()):
         if k in base_dct and k in merge_from_dct:
             if isinstance(base_dct[k], dict) and isinstance(merge_from_dct[k], dict):
                 yield (k, dict(dict_merge(base_dct[k], merge_from_dct[k])))
             else:
-                if isinstance(merge_from_dct[k], bool) or len(merge_from_dct[k]) != 0:
+                if is_set(merge_from_dct[k]):
                     yield (k, merge_from_dct[k])
                 else:
                     yield (k, base_dct[k])
         elif k in base_dct:
             yield (k, base_dct[k])
-        else:
+        elif is_set(merge_from_dct[k]):
             yield (k, merge_from_dct[k])

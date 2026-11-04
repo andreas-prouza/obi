@@ -59,7 +59,7 @@ WORKSPACE_SETTINGS_JSON = '.obi/etc/workspace-settings.json'
 
 * The **project configuration** holds what the team shares.
 * The **user configuration** has the same structure and overrides it, e.g. with your own target library.
-  Empty values (`""`, `[]`) do not override; `false` does.
+  Empty values (`""`, `[]`) do not override; `false`, numbers (also `0`) and dates do. A missing key takes the value of the project configuration.
 * **Profiles**: if `workspace-settings.json` contains `"current_profile": "test"`, the user configuration is `.user-app-config-test.toml`,
   and the user rules of the extended source processing are in `.user-extended-source-processing-config-test.toml`.
 
