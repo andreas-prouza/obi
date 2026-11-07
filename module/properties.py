@@ -23,7 +23,7 @@ def get_json(config):
   if config in config_content.keys():
     return config_content[config]
 
-  with open(config, 'r') as f:
+  with open(config, 'r', encoding='utf-8') as f:
     try:
       config_content[config] = json.load(f)
     except Exception as e:
@@ -122,6 +122,9 @@ def get_source_properties(config, source):
   global_settings['SRC_TYPE'] = global_settings['SOURCE_BASE_FILE_NAME'].split('.')[-1].lower()
   global_settings['SRC_ATTR'] = global_settings['SOURCE_BASE_FILE_NAME'].split('.')[-2].lower()
 
+  global_settings['SOURCE_DESCRIPTION'] = get_source_description(config, source)
+  global_settings['OBJ_TEXT'] = escape_cl_text(global_settings['SOURCE_DESCRIPTION'])
+
   global_settings['SET_LIBL'] = get_set_libl_cmd(config, global_settings.get('LIBL', []), global_settings['TARGET_LIB'])
 
   #for key, value in global_settings.items():
@@ -132,6 +135,28 @@ def get_source_properties(config, source):
   #    global_settings[key] = [resolve_string(item, global_settings) for item in value]
 
   return global_settings
+
+
+
+def get_source_description(config, source) -> str:
+  """Description of the source from the `source-infos` file, at most 50 characters (length of TEXT)."""
+  source_infos_file = config.get('general', {}).get('source-infos', '.obi/etc/source-infos.json')
+  source_info = get_json(source_infos_file).get(source, {})
+  if not isinstance(source_info, dict):
+    return ''
+  return str(source_info.get('description') or '').strip()[:50].rstrip()
+
+
+
+def escape_cl_text(text: str) -> str:
+  """
+  Escape a text for a CL string inside a double-quoted shell string,
+  e.g. cl -v "CRTBNDRPG ... TEXT('$(OBJ_TEXT)')"
+  """
+  text = text.replace("'", "''")
+  for char in ['\\', '"', '$', '`']:
+    text = text.replace(char, f'\\{char}')
+  return text
 
 
 

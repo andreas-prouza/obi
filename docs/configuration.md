@@ -165,6 +165,10 @@ The steps under `"*ALL"` always come first, except with 1.
 | `$(TARGET_LIB)` | Target library, see `TARGET_LIB` |
 | `$(TARGET_LIB_ORIG)` | Target library before `TARGET_LIB_MAPPING` |
 | `$(SET_LIBL)` | Commands to set the library list from `LIBL` |
+| `$(SOURCE_DESCRIPTION)` | `description` of the source in the `source-infos` file, at most 50 characters |
+| `$(OBJ_TEXT)` | `SOURCE_DESCRIPTION`, escaped for `cl -v "... TEXT('$(OBJ_TEXT)')"`: `'` doubled; backslash, `"`, `$` and backtick escaped with a backslash. Without a description, `TEXT('')` is removed from the command, so its default applies (e.g. `*SAME` for `CHGPF`) |
+
+The object text, for example: `cl -v "CRTBNDRPG PGM(...) SRCSTMF(...) TEXT('$(OBJ_TEXT)')"`.
 
 **Your own variables**:
 

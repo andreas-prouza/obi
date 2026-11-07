@@ -104,6 +104,8 @@ def remove_unresolved_cmd_parameters(cmd: str) -> str:
   cmd = cmd.replace('INCDIR()', '')
   cmd = cmd.replace('INCDIR($(INCDIR_RPGLE))', '')
   cmd = cmd.replace('INCDIR()', '')
+  # No description: keep the command's default text (e.g. *SRCMBRTXT, *SAME for CHGPF)
+  cmd = cmd.replace("TEXT('')", '')
 
   return cmd
 

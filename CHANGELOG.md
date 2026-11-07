@@ -14,6 +14,7 @@ The backend version (`OBI_BACKEND_VERSION`, in `status.json` as `version`) is in
 * `max-parallel-builds`: parallel builds within a level ([docs](docs/build-process.md#parallel-builds))
 * Processing service: `submit`, `watch`, `jobs`, `cancel` and `service.py`. Builds keep running when the connection ends, with events for every change ([docs](docs/processing-service.md)). Backend version 4
 * Backend documentation in `docs`
+* Variables `$(SOURCE_DESCRIPTION)` and `$(OBJ_TEXT)`: the source description from `source-infos`, e.g. for `TEXT('$(OBJ_TEXT)')` ([docs](docs/configuration.md#variables))
 
 ### Changed
 
@@ -21,6 +22,8 @@ The backend version (`OBI_BACKEND_VERSION`, in `status.json` as `version`) is in
 * A raw `cmd` step of the extended source processing runs only once. The steps of the source type are only added with `add_default_steps = true`
 
 ### Fixed
+
+* JSON files (e.g. `source-infos`) are read as UTF-8, also on Windows
 
 * Commands that fail without writing to `stderr` are detected as `failed` (not yet with `global.cmds.dspjoblog`)
 * The status `failed` is saved in the build list
