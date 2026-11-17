@@ -168,7 +168,9 @@ def remove_duplicities(target_tree=[]):
   for level_item in sorted(target_tree, key=lambda d: d['level']):
 
     # All objects in this level
-    for obj in level_item['sources']:
+    # Iterate over a copy: the loop below removes objects from these lists,
+    # which would otherwise skip the following object and leave duplicates.
+    for obj in list(level_item['sources']):
 
       # Scan reverse for duplicated objects
       for rev_level_item in reversed(sorted(target_tree, key=lambda d: d['level'])):
