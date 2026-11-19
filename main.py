@@ -21,7 +21,10 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list; Add source to existing builds (json); '
                     'Processing service: Submit builds; Watch a job; List jobs; Cancel a job',
       choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list', 'add_source', 'submit', 'watch', 'jobs', 'cancel'], required=True)
-parser.add_argument('-s', '--source', help='Consider single source (action create); Source to add (action add_source)', required=False)
+source_or_package = parser.add_mutually_exclusive_group()
+source_or_package.add_argument('-s', '--source', help='Consider single source (action create); Source to add (action add_source)', required=False)
+source_or_package.add_argument('--package', help='Build package: all its sources and their dependents, whatever their hash (action create). '
+                               'Name of the package in .obi/build-packages', required=False)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
 parser.add_argument('-c', '--compile-list-dir', help='Directory of the compile list (file name stays as configured); relative to the source project directory', required=False)
 parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
@@ -30,6 +33,9 @@ parser.add_argument('-j', '--job', type=int, help='Job id (actions watch, cancel
 parser.add_argument('--since', type=int, default=0, help='Only events after this number (action watch)', required=False)
 
 args = parser.parse_args()
+
+if args.package is not None and args.action != 'create':
+  parser.error('argument --package: only for action create')
 
 
 #################################################################
@@ -161,23 +167,34 @@ def create_build_list(args):
   build_output_dir = app_config['general'].get('build-output-dir', '.obi/build-output')
   fs_encoding = app_config['general'].get('file-system-encoding', 'utf-8')
 
+  # Before anything is removed: an invalid package leaves the previous build list as it is
+  package = None
+  if args.package is not None:
+    package = build_package.load_package(args.package, source_dir, object_types)
+
   # Removes old files and dirs
   if len(build_output_dir.strip()) < 3 or build_output_dir.strip() == '/':
     raise Exception(f'Wrong build output dir: {build_output_dir}')
   shutil.rmtree(build_output_dir, ignore_errors=True)
 
   # Get source list
-  if args.source is None:
-    source_list = files.get_files(source_dir, object_types, fs_encoding)
-    changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, source_list)
+  if package is not None:
+    # All sources of the package, whatever their hash
+    changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, {source: '' for source in package['sources']})
 
   # Source provided by parameter
-  if args.source is not None:
+  elif args.source is not None:
     changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, {args.source: ''})
+
+  else:
+    source_list = files.get_files(source_dir, object_types, fs_encoding)
+    changed_sources_list=files.get_changed_sources(source_dir, build_list, object_types, source_list)
 
   files.writeJson(changed_sources_list, obi_constants.OBIConstants.get("CHANGED_OBJECT_LIST"))
   build_targets = dependency.get_build_order(dependency_list, changed_sources_list['new-objects'] + changed_sources_list['changed-sources'])
   build_targets = build_cmds.order_builds(build_targets)
+  if package is not None:
+    build_targets['package'] = build_package.package_info(package)
 
   # Write source list to json
   files.writeJson(build_targets, get_compile_list_file(general_config, args))
@@ -395,6 +412,7 @@ if __name__ == "__main__":
   #from module import toml_tools
   from module import build_cmds
   from module import compile_list
+  from module import build_package
 
   try:
     action[args.action](args)

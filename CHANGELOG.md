@@ -15,6 +15,7 @@ The backend version (`OBI_BACKEND_VERSION`, in `status.json` as `version`) is in
 * Processing service: `submit`, `watch`, `jobs`, `cancel` and `service.py`. Builds keep running when the connection ends, with events for every change ([docs](docs/processing-service.md)). Backend version 4
 * Backend documentation in `docs`
 * Variables `$(SOURCE_DESCRIPTION)` and `$(OBJ_TEXT)`: the source description from `source-infos`, e.g. for `TEXT('$(OBJ_TEXT)')` ([docs](docs/configuration.md#variables))
+* `create --package <name>`: build all sources of a build package (`.obi/build-packages/<name>.json`) and their dependent objects ([docs](docs/cli.md#build-packages)). Backend version 5
 
 ### Changed
 

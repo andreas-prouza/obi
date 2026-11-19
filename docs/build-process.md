@@ -24,7 +24,7 @@ and compares it with `compiled-object-list` (`.obi/etc/object-builds.json`):
 | Different hash, or `null` | **changed** |
 | Same hash | not built |
 
-With `create -s <source>` only that source is used, and it is always new or changed.
+With `create -s <source>` only that source is used, and it is always new or changed. The same applies to the sources of a [build package](cli.md#build-packages) with `create --package <name>`.
 
 **Who updates the hashes?**
 `run` sets the hash of every source in the build list to `null` before it starts, so these sources count as changed until they are built.

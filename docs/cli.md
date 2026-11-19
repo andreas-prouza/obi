@@ -28,6 +28,7 @@
 | `-a`, `--action` | ✅ | The [action](#actions) to run |
 | `-p`, `--set-path` | ✅ | Project folder |
 | `-s`, `--source` | | A source, relative to the source directory (e.g. `mylib/qrpglesrc/order.rpgle.pgm`). Used by `create` and `add_source` |
+| `--package` | | A [build package](#build-packages) (name, e.g. `ABC-123`). Only for `create`, not together with `-s` |
 | `-c`, `--compile-list-dir` | | Folder of the build list. The file name stays as configured in `compile-list`. Relative to the project folder. Used by all actions that read or write the build list |
 | `-e`, `--editor` | | Command to open the summary with (`open_result`). Default `code` |
 | `-j`, `--job` | | Job of the [processing service](#processing-service) (`watch`, `cancel`) |
@@ -57,8 +58,27 @@ See [How a build works](build-process.md) for the details.
 
 * Without `-s`: all sources in the source directory with a supported type
 * With `-s`: only this source (always, even if it didn't change) and its dependent objects
+* With `--package`: all sources of the [build package](#build-packages) (always, even if they didn't change) and their dependent objects
 
 > ⚠️ `create` first **deletes** the folder `build-output-dir` (default `.obi/build-output`), including the results of the last build.
+
+#### Build packages
+
+A build package is a named list of sources that are built together, e.g. for a ticket. It is the file `.obi/build-packages/<name>.json`, committed with the project. The VS Code extension creates and edits it:
+
+```json
+{
+  "description": "Order entry rework (ABC-123)",
+  "sources": [
+    "mylib/qddssrc/orders.pf.file",
+    "mylib/qrpglesrc/order.sqlrpgle.pgm"
+  ]
+}
+```
+
+* The name: letters, digits, `.`, `_` and `-`, starting with a letter or digit, max. 100 characters.
+* The build list gets `"package": {"name": "...", "description": "..."}`.
+* A source that doesn't exist or whose type is not in `supported-object-types` is an error. The previous build list is kept, and `status.json` has the error.
 
 Writes: build list, [changed and dependent objects](files.md#changed-and-dependent-objects), [object list](files.md#object-list), [summary](files.md#summary-document).
 
@@ -179,6 +199,13 @@ Build only one source and the objects depending on it:
 
 ```sh
 python -X utf8 ~/obi/main.py -a create -p . -s mylib/qrpglesrc/order.rpgle.pgm
+python -X utf8 ~/obi/main.py -a run -p .
+```
+
+Build a build package (e.g. in a CI job):
+
+```sh
+python -X utf8 ~/obi/main.py -a create -p . --package ABC-123
 python -X utf8 ~/obi/main.py -a run -p .
 ```
 

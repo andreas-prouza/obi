@@ -35,5 +35,6 @@ Each larger change gets a file here before it is implemented. It records what is
 | Feature | Status |
 |---|---|
 | [Add a source to the build list](add-source-2-build-list.md) | done |
+| [Build packages](build-packages.md) | in progress |
 | [Parallel builds](parallel-build-execution.md) | in progress |
 | [Processing service](processing-service.md) | in progress |
