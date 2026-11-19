@@ -1,4 +1,6 @@
 import logging
+import re
+import signal
 import subprocess
 import threading
 import uuid
@@ -222,8 +224,11 @@ def run_pase_cmd(cmd, app_config=default_app_config):
 
   # Unique joblog file per call, so parallel commands don't overwrite each other's joblog
   joblog_file = f"{obi_constants.OBIConstants.get('JOBLOG')}.{uuid.uuid4().hex}"
+  # IBM i job of the shell. All `cl` commands run in it (`cl` is a bash builtin).
+  # Needed to get the joblog if the shell ends before its own `dspjoblog`, e.g. when the job ends abnormally.
+  job_file = f"{joblog_file}.job"
   # Keep the exit code of the cmd, otherwise it's the one of the joblog cmd
-  cmd += f'; obi_exit_code=$?; cl -v "dspjoblog" > {joblog_file}; exit $obi_exit_code'
+  cmd = f'getjobid -s $$ > {job_file} 2> /dev/null; {cmd}; obi_exit_code=$?; cl -v "dspjoblog" > {joblog_file}; exit $obi_exit_code'
   logging.debug(f"Run PASE cmd: {cmd}")
 
   s=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False, executable='/usr/bin/bash')
@@ -232,12 +237,74 @@ def run_pase_cmd(cmd, app_config=default_app_config):
   stdout = str(s.stdout, encoding)
   stderr = str(s.stderr, encoding)
 
-  joblog = ''
-  if os.path.isfile(joblog_file):
-    joblog = files.readFile(joblog_file)
-    with suppress(OSError):
-      os.remove(joblog_file)
+  job_name = read_job_name(job_file)
+  joblog = read_and_remove(joblog_file)
+
+  if s.returncode < 0:
+    # The shell got killed, so its commands didn't write any error
+    stderr += get_signal_message(-s.returncode, job_name)
+
+  if joblog == '' and job_name is not None:
+    joblog = get_joblog_of_job(job_name, joblog_file)
 
   # exit-code: 0 = OK
   return {"exit-code": s.returncode, "stdout": stdout, "stderr": stderr, "joblog": joblog}
+
+
+
+def read_and_remove(file) -> str:
+
+  content = ''
+  if os.path.isfile(file):
+    with open(file, 'r', encoding='utf-8', errors='replace') as f:
+      content = f.read()
+    with suppress(OSError):
+      os.remove(file)
+  return content
+
+
+
+def read_job_name(job_file) -> str|None:
+  """IBM i job name written by `getjobid -s`, e.g. 973260/QSECOFR/QP0ZSPWP. None if missing or invalid"""
+
+  job_name = read_and_remove(job_file).strip()
+  # Strict check: the name is used in a command
+  if re.fullmatch(r'[0-9]{6}/[A-Z0-9$#@_.]{1,10}/[A-Z0-9$#@_.]{1,10}', job_name):
+    return job_name
+  return None
+
+
+
+def get_signal_message(signum: int, job_name: str|None) -> str:
+
+  try:
+    signal_name = signal.Signals(signum).name
+  except ValueError:
+    signal_name = 'unknown signal'
+
+  message = f"OBI: The command was ended by signal {signum} ({signal_name})."
+  if job_name is not None:
+    message += f" IBM i job {job_name} may have ended abnormally; see its joblog."
+  logging.error(message)
+  return f"\n{message}\n"
+
+
+
+def get_joblog_of_job(job_name: str, joblog_file: str) -> str:
+  """
+  Joblog of a job which has already ended (pending joblog).
+  Used if the command ended before its own `dspjoblog`.
+  """
+
+  logging.info(f"Get joblog of job {job_name}")
+  # The job name is passed as environment variable, so it's never interpreted by the shell
+  cmd = f'cl -v "DSPJOBLOG JOB($OBI_JOB_NAME)" > {joblog_file}'
+  s = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, shell=True, check=False,
+                     executable='/usr/bin/bash', env={**os.environ, 'OBI_JOB_NAME': job_name})
+  joblog = read_and_remove(joblog_file)
+
+  if s.returncode != 0:
+    logging.warning(f"Joblog of job {job_name} not available: {s.stderr.decode('utf-8', errors='replace')}")
+
+  return joblog
 

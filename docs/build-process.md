@@ -89,6 +89,9 @@ So after fixing an error you can run the same build list again: only the remaini
 
 **Commands** run in `bash` in the project folder. After each command, OBI collects the joblog with `cl -v "dspjoblog"`.
 A command fails if its exit code is not 0 or if it writes anything to `stderr`.
+If the IBM i job of a command ends abnormally (e.g. a function check in a compiler), the shell is ended by a signal before it can write an error or its joblog.
+OBI then writes the signal and the job name to `stderr` and gets the joblog of the ended job with `DSPJOBLOG JOB(...)`.
+For this, each command first writes the name of its job (`getjobid`) into a temporary file.
 Status, output, joblog and errors are stored in the build list after every command, so a client can show the progress.
 
 ### Parallel builds

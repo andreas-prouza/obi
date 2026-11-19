@@ -27,6 +27,7 @@ The backend version (`OBI_BACKEND_VERSION`, in `status.json` as `version`) is in
 * JSON files (e.g. `source-infos`) are read as UTF-8, also on Windows
 
 * Commands that fail without writing to `stderr` are detected as `failed` (not yet with `global.cmds.dspjoblog`)
+* If the IBM i job of a command ends abnormally (e.g. `CRTPRTF` with `OPTION(*EVENTF)` into a missing library), the error shows the signal and the joblog of the ended job is collected
 * The status `failed` is saved in the build list
 * Nested variables are resolved completely, circular ones no longer recurse endlessly
 * `ALWAYS_TRANSFER_RELATED_COPYBOOKS` and `global.cmds.evfevent-export` are optional
