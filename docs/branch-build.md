@@ -9,6 +9,7 @@
 - [Creating the libraries](#creating-the-libraries)
 - [Build list](#build-list)
 - [Variables](#variables)
+- [Removing branch libraries](#removing-branch-libraries)
 
 With a branch build, every ticket gets its own libraries. A build on the branch `ABC-337-order-rework` goes into `#be_337` instead of the main libraries (e.g. `#h_beobj`). Developers on different tickets don't overwrite each other's objects, and the main libraries keep the state of the main branch.
 
@@ -137,3 +138,37 @@ Only while the feature is active (also for main builds):
 | `$(BRANCH)` | Branch name |
 | `$(TICKET)` | Ticket number, empty in a main build |
 | `$(BRANCH_LIBS)` | The branch libraries added to the library list, separated by spaces (branch builds only) |
+
+
+## Removing branch libraries
+
+Branch libraries stay until they're deleted. The VS Code extension decides which ones (e.g. after the merge) and calls the action `branch_libs` on IBM i:
+
+```sh
+main.py -a branch_libs -p <project> --list
+main.py -a branch_libs -p <project> --delete=#BE_337,#HOL_337
+```
+
+`--list` reads all libraries with `QSYS2.OBJECT_STATISTICS` (the `db2` utility of QShell) and keeps those that are branch libraries:
+
+```json
+{"version": 6, "status": "ok", "libs": [
+  {"name": "#BE_337", "env": "BE", "ticket": "337", "text": "OBI IBMI-337-order-rework",
+   "created": "2026-11-20 10:00:00", "last_used": "2026-11-21", "owner": "PROUZA", "size": 1234567}
+]}
+```
+
+`--delete` runs `DLTLIB` for each library and reports the result. A library that's in use fails; the others are still deleted:
+
+```json
+{"version": 6, "status": "ok", "deleted": ["#BE_337"], "failed": [{"name": "#HOL_337", "message": "CPF2125 ..."}]}
+```
+
+**What counts as a branch library**, for both modes:
+
+* The name matches `lib-name`. `$(ENV)` must be one of the ENVs of `[branch-build.env]`, and `$(TICKET)` must match the group of `ticket-pattern` (`\d+` in `(?i)\babc[-_](\d+)`).
+* It is none of the libraries of `TARGET_LIB_MAPPING` (keys and values) and of `[branch-build.env]`.
+
+`--delete` checks every name before it deletes anything. If one name isn't a branch library, nothing is deleted. A name that doesn't exist is reported in `failed`.
+
+Deleting can't be undone. The next package build creates the libraries again.

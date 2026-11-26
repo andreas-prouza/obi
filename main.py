@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('-a', '--action', help='Run action: Create builds (json); Run builds; Get results; Open report summary; Generate object list; Generate source list; Add source to existing builds (json); '
                     'Processing service: Submit builds; Watch a job; List jobs; Cancel a job',
-      choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list', 'add_source', 'submit', 'watch', 'jobs', 'cancel'], required=True)
+      choices=['create', 'run', 'results', 'open_result', 'gen_obj_list', 'gen_src_list', 'add_source', 'submit', 'watch', 'jobs', 'cancel', 'branch_libs'], required=True)
 source_or_package = parser.add_mutually_exclusive_group()
 source_or_package.add_argument('-s', '--source', help='Consider single source (action create); Source to add (action add_source)', required=False)
 source_or_package.add_argument('--package', help='Build package: all its sources and their dependents, whatever their hash (action create). '
@@ -33,6 +33,9 @@ parser.add_argument('-e', '--editor', help='Editor to open MD file', required=Fa
 # Also used internally: the processing service runs a job with `-a run --job <id>`
 parser.add_argument('-j', '--job', type=int, help='Job id (actions watch, cancel)', required=False)
 parser.add_argument('--since', type=int, default=0, help='Only events after this number (action watch)', required=False)
+branch_libs_mode = parser.add_mutually_exclusive_group()
+branch_libs_mode.add_argument('--list', action='store_true', help='List the branch libraries (action branch_libs)')
+branch_libs_mode.add_argument('--delete', help='Delete these branch libraries, separated by commas (action branch_libs)', required=False)
 
 args = parser.parse_args()
 
@@ -40,6 +43,10 @@ if args.package is not None and args.action != 'create':
   parser.error('argument --package: only for action create')
 if args.branch is not None and args.action not in ('create', 'add_source'):
   parser.error('argument --branch: only for actions create and add_source')
+if (args.list or args.delete is not None) and args.action != 'branch_libs':
+  parser.error('arguments --list, --delete: only for action branch_libs')
+if args.action == 'branch_libs' and not args.list and args.delete is None:
+  parser.error('action branch_libs: --list or --delete is needed')
 
 
 #################################################################
@@ -361,6 +368,22 @@ def cancel_job(args):
 
 
 
+def branch_libs(args):
+  """List or delete branch libraries (runs on IBM i)"""
+
+  app_config = properties.get_app_properties()
+
+  if args.list:
+    result = {"status": "ok", "libs": branch_build.list_branch_libs(app_config)}
+  else:
+    result = {"status": "ok", **branch_build.delete_branch_libs(args.delete.split(','), app_config,
+                                                                lambda cmd: run_cmds.run_pase_cmd(cmd, app_config))}
+
+  write_status_to_file(result)
+  print_json(result)
+
+
+
 def check_environment() -> dict:
   # Check if the environment is set up correctly
   if not os.path.exists('.obi'):
@@ -393,6 +416,7 @@ action = {
   'watch': watch_job,
   'jobs': list_jobs,
   'cancel': cancel_job,
+  'branch_libs': branch_libs,
 }
 
 # Their result is only on stdout. They don't write status.json, because they run while a job writes it
@@ -443,6 +467,6 @@ if __name__ == "__main__":
       print_json(error)
       sys.exit(1)
     write_status_to_file(error)
-    if args.action in ('submit', 'cancel'):
+    if args.action in ('submit', 'cancel', 'branch_libs'):
       print_json(error)
     #sys.exit(1)

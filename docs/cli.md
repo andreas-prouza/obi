@@ -34,6 +34,7 @@
 | `-e`, `--editor` | | Command to open the summary with (`open_result`). Default `code` |
 | `-j`, `--job` | | Job of the [processing service](#processing-service) (`watch`, `cancel`) |
 | `--since` | | Only the events after this `seq` (`watch`). Default `0` |
+| `--list`, `--delete` | | List the branch libraries, or delete the given ones (comma separated). Only for `branch_libs`, one of them is mandatory |
 
 
 ## Actions
@@ -51,6 +52,7 @@
 | [`watch`](#watch) | Follow a job of the processing service |
 | [`jobs`](#jobs) | Jobs of the project |
 | [`cancel`](#cancel) | Remove a job from the queue, or stop it |
+| [`branch_libs`](#branch_libs) | List or delete the libraries of [branch builds](branch-build.md) |
 
 ### create
 
@@ -125,6 +127,10 @@ Use it after setting up a project with existing objects.
 ### gen_src_list
 
 Writes the hash of every source into `source-list`.
+
+### branch_libs
+
+Lists (`--list`) or deletes (`--delete=<lib>,<lib>`) the libraries of [branch builds](branch-build.md#removing-branch-libraries). Runs on IBM i only. The result is in `status.json` and on stdout.
 
 
 ## Processing service

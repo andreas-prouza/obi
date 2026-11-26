@@ -411,6 +411,284 @@ def get_crt_lib_cmd(lib: str, context: dict, app_config: dict) -> str:
 
 
 
+#################################################################
+# Removing branch libraries (action branch_libs)
+#################################################################
+
+QSH = '/QOpenSys/usr/bin/qsh'
+SQL_TIMEOUT = 300
+SQL_LIB_MARKER = 'OBILIB|'
+SQL_SIZE_MARKER = 'OBISIZE|'
+SAFE_LIKE_PREFIX = re.compile(r'[A-Za-z0-9#@]*')
+
+SQL_LIST_LIBS = ("SELECT '" + SQL_LIB_MARKER + "' CONCAT TRIM(OBJNAME) CONCAT '|' "
+                 "CONCAT COALESCE(VARCHAR_FORMAT(OBJCREATED, 'YYYY-MM-DD HH24:MI:SS'), '') CONCAT '|' "
+                 "CONCAT COALESCE(VARCHAR_FORMAT(LAST_USED_TIMESTAMP, 'YYYY-MM-DD'), '') CONCAT '|' "
+                 "CONCAT TRIM(OBJOWNER) CONCAT '|' CONCAT COALESCE(TRIM(OBJTEXT), '') AS L "
+                 "FROM TABLE(QSYS2.OBJECT_STATISTICS('*ALL', '*LIB')) X WHERE OBJNAME LIKE '{prefix}%'")
+
+SQL_LIB_SIZES = ("SELECT '" + SQL_SIZE_MARKER + "' CONCAT L.N CONCAT '|' CONCAT VARCHAR(I.LIBRARY_SIZE) AS S "
+                 "FROM (VALUES {values}) L(N), LATERAL (SELECT LIBRARY_SIZE FROM TABLE(QSYS2.LIBRARY_INFO(L.N)) Z) I")
+
+
+
+def get_active_config(app_config: dict) -> dict:
+  """The validated `[branch-build]` section. Raises BranchBuildError if the feature is off"""
+
+  config = get_config(app_config)
+  if config is None:
+    raise BranchBuildError("Branch build is not configured: the config has no [branch-build] section, or it is disabled")
+
+  validate_config(config)
+  return config
+
+
+
+def get_first_group(pattern: str) -> str | None:
+  """Text of the first capturing group of a regular expression, e.g. `\\d+` of `(?i)\\bproj[-_](\\d+)`"""
+
+  i = 0
+  start = None
+  depth = 0
+  in_class = False
+
+  while i < len(pattern):
+    char = pattern[i]
+    if char == '\\':
+      i += 2
+      continue
+    if in_class:
+      in_class = char != ']'
+    elif char == '[':
+      in_class = True
+      # `]` right after `[` or `[^` is a character
+      if pattern[i + 1:i + 2] == ']' or pattern[i + 1:i + 3] == '^]':
+        i += 2 if pattern[i + 1] == ']' else 3
+        continue
+    elif char == '(':
+      if start is None:
+        is_capturing = not pattern.startswith('(?', i) or pattern.startswith('(?P<', i)
+        if is_capturing:
+          start = pattern.index('>', i) + 1 if pattern.startswith('(?P<', i) else i + 1
+          depth = 1
+      else:
+        depth += 1
+    elif char == ')' and start is not None:
+      depth -= 1
+      if depth == 0:
+        return pattern[start:i]
+    i += 1
+
+  return None
+
+
+
+def get_ticket_regex(config: dict) -> str:
+  """Regex for the ticket part of a library name: the ticket group of `ticket-pattern`, otherwise letters and digits"""
+
+  group = get_first_group(config['ticket-pattern'])
+  if group:
+    try:
+      re.compile(group)
+      return f"(?:{group})"
+    except re.error:
+      pass
+
+  return '[A-Za-z0-9]+'
+
+
+
+def get_lib_name_pattern(config: dict) -> re.Pattern:
+  """Regular expression for the names `lib-name` can produce, with the groups `env` and `ticket`"""
+
+  regex = ''
+  ticket_used = False
+
+  for part in re.split(r'(\$\(ENV\)|\$\(TICKET\))', config['lib-name']):
+    if part == '$(ENV)':
+      envs = sorted({str(env) for env in config.get('env', {}).values()}, key=len, reverse=True)
+      regex += f"(?P<env>{'|'.join(re.escape(env) for env in envs)})"
+    elif part == '$(TICKET)':
+      regex += '(?P=ticket)' if ticket_used else f'(?P<ticket>{get_ticket_regex(config)})'
+      ticket_used = True
+    else:
+      regex += re.escape(part)
+
+  return re.compile(regex, re.IGNORECASE)
+
+
+
+def get_protected_libs(app_config: dict) -> set[str]:
+  """Libraries that are never branch libraries: main and production libraries of the config"""
+
+  config = get_config(app_config) or {}
+  general_settings = app_config.get('global', {}).get('settings', {}).get('general', {})
+  lib_mapping = general_settings.get('TARGET_LIB_MAPPING', {}) or {}
+
+  libs = {str(lib) for lib in lib_mapping.keys()} | {str(lib) for lib in lib_mapping.values()}
+  libs |= {str(lib) for lib in config.get('env', {}).keys()}
+
+  return {lib.lower() for lib in libs}
+
+
+
+def parse_branch_lib_name(name: str, app_config: dict) -> dict | None:
+  """ENV and ticket of a branch library name. None if it isn't one"""
+
+  if not isinstance(name, str) or not LIB_NAME_PATTERN.fullmatch(name):
+    return None
+
+  if name.lower() in get_protected_libs(app_config):
+    return None
+
+  match = get_lib_name_pattern(get_active_config(app_config)).fullmatch(name)
+  if match is None:
+    return None
+
+  groups = match.groupdict()
+  return {'env': (groups.get('env') or '').upper(), 'ticket': groups.get('ticket')}
+
+
+
+def escape_double_quoted(text: str) -> str:
+  """Escape a text for a double-quoted shell string"""
+
+  for char in ['\\', '"', '$', '`']:
+    text = text.replace(char, f'\\{char}')
+  return text
+
+
+
+def run_db2(sql: str) -> list[str]:
+  """Run a SELECT with the db2 utility of QShell. Returns the output lines
+
+  Raises:
+      BranchBuildError: If the statement fails
+  """
+
+  try:
+    s = subprocess.run([QSH, '-c', f'db2 "{escape_double_quoted(sql)}"'], capture_output=True, text=True,
+                       timeout=SQL_TIMEOUT, check=False)
+  except OSError as e:
+    raise BranchBuildError(f"QShell ({QSH}) is not available, the action runs on IBM i only: {e}")
+  except subprocess.TimeoutExpired:
+    raise BranchBuildError(f"SQL statement didn't finish within {SQL_TIMEOUT} seconds")
+  lines = s.stdout.splitlines()
+
+  # db2 shows SQL errors on stdout and doesn't always set the exit code
+  if s.returncode != 0 or not any('RECORD(S) SELECTED' in line for line in lines):
+    raise BranchBuildError(f"SQL statement failed: {(s.stdout + s.stderr).strip()[-1000:]}")
+
+  return lines
+
+
+
+def get_lib_sizes(names: list[str], run_sql) -> dict:
+
+  if len(names) == 0:
+    return {}
+
+  # The names are valid library names (no quotes)
+  values = ', '.join(f"('{name.upper()}')" for name in names)
+  sizes = {}
+
+  for line in run_sql(SQL_LIB_SIZES.format(values=values)):
+    line = line.strip()
+    if not line.startswith(SQL_SIZE_MARKER):
+      continue
+    name, size = line[len(SQL_SIZE_MARKER):].split('|', 1)
+    if size.strip().isdigit():
+      sizes[name.strip().upper()] = int(size.strip())
+
+  return sizes
+
+
+
+def list_branch_libs(app_config: dict, run_sql=run_db2) -> list[dict]:
+  """All branch libraries on the system, sorted by ticket and name
+
+  Returns:
+      list: [{'name', 'ticket', 'env', 'text', 'created', 'last_used', 'owner', 'size'}]
+  """
+
+  config = get_active_config(app_config)
+
+  # Narrow the SQL down to the fixed beginning of lib-name, if it's safe to put into the statement
+  prefix = config['lib-name'].split('$(', 1)[0]
+  if not SAFE_LIKE_PREFIX.fullmatch(prefix):
+    prefix = ''
+
+  libs = []
+  for line in run_sql(SQL_LIST_LIBS.format(prefix=prefix.upper())):
+    line = line.strip()
+    if not line.startswith(SQL_LIB_MARKER):
+      continue
+
+    # The text is last: it may contain '|'
+    name, created, last_used, owner, text = line[len(SQL_LIB_MARKER):].split('|', 4)
+    lib_info = parse_branch_lib_name(name, app_config)
+    if lib_info is None:
+      continue
+
+    libs.append({'name': name.upper(), **lib_info, 'text': text.strip(), 'created': created or None,
+                 'last_used': last_used or None, 'owner': owner, 'size': None})
+
+  sizes = get_lib_sizes([lib['name'] for lib in libs], run_sql)
+  for lib in libs:
+    lib['size'] = sizes.get(lib['name'])
+
+  return sorted(libs, key=lambda lib: (lib['ticket'] or '', lib['name']))
+
+
+
+def delete_branch_libs(names: list[str], app_config: dict, run_cmd, run_sql=run_db2) -> dict:
+  """Delete branch libraries
+
+  Every name has to be a branch library name (lib-name, not a main or production library) and has to exist.
+  A library that can't be deleted (e.g. in use) is reported; the others are still deleted.
+
+  Args:
+      names (list): Library names
+      app_config (dict): Application config
+      run_cmd (callable): Runs a shell command, returns {'exit-code', 'stdout', 'stderr', 'joblog'} (run_cmds.run_pase_cmd)
+      run_sql (callable): Runs a SELECT, returns the output lines
+
+  Returns:
+      dict: {'deleted': [...], 'failed': [{'name', 'message'}]}
+  """
+
+  get_active_config(app_config)
+
+  names = [name.strip() for name in names if name.strip() != '']
+  if len(names) == 0:
+    raise BranchBuildError("No library to delete")
+
+  # Checked before anything is deleted
+  invalid = [name for name in names if parse_branch_lib_name(name, app_config) is None]
+  if invalid:
+    raise BranchBuildError(f"Not a branch library: {', '.join(invalid)}. Nothing was deleted")
+
+  existing = {lib['name'] for lib in list_branch_libs(app_config, run_sql)}
+  deleted = []
+  failed = []
+
+  for name in dict.fromkeys(name.upper() for name in names):
+    if name not in existing:
+      failed.append({'name': name, 'message': 'Library not found'})
+      continue
+
+    logging.info(f"Delete branch library {name}")
+    result = run_cmd(f'cl -v "DLTLIB LIB({name})"')
+    if result['exit-code'] != 0 or result['stderr'] != '':
+      failed.append({'name': name, 'message': (result['stderr'] or result['stdout']).strip()})
+      continue
+
+    deleted.append(name)
+
+  return {'deleted': deleted, 'failed': failed}
+
+
+
 def get_libs_to_create(context: dict | None) -> list[str]:
   """Branch libraries of a compile list's build context, which `run` has to create"""
 

@@ -16,7 +16,7 @@ The backend version (`OBI_BACKEND_VERSION`, in `status.json` as `version`) is in
 * Backend documentation in `docs`
 * Variables `$(SOURCE_DESCRIPTION)` and `$(OBJ_TEXT)`: the source description from `source-infos`, e.g. for `TEXT('$(OBJ_TEXT)')` ([docs](docs/configuration.md#variables))
 * `create --package <name>`: build all sources of a build package (`.obi/build-packages/<name>.json`) and their dependent objects ([docs](docs/cli.md#build-packages)). Backend version 5
-* Branch build (optional, `[branch-build]`): builds on a branch with a ticket number go into libraries of the ticket, e.g. `#be_337`. `run` creates them. New argument `--branch`, `build_context` in the build list ([docs](docs/branch-build.md)). Backend version 6
+* Branch build (optional, `[branch-build]`): builds on a branch with a ticket number go into libraries of the ticket, e.g. `#be_337`. `run` creates them. New argument `--branch`, `build_context` in the build list ([docs](docs/branch-build.md)). Action `branch_libs` lists and deletes them ([docs](docs/branch-build.md#removing-branch-libraries)). Backend version 6
 
 ### Changed
 
