@@ -12,7 +12,7 @@ class OBIConstants:
     JOBLOG = '.obi/log/joblog.txt'
     # Build packages (`create --package <name>`): <name>.json in this folder
     BUILD_PACKAGE_DIR = '.obi/build-packages'
-    OBI_BACKEND_VERSION = 5
+    OBI_BACKEND_VERSION = 6
 
     @staticmethod
     def get_current_user_config_file() -> str:

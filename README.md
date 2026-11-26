@@ -76,6 +76,7 @@ The results are in `.obi/build-output`. Open `compiled-object-list.md` for a sum
 | [Configuration](docs/configuration.md) | Files, settings, steps, variables |
 | [Extended source processing](docs/extended-source-processing.md) | Rules that select the build steps for groups of sources |
 | [Processing service](docs/processing-service.md) | Builds that keep running without the client: queue, events, cancel |
+| [Branch build](docs/branch-build.md) | Optional: libraries per ticket (`#be_337`) for builds on a feature branch |
 | [Files](docs/files.md) | Format of the build list and of all other files OBI writes |
 | [Development](docs/development.md) | Code structure, tests, guidelines |
 | [Changelog](CHANGELOG.md) | Changes per version |

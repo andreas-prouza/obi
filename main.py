@@ -25,6 +25,8 @@ source_or_package = parser.add_mutually_exclusive_group()
 source_or_package.add_argument('-s', '--source', help='Consider single source (action create); Source to add (action add_source)', required=False)
 source_or_package.add_argument('--package', help='Build package: all its sources and their dependents, whatever their hash (action create). '
                                'Name of the package in .obi/build-packages', required=False)
+parser.add_argument('--branch', help='Git branch of the project, for a branch build (actions create, add_source). '
+                    'Default: read from git. Only used if the config has a [branch-build] section', required=False)
 parser.add_argument('-p', '--set-path', help='Path of the source project directory', required=True)
 parser.add_argument('-c', '--compile-list-dir', help='Directory of the compile list (file name stays as configured); relative to the source project directory', required=False)
 parser.add_argument('-e', '--editor', help='Editor to open MD file', required=False)
@@ -36,6 +38,8 @@ args = parser.parse_args()
 
 if args.package is not None and args.action != 'create':
   parser.error('argument --package: only for action create')
+if args.branch is not None and args.action not in ('create', 'add_source'):
+  parser.error('argument --branch: only for actions create and add_source')
 
 
 #################################################################
@@ -172,6 +176,9 @@ def create_build_list(args):
   if args.package is not None:
     package = build_package.load_package(args.package, source_dir, object_types)
 
+  # Branch build (only if configured). An invalid config leaves the previous build list as it is, too
+  build_context = branch_build.init(app_config, args.branch)
+
   # Removes old files and dirs
   if len(build_output_dir.strip()) < 3 or build_output_dir.strip() == '/':
     raise Exception(f'Wrong build output dir: {build_output_dir}')
@@ -195,6 +202,9 @@ def create_build_list(args):
   build_targets = build_cmds.order_builds(build_targets)
   if package is not None:
     build_targets['package'] = build_package.package_info(package)
+  if build_context is not None:
+    # Incl. the branch libraries the cmds build into
+    build_targets['build_context'] = build_context
 
   # Write source list to json
   files.writeJson(build_targets, get_compile_list_file(general_config, args))
@@ -217,6 +227,10 @@ def add_source(args):
   general_config = app_config['general']
   build_list_file_name = get_compile_list_file(general_config, args)
   fs_encoding = general_config.get('file-system-encoding', 'utf-8')
+
+  # Branch build (only if configured): the build list must have been created for the same ticket
+  if os.path.isfile(build_list_file_name):
+    branch_build.init(app_config, args.branch, files.getJson(build_list_file_name))
 
   result = compile_list.add_source_to_compile_list(args.source, build_list_file_name, app_config)
 
@@ -413,6 +427,7 @@ if __name__ == "__main__":
   from module import build_cmds
   from module import compile_list
   from module import build_package
+  from module import branch_build
 
   try:
     action[args.action](args)

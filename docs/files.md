@@ -75,6 +75,7 @@ Written by `create` and `add_source`, updated by `run` after every command.
 | `ignore` | `true`: don't run this command |
 
 Level `0` contains the related copybooks (see [Levels](build-process.md#3-levels)).
+`package` is set by `create --package` ([build packages](cli.md#build-packages)), `build_context` only with a [branch build](branch-build.md#build-list).
 Other keys, e.g. those the VS Code extension adds (`config`, `custom_data`, `git`, `change-history`), are kept by OBI.
 
 
