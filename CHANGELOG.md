@@ -22,6 +22,7 @@ The backend version (`OBI_BACKEND_VERSION`, in `status.json` as `version`) is in
 
 * Each command writes its joblog into its own temporary file
 * A raw `cmd` step of the extended source processing runs only once. The steps of the source type are only added with `add_default_steps = true`
+* Conditions of the extended source processing, as in the VS Code extension ([docs](docs/extended-source-processing.md#conditions)): whole numbers are compared as text; lists, `true`/`false` and decimals never match; list entries that are no text are skipped; with `use_regex = true` a list entry is no longer also tried as a pattern; patterns are case-sensitive on all platforms; an invalid regular expression names the condition and the expression
 
 ### Fixed
 

@@ -410,30 +410,49 @@ def match_source_conditions(source_config_entry: ExtendedSourceConfig, source: s
 
 
 
-
-def match_condition_by_list(source:str, condition_key: str, condition_values: list[str], source_config_entry: ExtendedSourceConfig, source_properties: dict) -> bool:
+def match_condition_by_list(source:str, condition_key: str, condition_values: list, source_config_entry: ExtendedSourceConfig, source_properties: dict) -> bool:
+    """A list is compared with the source name, whatever the condition name is. Entries that are no text are skipped"""
 
     for condition_value in condition_values:
-
-        if source_config_entry['use_regex']:
-            if re.search(condition_value, source):
-                return True
-
-        logging.debug(f"Match {source=}, {condition_value=}: {fnmatch.fnmatch(source, condition_value)}")
-        if fnmatch.fnmatch(source, condition_value):
+        if isinstance(condition_value, str) and match_pattern(source, condition_value, source_config_entry['use_regex'], condition_key):
             return True
 
     return False
 
 
 
-
 def match_condition_by_value(source:str, condition_key: str, condition_value:str, source_config_entry: ExtendedSourceConfig, source_properties: dict) -> bool:
+    """A string is compared with the value of the variable; only text and whole numbers can match"""
 
-    logging.debug(f"Match regex: {source_config_entry['use_regex']}, {source=}, {condition_value=}: {source_properties[condition_key]=}")
-    if source_config_entry['use_regex']:
-        return re.search(condition_value, source_properties[condition_key])
+    value = condition_text(source_properties[condition_key])
+    logging.debug(f"Match regex: {source_config_entry['use_regex']}, {source=}, {condition_value=}: {value=}")
+    if value is None:
+        return False
 
-    return fnmatch.fnmatch(source_properties[condition_key], condition_value)
+    return match_pattern(value, condition_value, source_config_entry['use_regex'], condition_key)
+
+
+
+def condition_text(value) -> str | None:
+    """Value of a variable as text for a condition. Lists, tables, true/false and decimals never match"""
+
+    if isinstance(value, str):
+        return value
+    if isinstance(value, int) and not isinstance(value, bool):
+        return str(value)
+    return None
+
+
+
+def match_pattern(value: str, pattern: str, use_regex: bool, condition_key: str) -> bool:
+    """use_regex: the expression is found in the value (re.search). Otherwise the pattern matches the whole value (fnmatch, case-sensitive)"""
+
+    if not use_regex:
+        return fnmatch.fnmatchcase(value, pattern)
+
+    try:
+        return re.search(pattern, value) is not None
+    except re.error as e:
+        raise Exception(f"Extended source processing: invalid regular expression '{pattern}' in condition {condition_key} ({e})") from e
 
 
