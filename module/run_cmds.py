@@ -12,6 +12,7 @@ from module import properties
 from module import obi_constants
 from module import toml_tools
 from module import files
+from module import branch_build
 import os
 
 
@@ -82,6 +83,9 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
     if future.exception() is not None:
       stop_builds.set()
 
+  # Branch build: its libraries have to exist before anything is built
+  create_branch_libs(target_tree, save_update_2_json_file, app_config)
+
   # Level 1-n
   for level_item in target_tree['compiles']:
 
@@ -105,6 +109,36 @@ def run_build_object_list(target_tree, save_update_2_json_file=None, app_config=
     # Only move on to the next level once the whole level is done
     if errors:
       raise errors[0]
+
+
+
+def create_branch_libs(target_tree, save_update_2_json_file=None, app_config=default_app_config):
+  """Create the missing libraries of a branch build (build_context of the compile list)
+
+  Uses `global.cmds.crt-branch-lib`, or OBI's default. Nothing happens without a branch build.
+
+  Raises:
+      Exception: If a library can't be created. No source gets built then
+  """
+
+  build_context = target_tree.get('build_context')
+  libs = branch_build.get_libs_to_create(build_context)
+  if len(libs) == 0:
+    return
+
+  build_context.pop('error', None)
+
+  for lib in libs:
+    cmd = branch_build.get_crt_lib_cmd(lib, build_context, app_config)
+    logging.info(f"Create branch library {lib} if it doesn't exist")
+    result = run_pase_cmd(cmd, app_config)
+
+    if result['exit-code'] != 0 or result['stderr'] != '':
+      build_context['error'] = {'lib': lib, 'cmd': cmd, **result}
+      files.writeJson(target_tree, save_update_2_json_file)
+      e = Exception(f"Branch library '{lib}' could not be created: {result['stderr']}")
+      logging.error(f"{result=}")
+      raise e
 
 
 

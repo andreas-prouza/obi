@@ -7,6 +7,7 @@ from . import dependency
 from . import build_cmds
 from . import files
 from . import run_cmds
+from . import branch_build
 
 
 
@@ -47,6 +48,11 @@ def add_source_to_compile_list(source: str, compile_list_file: str, app_config: 
 
   merge_result = merge_source(compile_list, source, dependency_dict, app_config)
   compile_list = merge_result['compile_list']
+
+  # Branch build (set by main.py): incl. the branch libraries of the added cmds
+  build_context = branch_build.get_context()
+  if build_context is not None:
+    compile_list['build_context'] = build_context
 
   changed_sources_list, dependend_objects_list = get_result_lists(source, merge_result['dependents'], app_config, source_dir)
 

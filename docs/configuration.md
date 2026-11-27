@@ -96,7 +96,7 @@ Section `[global.settings.general]`: values for all build commands, available as
 |---|---|
 | `LIBL` | Library list, e.g. `["$(TARGET_LIB)", "QGPL"]`. `$(SET_LIBL)` adds each entry with the command `global.cmds.add-lible` |
 | `TARGET_LIB` | Library to build into. `*SOURCE` or empty: the library folder of the source (`mylib` in `mylib/qrpglesrc/order.rpgle.pgm`) |
-| `TARGET_LIB_MAPPING` | Replaces the target library, e.g. `{ prodlib = "devlib" }` |
+| `TARGET_LIB_MAPPING` | Replaces the target library, e.g. `{ prodlib = "devlib" }`. A [branch build](branch-build.md) replaces it once more, with the library of the ticket |
 | `ALWAYS_TRANSFER_RELATED_COPYBOOKS` | `true`: add related copybooks on level 0 ([Levels](build-process.md#3-levels)). Default `false` |
 | `USE_ESP` | `false`: turn the [extended source processing](extended-source-processing.md) off. Default `true` |
 
@@ -169,6 +169,8 @@ The steps under `"*ALL"` always come first, except with 1.
 | `$(OBJ_TEXT)` | `SOURCE_DESCRIPTION`, escaped for `cl -v "... TEXT('$(OBJ_TEXT)')"`: `'` doubled; backslash, `"`, `$` and backtick escaped with a backslash. Without a description, `TEXT('')` is removed from the command, so its default applies (e.g. `*SAME` for `CHGPF`) |
 
 The object text, for example: `cl -v "CRTBNDRPG PGM(...) SRCSTMF(...) TEXT('$(OBJ_TEXT)')"`.
+
+A [branch build](branch-build.md#variables) adds `TARGET_LIB_MAIN`, `BUILD_MODE`, `BRANCH`, `TICKET` and `BRANCH_LIBS`.
 
 **Your own variables**:
 

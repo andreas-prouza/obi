@@ -53,10 +53,11 @@ All conditions of a rule have to match. A condition with an unknown name doesn't
 
 | Value | Compared with | Example |
 |---|---|---|
-| A string | The value of the variable | `TARGET_LIB = "mylib"`, `OBJ_NAME = "ord*"` |
-| A list | **The source name** (e.g. `mylib/qrpglesrc/order.rpgle.pgm`), whatever the name of the condition is. Matches if one entry matches | `SOURCE = ["mylib/*", "otherlib/qrpglesrc/*"]` |
+| A string | The value of the variable. Only text and whole numbers can match (`CCSID = "1141"` matches the number `1141`). Lists, tables, `true`/`false` and decimals like `1.5` never match | `TARGET_LIB = "mylib"`, `OBJ_NAME = "ord*"` |
+| A list | **The source name** (e.g. `mylib/qrpglesrc/order.rpgle.pgm`), whatever the name of the condition is. Matches if one entry matches. Entries that are no text are skipped | `SOURCE = ["mylib/*", "otherlib/qrpglesrc/*"]` |
 
-With `use_regex = true`, a value matches if the regular expression is found in it (`re.search`), otherwise it has to match the pattern completely (`fnmatch`: `*`, `?`, `[abc]`).
+With `use_regex = true`, a value matches if the regular expression is found in it (`re.search`). Otherwise it has to match the pattern completely (`fnmatch`: `*`, `?`, `[abc]`). This applies to strings and lists: with `use_regex = true`, a list entry is only a regular expression, never a pattern.
+Patterns and regular expressions are case-sensitive. An invalid regular expression stops the build with an error that names the condition and the expression.
 
 
 ## Several matching rules

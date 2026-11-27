@@ -29,10 +29,12 @@
 | `-p`, `--set-path` | ✅ | Project folder |
 | `-s`, `--source` | | A source, relative to the source directory (e.g. `mylib/qrpglesrc/order.rpgle.pgm`). Used by `create` and `add_source` |
 | `--package` | | A [build package](#build-packages) (name, e.g. `ABC-123`). Only for `create`, not together with `-s` |
+| `--branch` | | Git branch of the project, for a [branch build](branch-build.md). Only for `create` and `add_source`. Default: read from git. Ignored without a `[branch-build]` section |
 | `-c`, `--compile-list-dir` | | Folder of the build list. The file name stays as configured in `compile-list`. Relative to the project folder. Used by all actions that read or write the build list |
 | `-e`, `--editor` | | Command to open the summary with (`open_result`). Default `code` |
 | `-j`, `--job` | | Job of the [processing service](#processing-service) (`watch`, `cancel`) |
 | `--since` | | Only the events after this `seq` (`watch`). Default `0` |
+| `--list`, `--delete` | | List the branch libraries, or delete the given ones (comma separated). Only for `branch_libs`, one of them is mandatory |
 
 
 ## Actions
@@ -50,6 +52,7 @@
 | [`watch`](#watch) | Follow a job of the processing service |
 | [`jobs`](#jobs) | Jobs of the project |
 | [`cancel`](#cancel) | Remove a job from the queue, or stop it |
+| [`branch_libs`](#branch_libs) | List or delete the libraries of [branch builds](branch-build.md) |
 
 ### create
 
@@ -59,6 +62,8 @@ See [How a build works](build-process.md) for the details.
 * Without `-s`: all sources in the source directory with a supported type
 * With `-s`: only this source (always, even if it didn't change) and its dependent objects
 * With `--package`: all sources of the [build package](#build-packages) (always, even if they didn't change) and their dependent objects
+
+With a [branch build](branch-build.md), the commands build into the libraries of the ticket, and the build list gets `build_context`.
 
 > ⚠️ `create` first **deletes** the folder `build-output-dir` (default `.obi/build-output`), including the results of the last build.
 
@@ -90,6 +95,7 @@ Adds a source (`-s`, mandatory) to the existing build list, e.g. to build one mo
 * Sources already in the list keep their results. If one of them depends on the new source and was built successfully, it is reset to be built again
 * The levels of the whole list are calculated again
 * Nothing is deleted. If something fails (e.g. a rule of the extended source processing), no file is changed
+* With a [branch build](branch-build.md), the list must have been created for the same ticket
 
 See [Adding a source](build-process.md#adding-a-source) for the rules.
 In `status.json`, `added` lists the sources that were added and `reset` the sources that will be built again.
@@ -99,6 +105,8 @@ In `status.json`, `added` lists the sources that were added and `reset` the sour
 Builds the build list, level by level. Sources that were already built successfully are skipped,
 so after fixing an error you can simply run it again.
 See [Running the build](build-process.md#5-running-the-build).
+
+With a [branch build](branch-build.md#creating-the-libraries), the missing branch libraries are created first.
 
 At the end, the summary document is created.
 
@@ -119,6 +127,10 @@ Use it after setting up a project with existing objects.
 ### gen_src_list
 
 Writes the hash of every source into `source-list`.
+
+### branch_libs
+
+Lists (`--list`) or deletes (`--delete=<lib>,<lib>`) the libraries of [branch builds](branch-build.md#removing-branch-libraries). Runs on IBM i only. The result is in `status.json` and on stdout.
 
 
 ## Processing service

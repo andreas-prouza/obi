@@ -6,6 +6,7 @@ import csv
 from module import properties
 from module import obi_constants
 from module import toml_tools, files, app_config_tools
+from module import branch_build
 from copy import deepcopy
 import re
 
@@ -31,7 +32,16 @@ def set_source_build_cmds(source_item, app_config=default_app_config):
   '''
 
   source_item['cmds'] = get_source_build_cmds(source_item['source'], app_config)
-  source_item['variables'] = properties.resolve_properties(properties.get_source_properties(app_config, source_item['source']))
+  source_item['variables'] = properties.resolve_properties(get_build_properties(app_config, source_item['source']))
+
+
+
+def get_build_properties(app_config, source) -> dict:
+  '''
+  Properties of a source, with the branch library as TARGET_LIB in a branch build
+  '''
+
+  return branch_build.apply_branch_lib(properties.get_source_properties(app_config, source), app_config)
 
 
 
@@ -60,7 +70,7 @@ def get_object_list(level, source, app_config=default_app_config, cmds=[]) -> di
   This is only needed by the deployment tool
   '''
 
-  variable_dict = properties.get_source_properties(app_config, source)
+  variable_dict = get_build_properties(app_config, source)
   logging.debug(f"{source=}")
   logging.debug(f"{variable_dict=}")
 
@@ -133,7 +143,8 @@ def get_source_build_cmds(source, app_config=default_app_config):
     logging.debug(f"{steps=}")
 
   # All properties for this source
-  variable_dict = properties.get_source_properties(app_config, source)
+  # (the ESP above has seen the main libraries; the branch library is only used in the cmds)
+  variable_dict = get_build_properties(app_config, source)
 
   logging.debug(f"All steps: {steps=}")
 
@@ -141,18 +152,24 @@ def get_source_build_cmds(source, app_config=default_app_config):
   for step in steps:
 
     step_properties = {}
+    step_id = None
     logging.debug(f"Loop all steps of the source extension {step=}")
     if isinstance(step, str) and step.strip() == '':
       continue
 
     if isinstance(step, str):
+      step_id = step
       cmd = get_cmd_from_step(step, source, variable_dict, app_config, source_config)
       logging.debug(f"1 {cmd=}")
-      
+
     if isinstance(step, dict):
+      step_id = step.get('step', None)
       step_properties = deepcopy(variable_dict)
       logging.debug(f"{step_properties=}")
       step_properties.update(step.get('properties', {}))
+      # A TARGET_LIB of the step (ESP) is the library of a main build
+      if 'TARGET_LIB' in step.get('properties', {}):
+        step_properties = branch_build.apply_branch_lib(step_properties, app_config, step['properties']['TARGET_LIB'], with_settings=False)
       step_properties = properties.resolve_properties(step_properties)
 
       cmd = step.get('cmd', None)
@@ -166,6 +183,10 @@ def get_source_build_cmds(source, app_config=default_app_config):
         logging.debug(f"2 {cmd=}")
     
     new_properties = properties.resolve_properties({**variable_dict, **step_properties})
+    if branch_build.is_branch_mode():
+      unresolved_properties = {**variable_dict, **(step.get('properties', {}) if isinstance(step, dict) else {})}
+      uses_target_lib = branch_build.cmd_uses_target_lib(cmd, unresolved_properties, replace_cmd_parameters)
+      new_properties = branch_build.finalize_properties(new_properties, app_config, source, step_id, uses_target_lib)
     logging.debug(f"{new_properties=}")
     cmd = replace_cmd_parameters(cmd, new_properties)
     cmds.append({"cmd": cmd, "status": "new", 'properties': step_properties})
